@@ -1,0 +1,291 @@
+{
+  "name": "Ecosistema IA - Clasificacion y Gestion de Leads VIP",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-entrada",
+        "authentication": "headerAuth",
+        "responseMode": "onReceived"
+      },
+      "name": "Webhook — Recepcion Lead",
+      "type": "n8n-nodes-base.webhook",
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.email}}",
+              "operation": "isNotEmpty"
+            },
+            {
+              "value1": "={{$json.email}}",
+              "operation": "contains",
+              "value2": "@"
+            }
+          ]
+        }
+      },
+      "name": "Filtro — Validar Email",
+      "type": "n8n-nodes-base.if",
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "application": "={{$env.AIRTABLE_BASE_ID}}",
+        "table": "Leads",
+        "operation": "create",
+        "fields": {
+          "Nombre": "={{$json.nombre}}",
+          "Email": "={{$json.email}}",
+          "Empresa": "={{$json.empresa}}",
+          "Consulta": "={{$json.consulta}}",
+          "Estado": "Pendiente",
+          "Timestamp_entrada": "={{new Date().toISOString()}}"
+        }
+      },
+      "name": "Airtable — Crear Lead",
+      "type": "n8n-nodes-base.airtable",
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {"name": "x-api-key", "value": "={{$env.ANTHROPIC_API_KEY}}"},
+            {"name": "anthropic-version", "value": "2023-06-01"},
+            {"name": "content-type", "value": "application/json"}
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "claude-sonnet-4-6"
+            },
+            {
+              "name": "max_tokens",
+              "value": 1024
+            },
+            {
+              "name": "system",
+              "value": "Actua como el Analista Comercial Senior de una agencia de consultoria en automatizacion IA. Clasifica leads y genera propuestas personalizadas. Responde UNICAMENTE con JSON valido segun el formato indicado."
+            },
+            {
+              "name": "messages",
+              "value": "[{\"role\": \"user\", \"content\": \"Analiza el siguiente lead. Piensa paso a paso antes de clasificar.\\n\\nNombre: {{$json.nombre}}\\nEmpresa: {{$json.empresa}}\\nConsulta: {{$json.consulta}}\\nFecha: {{new Date().toLocaleDateString('es-AR')}}\\n\\nResponde con este JSON exacto:\\n{\\\"clasificacion\\\": \\\"VIP|Estandar|Descartar\\\", \\\"score\\\": [1-10], \\\"razonamiento\\\": \\\"[1 oracion]\\\", \\\"propuesta\\\": \\\"[3 parrafos personalizados]\\\"}\" }]"
+            }
+          ]
+        }
+      },
+      "name": "Claude API — Clasificar Lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "try {\n  const raw = $input.item.json.content[0].text;\n  const parsed = JSON.parse(raw);\n  return [{ json: { ...parsed, record_id: $('Airtable — Crear Lead').item.json.id } }];\n} catch(e) {\n  return [{ json: { error: 'JSON parse failed', raw: $input.item.json.content[0].text, record_id: $('Airtable — Crear Lead').item.json.id } }];\n}"
+      },
+      "name": "Funcion — Parsear Respuesta IA",
+      "type": "n8n-nodes-base.code",
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "application": "={{$env.AIRTABLE_BASE_ID}}",
+        "table": "Leads",
+        "operation": "update",
+        "id": "={{$json.record_id}}",
+        "fields": {
+          "Score_IA": "={{$json.score}}",
+          "Clasificacion": "={{$json.clasificacion}}",
+          "Propuesta_IA": "={{$json.propuesta}}",
+          "Estado": "Procesado por IA"
+        }
+      },
+      "name": "Airtable — Actualizar con Resultado IA",
+      "type": "n8n-nodes-base.airtable",
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.clasificacion}}",
+              "operation": "equal",
+              "value2": "VIP"
+            }
+          ]
+        }
+      },
+      "name": "Filtro — Solo Leads VIP",
+      "type": "n8n-nodes-base.if",
+      "position": [1560, 300]
+    },
+    {
+      "parameters": {
+        "channel": "#leads-vip",
+        "text": "*Nuevo lead VIP para validacion* :bell:\n\n*Prospecto:* {{$('Webhook — Recepcion Lead').item.json.nombre}} — {{$('Webhook — Recepcion Lead').item.json.empresa}}\n*Score IA:* {{$json.score}}/10 | Clasificacion: {{$json.clasificacion}}\n*Razonamiento:* {{$json.razonamiento}}\n\n*Propuesta generada por Claude:*\n{{$json.propuesta}}\n\n---\nResponde con *aprobar* o *rechazar* para proceder.",
+        "otherOptions": {
+          "mrkdwn": true
+        }
+      },
+      "name": "Slack — Notificacion HITL Validacion",
+      "type": "n8n-nodes-base.slack",
+      "position": [1780, 220]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "hitl-respuesta",
+        "responseMode": "onReceived",
+        "options": {
+          "timeout": 86400
+        }
+      },
+      "name": "Webhook — Esperar Aprobacion Humana",
+      "type": "n8n-nodes-base.webhook",
+      "position": [2000, 220]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.accion}}",
+              "operation": "equal",
+              "value2": "aprobar"
+            }
+          ]
+        }
+      },
+      "name": "Filtro — Aprobado o Rechazado",
+      "type": "n8n-nodes-base.if",
+      "position": [2220, 220]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{$env.GMAIL_FROM}}",
+        "toEmail": "={{$('Webhook — Recepcion Lead').item.json.email}}",
+        "subject": "Propuesta personalizada para {{$('Webhook — Recepcion Lead').item.json.empresa}} — Lleyton IA Automation",
+        "emailType": "text",
+        "message": "={{$('Funcion — Parsear Respuesta IA').item.json.propuesta}}\n\n---\nLleyton Murphy\nEspecialista en IA Automation\nhttps://lleyton-ia-page.netlify.app"
+      },
+      "name": "Gmail — Enviar Propuesta al Cliente",
+      "type": "n8n-nodes-base.gmail",
+      "position": [2440, 140]
+    },
+    {
+      "parameters": {
+        "application": "={{$env.AIRTABLE_BASE_ID}}",
+        "table": "Leads",
+        "operation": "update",
+        "id": "={{$('Funcion — Parsear Respuesta IA').item.json.record_id}}",
+        "fields": {
+          "Estado": "Aprobado y Enviado",
+          "Aprobado_por": "={{$json.usuario}}",
+          "Timestamp_respuesta": "={{new Date().toISOString()}}"
+        }
+      },
+      "name": "Airtable — Registrar Aprobacion y Envio",
+      "type": "n8n-nodes-base.airtable",
+      "position": [2660, 140]
+    },
+    {
+      "parameters": {
+        "application": "={{$env.AIRTABLE_BASE_ID}}",
+        "table": "Leads",
+        "operation": "update",
+        "id": "={{$('Funcion — Parsear Respuesta IA').item.json.record_id}}",
+        "fields": {
+          "Estado": "Rechazado",
+          "Aprobado_por": "={{$json.usuario}}"
+        }
+      },
+      "name": "Airtable — Registrar Rechazo",
+      "type": "n8n-nodes-base.airtable",
+      "position": [2440, 340]
+    },
+    {
+      "parameters": {
+        "application": "={{$env.AIRTABLE_BASE_ID}}",
+        "table": "Leads",
+        "operation": "update",
+        "id": "={{$('Funcion — Parsear Respuesta IA').item.json.record_id}}",
+        "fields": {
+          "Estado": "Estandar — Archivado",
+          "Error_log": "Lead clasificado como {{$json.clasificacion}} — no requiere accion inmediata"
+        }
+      },
+      "name": "Airtable — Archivar Lead No VIP",
+      "type": "n8n-nodes-base.airtable",
+      "position": [1780, 400]
+    },
+    {
+      "parameters": {
+        "errorMessage": "Error en el ecosistema de leads. Revisar Error_log en Airtable."
+      },
+      "name": "Error Handler — Registro y Alerta",
+      "type": "n8n-nodes-base.errorTrigger",
+      "position": [680, 520]
+    }
+  ],
+  "connections": {
+    "Webhook — Recepcion Lead": {
+      "main": [[ {"node": "Filtro — Validar Email", "type": "main", "index": 0} ]]
+    },
+    "Filtro — Validar Email": {
+      "main": [
+        [ {"node": "Airtable — Crear Lead", "type": "main", "index": 0} ],
+        [ {"node": "Error Handler — Registro y Alerta", "type": "main", "index": 0} ]
+      ]
+    },
+    "Airtable — Crear Lead": {
+      "main": [[ {"node": "Claude API — Clasificar Lead", "type": "main", "index": 0} ]]
+    },
+    "Claude API — Clasificar Lead": {
+      "main": [[ {"node": "Funcion — Parsear Respuesta IA", "type": "main", "index": 0} ]]
+    },
+    "Funcion — Parsear Respuesta IA": {
+      "main": [[ {"node": "Airtable — Actualizar con Resultado IA", "type": "main", "index": 0} ]]
+    },
+    "Airtable — Actualizar con Resultado IA": {
+      "main": [[ {"node": "Filtro — Solo Leads VIP", "type": "main", "index": 0} ]]
+    },
+    "Filtro — Solo Leads VIP": {
+      "main": [
+        [ {"node": "Slack — Notificacion HITL Validacion", "type": "main", "index": 0} ],
+        [ {"node": "Airtable — Archivar Lead No VIP", "type": "main", "index": 0} ]
+      ]
+    },
+    "Slack — Notificacion HITL Validacion": {
+      "main": [[ {"node": "Webhook — Esperar Aprobacion Humana", "type": "main", "index": 0} ]]
+    },
+    "Webhook — Esperar Aprobacion Humana": {
+      "main": [[ {"node": "Filtro — Aprobado o Rechazado", "type": "main", "index": 0} ]]
+    },
+    "Filtro — Aprobado o Rechazado": {
+      "main": [
+        [ {"node": "Gmail — Enviar Propuesta al Cliente", "type": "main", "index": 0} ],
+        [ {"node": "Airtable — Registrar Rechazo", "type": "main", "index": 0} ]
+      ]
+    },
+    "Gmail — Enviar Propuesta al Cliente": {
+      "main": [[ {"node": "Airtable — Registrar Aprobacion y Envio", "type": "main", "index": 0} ]]
+    }
+  },
+  "settings": {
+    "errorWorkflow": "Error Handler — Registro y Alerta",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true
+  }
+}
