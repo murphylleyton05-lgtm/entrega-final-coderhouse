@@ -57,7 +57,7 @@ Formulario web
 
 ## Base de datos (Airtable)
 
-Link de la base en modo lectura: [INSERTAR LINK AIRTABLE AQUI]
+Link de la base en modo lectura: https://airtable.com/appsu1jiEYix3PWMd/shrY3PoiBHvqbvwxI
 
 ## Variables de entorno requeridas
 
