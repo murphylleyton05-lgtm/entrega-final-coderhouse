@@ -24,7 +24,8 @@ Sistema de automatizacion end-to-end que clasifica leads entrantes con IA (Claud
 /
 ├── README.md                          # Este archivo
 ├── EntregaFinal_Murphy_Lleyton.pdf    # Diagrama de arquitectura completo
-├── n8n_flow_leads_vip.json            # JSON del flujo — importar en n8n
+├── n8n_flow_leads_vip.json            # JSON del flujo principal (leads VIP) — importar en n8n
+├── n8n_flow_gmail_triage.json         # JSON del flujo de triage de Gmail entrante — importar en n8n
 └── screenshots/                       # Evidencias de ejecucion
     ├── ejecucion_1_feliz.png
     ├── ejecucion_2_feliz.png
@@ -54,6 +55,30 @@ Formulario web
                 ↓
         [Airtable: estado final]
 ```
+
+## Flujo complementario: Triage de Gmail entrante
+
+Flujo de **entrada** que complementa al canal de salida del sistema principal. Clasifica los correos que llegan a la bandeja, los etiqueta y deja preparado un borrador de respuesta para revision humana (no envia automaticamente).
+
+```
+[Gmail Trigger: correo nuevo no leido]
+            ↓
+   [Filtro: remitente valido]
+            ↓
+[Claude API: clasificar + redactar borrador]
+            ↓
+   [Funcion: parsear JSON]
+            ↓
+   [Switch: por categoria]
+   ↙      ↓       ↓      ↘
+Comercial Soporte Spam  Personal
+   ↓        ↓      ↓       ↓
+[etiqueta][etiqueta][etiqueta][etiqueta]
+   ↓        ↓
+[borrador][borrador]
+```
+
+Categorias: `Comercial`, `Soporte`, `Spam`, `Personal`. Solo Comercial y Soporte generan borrador de respuesta. Antes de activar, crea las etiquetas en Gmail y reemplaza los `labelIds` (`Label_Comercial`, `Label_Soporte`, `Label_Spam`, `Label_Personal`) por los IDs reales de tu cuenta.
 
 ## Base de datos (Airtable)
 

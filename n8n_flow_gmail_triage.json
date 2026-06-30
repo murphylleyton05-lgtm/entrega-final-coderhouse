@@ -1,0 +1,221 @@
+{
+  "name": "Gmail Triage IA - Clasificacion de Correos Entrantes",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "labelIds": ["INBOX"],
+          "readStatus": "unread"
+        },
+        "options": {}
+      },
+      "name": "Gmail Trigger - Correo Entrante",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 320]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.From}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "name": "Filtro - Validar Remitente",
+      "type": "n8n-nodes-base.if",
+      "position": [460, 320]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {"name": "x-api-key", "value": "={{$env.ANTHROPIC_API_KEY}}"},
+            {"name": "anthropic-version", "value": "2023-06-01"},
+            {"name": "content-type", "value": "application/json"}
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "claude-sonnet-4-6"
+            },
+            {
+              "name": "max_tokens",
+              "value": 1024
+            },
+            {
+              "name": "system",
+              "value": "Actua como el asistente de bandeja de entrada de una agencia de consultoria en automatizacion IA. Clasificas correos entrantes y redactas borradores de respuesta profesionales en espanol. Responde UNICAMENTE con JSON valido segun el formato indicado."
+            },
+            {
+              "name": "messages",
+              "value": "[{\"role\": \"user\", \"content\": \"Clasifica el siguiente correo entrante. Piensa paso a paso antes de responder.\\n\\nDe: {{$json.From}}\\nAsunto: {{$json.Subject}}\\nCuerpo: {{$json.snippet}}\\n\\nResponde con este JSON exacto:\\n{\\\"categoria\\\": \\\"Comercial|Soporte|Spam|Personal\\\", \\\"prioridad\\\": \\\"Alta|Media|Baja\\\", \\\"resumen\\\": \\\"[1 oracion]\\\", \\\"respuesta_sugerida\\\": \\\"[borrador de respuesta de 2 parrafos, solo si la categoria es Comercial o Soporte; si no, cadena vacia]\\\"}\" }]"
+            }
+          ]
+        }
+      },
+      "name": "Claude API - Clasificar Correo",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [680, 320]
+    },
+    {
+      "parameters": {
+        "functionCode": "try {\n  const raw = $input.item.json.content[0].text;\n  const parsed = JSON.parse(raw);\n  return [{ json: {\n    ...parsed,\n    messageId: $('Gmail Trigger - Correo Entrante').item.json.id,\n    threadId: $('Gmail Trigger - Correo Entrante').item.json.threadId,\n    from: $('Gmail Trigger - Correo Entrante').item.json.From,\n    subject: $('Gmail Trigger - Correo Entrante').item.json.Subject\n  } }];\n} catch(e) {\n  return [{ json: {\n    categoria: 'Personal',\n    prioridad: 'Baja',\n    resumen: 'No se pudo parsear la respuesta de la IA',\n    respuesta_sugerida: '',\n    error: e.message,\n    messageId: $('Gmail Trigger - Correo Entrante').item.json.id\n  } }];\n}"
+      },
+      "name": "Funcion - Parsear Clasificacion",
+      "type": "n8n-nodes-base.code",
+      "position": [900, 320]
+    },
+    {
+      "parameters": {
+        "dataPropertyName": "={{$json.categoria}}",
+        "rules": {
+          "rules": [
+            {"operation": "equal", "value2": "Comercial", "output": 0},
+            {"operation": "equal", "value2": "Soporte", "output": 1},
+            {"operation": "equal", "value2": "Spam", "output": 2}
+          ]
+        },
+        "fallbackOutput": 3
+      },
+      "name": "Switch - Enrutar por Categoria",
+      "type": "n8n-nodes-base.switch",
+      "position": [1120, 320]
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{$json.messageId}}",
+        "labelIds": ["Label_Comercial"]
+      },
+      "name": "Gmail - Etiqueta Comercial",
+      "type": "n8n-nodes-base.gmail",
+      "position": [1360, 120]
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "operation": "create",
+        "subject": "=RE: {{$json.subject}}",
+        "emailType": "text",
+        "message": "={{$json.respuesta_sugerida}}\n\n---\nLleyton Murphy\nEspecialista en IA Automation\nhttps://lleyton-ia-page.netlify.app",
+        "options": {
+          "threadId": "={{$json.threadId}}",
+          "sendTo": "={{$json.from}}"
+        }
+      },
+      "name": "Gmail - Borrador Respuesta IA",
+      "type": "n8n-nodes-base.gmail",
+      "position": [1580, 120]
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{$json.messageId}}",
+        "labelIds": ["Label_Soporte"]
+      },
+      "name": "Gmail - Etiqueta Soporte",
+      "type": "n8n-nodes-base.gmail",
+      "position": [1360, 300]
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "operation": "create",
+        "subject": "=RE: {{$json.subject}}",
+        "emailType": "text",
+        "message": "={{$json.respuesta_sugerida}}\n\n---\nEquipo de Soporte\nLleyton IA Automation",
+        "options": {
+          "threadId": "={{$json.threadId}}",
+          "sendTo": "={{$json.from}}"
+        }
+      },
+      "name": "Gmail - Borrador Soporte",
+      "type": "n8n-nodes-base.gmail",
+      "position": [1580, 300]
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{$json.messageId}}",
+        "labelIds": ["Label_Spam"]
+      },
+      "name": "Gmail - Etiqueta Spam",
+      "type": "n8n-nodes-base.gmail",
+      "position": [1360, 480]
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{$json.messageId}}",
+        "labelIds": ["Label_Personal"]
+      },
+      "name": "Gmail - Etiqueta Personal",
+      "type": "n8n-nodes-base.gmail",
+      "position": [1360, 640]
+    },
+    {
+      "parameters": {
+        "errorMessage": "Error en el flujo de triage de Gmail. Revisar la ejecucion en n8n."
+      },
+      "name": "Error Handler - Triage Gmail",
+      "type": "n8n-nodes-base.errorTrigger",
+      "position": [680, 560]
+    }
+  ],
+  "connections": {
+    "Gmail Trigger - Correo Entrante": {
+      "main": [[ {"node": "Filtro - Validar Remitente", "type": "main", "index": 0} ]]
+    },
+    "Filtro - Validar Remitente": {
+      "main": [
+        [ {"node": "Claude API - Clasificar Correo", "type": "main", "index": 0} ],
+        [ {"node": "Error Handler - Triage Gmail", "type": "main", "index": 0} ]
+      ]
+    },
+    "Claude API - Clasificar Correo": {
+      "main": [[ {"node": "Funcion - Parsear Clasificacion", "type": "main", "index": 0} ]]
+    },
+    "Funcion - Parsear Clasificacion": {
+      "main": [[ {"node": "Switch - Enrutar por Categoria", "type": "main", "index": 0} ]]
+    },
+    "Switch - Enrutar por Categoria": {
+      "main": [
+        [ {"node": "Gmail - Etiqueta Comercial", "type": "main", "index": 0} ],
+        [ {"node": "Gmail - Etiqueta Soporte", "type": "main", "index": 0} ],
+        [ {"node": "Gmail - Etiqueta Spam", "type": "main", "index": 0} ],
+        [ {"node": "Gmail - Etiqueta Personal", "type": "main", "index": 0} ]
+      ]
+    },
+    "Gmail - Etiqueta Comercial": {
+      "main": [[ {"node": "Gmail - Borrador Respuesta IA", "type": "main", "index": 0} ]]
+    },
+    "Gmail - Etiqueta Soporte": {
+      "main": [[ {"node": "Gmail - Borrador Soporte", "type": "main", "index": 0} ]]
+    }
+  },
+  "settings": {
+    "errorWorkflow": "Error Handler - Triage Gmail",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true
+  }
+}
