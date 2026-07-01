@@ -6,15 +6,15 @@
 
 ## Descripcion del proyecto
 
-Sistema de automatizacion end-to-end que clasifica leads entrantes con IA (Claude), los registra en Airtable, envia una notificacion de validacion al equipo por Slack (HITL) y envia la propuesta personalizada por Gmail solo si un humano lo aprueba.
+Sistema de automatizacion end-to-end que clasifica leads entrantes con IA (Claude), los registra en Airtable, envia una notificacion de validacion al equipo por Slack (Human-in-the-loop) y envia la propuesta personalizada por Gmail **solo si un humano la aprueba**.
 
 ## Stack tecnologico
 
 | Componente | Tecnologia |
 |------------|------------|
-| Orquestador | n8n |
+| Orquestador | n8n (self-hosted / cloud) |
 | Base de datos | Airtable |
-| Motor de IA | Claude (Anthropic) — claude-sonnet-4-6 |
+| Motor de IA | Claude (Anthropic) |
 | Notificacion HITL | Slack |
 | Canal de salida | Gmail |
 
@@ -23,10 +23,11 @@ Sistema de automatizacion end-to-end que clasifica leads entrantes con IA (Claud
 ```
 /
 ├── README.md                          # Este archivo
-├── EntregaFinal_Murphy_Lleyton.pdf    # Diagrama de arquitectura completo
-├── n8n_flow_leads_vip.json            # JSON del flujo principal (leads VIP) — importar en n8n
-├── n8n_flow_gmail_triage.json         # JSON del flujo de triage de Gmail entrante — importar en n8n
-└── screenshots/                       # Evidencias de ejecucion
+├── EntregaFinal_Murphy_Lleyton.pdf    # Diagrama de arquitectura + documentacion completa
+├── n8n_flow_leads_vip.json            # Flujo principal — importar en n8n
+├── n8n_flow_gmail_triage.json         # Flujo bonus: triage de correos entrantes con IA
+└── evidencias/                        # Capturas del test de estres (5 ejecuciones)
+    ├── flujo_completo_n8n.jpeg
     ├── ejecucion_1_feliz.png
     ├── ejecucion_2_feliz.png
     ├── ejecucion_3_feliz.png
@@ -49,50 +50,30 @@ Formulario web
                                ↙              ↘
                     [Slack HITL]          [Archivar no-VIP]
                           ↓
-                  [Esperar aprobacion]
+                  [Esperar aprobacion humana]
                     ↙         ↘
              [Gmail]        [Rechazar]
                 ↓
         [Airtable: estado final]
 ```
 
-## Flujo complementario: Triage de Gmail entrante
-
-Flujo de **entrada** que complementa al canal de salida del sistema principal. Clasifica los correos que llegan a la bandeja, los etiqueta y deja preparado un borrador de respuesta para revision humana (no envia automaticamente).
-
-```
-[Gmail Trigger: correo nuevo no leido]
-            ↓
-   [Filtro: remitente valido]
-            ↓
-[Claude API: clasificar + redactar borrador]
-            ↓
-   [Funcion: parsear JSON]
-            ↓
-   [Switch: por categoria]
-   ↙      ↓       ↓      ↘
-Comercial Soporte Spam  Personal
-   ↓        ↓      ↓       ↓
-[etiqueta][etiqueta][etiqueta][etiqueta]
-   ↓        ↓
-[borrador][borrador]
-```
-
-Categorias: `Comercial`, `Soporte`, `Spam`, `Personal`. Solo Comercial y Soporte generan borrador de respuesta. Antes de activar, crea las etiquetas en Gmail y reemplaza los `labelIds` (`Label_Comercial`, `Label_Soporte`, `Label_Spam`, `Label_Personal`) por los IDs reales de tu cuenta.
-
 ## Base de datos (Airtable)
 
-Link de la base en modo lectura: https://airtable.com/appsu1jiEYix3PWMd/shrY3PoiBHvqbvwxI
+Base en modo lectura: https://airtable.com/appsu1jiEYix3PWMd/shrY3PoiBHvqbvwxI
 
-## Variables de entorno requeridas
+Estructura relacional:
+- **Leads** (tabla principal): registro de cada prospecto con campos de estado (`Pendiente`, `Procesado por IA`, `Aprobado y Enviado`, `Rechazado`).
+- **Empresas** (tabla vinculada): datos de la empresa de cada lead, relacionada con Leads para evitar datos aislados.
 
-```
-ANTHROPIC_API_KEY=sk-ant-...
-AIRTABLE_BASE_ID=app...
-AIRTABLE_TOKEN=pat...
-SLACK_BOT_TOKEN=xoxb-...
-GMAIL_FROM=tu@gmail.com
-```
+## Evidencias (Test de estres)
+
+En la carpeta [`evidencias/`](./evidencias) estan las capturas de las 5 ejecuciones:
+- 3 ejecuciones exitosas (camino feliz).
+- 2 ejecuciones del camino infeliz (email vacio y fallo de API) que verifican las rutas de error.
+
+## Video demo
+
+📹 Demo de 3 minutos: **[AGREGAR LINK DEL VIDEO AQUI]**
 
 ## Como importar el flujo en n8n
 
@@ -100,6 +81,21 @@ GMAIL_FROM=tu@gmail.com
 2. Selecciona `n8n_flow_leads_vip.json`
 3. Configura las credenciales en cada nodo (Airtable, Claude, Slack, Gmail)
 4. Activa el flujo
+
+## Mapeo con las consignas
+
+| Requisito de la consigna | Donde se cumple |
+|--------------------------|-----------------|
+| Caso de uso con lenguaje natural | Clasificacion de leads VIP con Claude |
+| Base de datos con campos de estado y relaciones | Airtable: tablas Leads + Empresas |
+| Trigger inteligente | Webhook (no polling) |
+| Motor de IA con Max Tokens y mapeo de respuesta | Claude, `max_tokens` limitado, se mapea `content[0].text` |
+| Gestion de errores (resiliencia) | Nodo Error Trigger + rutas IF + registro en `Error_log` |
+| Human-in-the-loop | Notificacion Slack + espera de aprobacion antes de enviar |
+| Salida multicanal | Slack (validacion) + Gmail (propuesta) |
+| Test de estres (5 ejecuciones) | Carpeta `evidencias/` |
+| Filtro anti-bucle | IF valida email antes de procesar |
+| Prompt dinamico | System + User prompt con variables del sistema |
 
 ---
 
