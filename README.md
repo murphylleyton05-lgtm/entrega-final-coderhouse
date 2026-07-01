@@ -26,13 +26,9 @@ Sistema de automatizacion end-to-end que clasifica leads entrantes con IA (Claud
 ├── EntregaFinal_Murphy_Lleyton.pdf    # Diagrama de arquitectura + documentacion completa
 ├── n8n_flow_leads_vip.json            # Flujo principal — importar en n8n
 ├── n8n_flow_gmail_triage.json         # Flujo bonus: triage de correos entrantes con IA
-└── evidencias/                        # Capturas del test de estres (5 ejecuciones)
-    ├── flujo_completo_n8n.jpeg
-    ├── ejecucion_1_feliz.png
-    ├── ejecucion_2_feliz.png
-    ├── ejecucion_3_feliz.png
-    ├── ejecucion_4_infeliz_email_vacio.png
-    └── ejecucion_5_infeliz_api_error.png
+└── evidencias/                        # Evidencia visual del flujo
+    ├── README.md                      # Escenarios del test de estres
+    └── flujo_completo_n8n.jpeg        # Flujo completo desplegado en n8n
 ```
 
 ## Flujo del sistema
@@ -67,13 +63,9 @@ Estructura relacional:
 
 ## Evidencias (Test de estres)
 
-En la carpeta [`evidencias/`](./evidencias) estan las capturas de las 5 ejecuciones:
-- 3 ejecuciones exitosas (camino feliz).
-- 2 ejecuciones del camino infeliz (email vacio y fallo de API) que verifican las rutas de error.
-
-## Video demo
-
-📹 Demo de 3 minutos: **[AGREGAR LINK DEL VIDEO AQUI]**
+En la carpeta [`evidencias/`](./evidencias) esta la evidencia del flujo desplegado en n8n.
+Los 5 escenarios del test de estres (3 de camino feliz + 2 de camino infeliz: email vacio y
+fallo de API) estan documentados en el PDF de arquitectura, seccion 6.
 
 ## Como importar el flujo en n8n
 
@@ -93,7 +85,7 @@ En la carpeta [`evidencias/`](./evidencias) estan las capturas de las 5 ejecucio
 | Gestion de errores (resiliencia) | Nodo Error Trigger + rutas IF + registro en `Error_log` |
 | Human-in-the-loop | Notificacion Slack + espera de aprobacion antes de enviar |
 | Salida multicanal | Slack (validacion) + Gmail (propuesta) |
-| Test de estres (5 ejecuciones) | Carpeta `evidencias/` |
+| Test de estres (5 escenarios) | Documentado en PDF seccion 6 + `evidencias/` |
 | Filtro anti-bucle | IF valida email antes de procesar |
 | Prompt dinamico | System + User prompt con variables del sistema |
 
