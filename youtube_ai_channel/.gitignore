@@ -11,3 +11,11 @@ credentials/token.json
 
 # Salida generada (videos, audios, temas usados)
 output/
+
+# Clips de fondo (pesados) — el usuario pone los suyos; no se versionan
+assets/backgrounds/*.mp4
+assets/backgrounds/*.mov
+assets/backgrounds/*.mkv
+assets/backgrounds/*.webm
+assets/backgrounds/*.m4v
+assets/backgrounds/*.avi

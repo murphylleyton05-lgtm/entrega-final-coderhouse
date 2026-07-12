@@ -43,8 +43,8 @@ Con tus APIs conectadas escala a producción en serie.
 | `src/ideas.py` | Genera temas de video (IA + banco offline) |
 | `src/script.py` | Escribe la narración de 30-45s (IA + plantilla) |
 | `src/voice.py` | Voz en off con edge-tts + tiempos por palabra |
-| `src/captions.py` | Subtítulos `.ass` con resaltado karaoke |
-| `src/visuals.py` | Fondo: gradiente animado (Ken Burns) o b-roll de Pexels |
+| `src/captions.py` | Subtítulos `.ass` grandes y centrados con resaltado karaoke |
+| `src/visuals.py` | Fondo: **gameplay/satisfying en loop** (desde `assets/backgrounds/`), b-roll de Pexels, o fondo dinámico |
 | `src/assemble.py` | Une fondo + voz + subtítulos con ffmpeg |
 | `src/metadata.py` | Título, descripción y tags con SEO |
 | `src/thumbnail.py` | Miniatura del video |
@@ -78,6 +78,20 @@ python main.py generar --subir                         # generar y publicar en Y
 
 Cada video se guarda en `output/<fecha>_<tema>/` con: `video.mp4`,
 `metadata.json`, `guion.txt`, `miniatura.png` y `voz.mp3`.
+
+### Fondo de video (estilo gameplay/satisfying)
+
+Por defecto el canal usa el estilo viral de Shorts: un **video de fondo en loop**
+con subtítulos grandes al centro. Poné tus clips en **`assets/backgrounds/`**
+(mp4/mov/webm) y el sistema elige uno, lo recorta a 9:16, lo pone en loop con un
+inicio aleatorio y lo oscurece para que se lean los subtítulos.
+
+> ⚠️ Usá gameplay propio o de licencia libre (Pexels/Pixabay/CC), no material con
+> copyright ajeno. Ver `assets/backgrounds/LEEME.md`. Si la carpeta está vacía,
+> se genera un fondo dinámico animado (nunca un color plano).
+
+Otros modos en `config.yaml` → `video.fondo.tipo`: `pexels` (b-roll del tema) o
+`gradiente`.
 
 ---
 
