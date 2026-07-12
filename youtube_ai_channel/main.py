@@ -15,6 +15,7 @@ import argparse
 import asyncio
 import sys
 
+from src import backgrounds as bg_mod
 from src import ideas as ideas_mod
 from src import voice
 from src.config import load_config
@@ -39,6 +40,11 @@ def main(argv=None):
 
     sub.add_parser("voces", help="Lista voces de edge-tts en español")
 
+    f = sub.add_parser("fondos", help="Gestión de clips de fondo (gameplay)")
+    f.add_argument("--dividir", metavar="ARCHIVO", help="Corta un gameplay en segmentos")
+    f.add_argument("--segundos", type=float, default=15.0, help="Duración de cada segmento")
+    f.add_argument("--listar", action="store_true", help="Lista los clips de fondo")
+
     args = parser.parse_args(argv)
     cfg = load_config(args.config)
 
@@ -56,6 +62,16 @@ def main(argv=None):
             print("edge-tts no disponible o sin red. Instalá: pip install edge-tts")
         for v in voces:
             print(v)
+    elif args.cmd == "fondos":
+        if args.dividir:
+            bg_mod.split_source(cfg, args.dividir, seg_len=args.segundos)
+        elif args.listar or True:
+            clips = bg_mod.list_clips(cfg)
+            if not clips:
+                print("No hay clips en assets/backgrounds/. Cortá un gameplay con:")
+                print("  python main.py fondos --dividir tu_gameplay.mp4")
+            for c in clips:
+                print(f"• {c.name}")
     return 0
 
 
