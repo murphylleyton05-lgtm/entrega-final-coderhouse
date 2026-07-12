@@ -12,7 +12,23 @@ try:
 except Exception:  # pragma: no cover
     edge_tts = None
 
-from . import ffutil
+from . import ffutil, tts_espeak
+
+
+def _timings_from_duration(text: str, duration: float) -> list[tuple[str, float, float]]:
+    """Reparte los tiempos de palabra proporcionalmente a una duración REAL de audio."""
+    tokens = [w for w in text.split() if w]
+    if not tokens:
+        return []
+    weights = [max(1, len(w)) for w in tokens]
+    total = sum(weights)
+    body = max(0.1, duration - 0.15)  # colita de silencio
+    words, t = [], 0.0
+    for w, wt in zip(tokens, weights):
+        d = body * wt / total
+        words.append((w, t, t + d))
+        t += d
+    return words
 
 
 async def _edge_synth(text: str, voice: str, rate: str, pitch: str, out_path: str):
@@ -49,24 +65,39 @@ def synthesize(cfg: dict, text: str, out_path: str) -> tuple[str, list[tuple[str
     rate = voz.get("velocidad", "+0%")
     pitch = voz.get("tono", "+0Hz")
 
+    # 1) edge-tts (voz neuronal, la mejor) — requiere internet.
     if edge_tts is not None:
         try:
             words = asyncio.run(_edge_synth(text, voice, rate, pitch, out_path))
             if words:
                 return out_path, words
         except Exception as exc:
-            print(f"  [VOZ] edge-tts no disponible ({exc}). Genero pista de respaldo.")
+            print(f"  [VOZ] edge-tts sin conexión ({exc}). Uso voz offline (espeak).")
 
-    # Fallback: audio silencioso de la duración estimada + tiempos calculados.
+    # 2) espeak-ng (voz offline robótica, empaquetada en pip) — SIEMPRE audible.
+    if tts_espeak.available():
+        try:
+            import os
+
+            wav = os.path.splitext(out_path)[0] + ".wav"
+            espeak_voice = voz.get("voz_espeak", "es-419")
+            espeak_speed = voz.get("espeak_velocidad", 165)
+            dur = tts_espeak.synth(text, wav, voice=espeak_voice, speed=espeak_speed)
+            # Pasamos a mp3 para uniformidad.
+            ffutil.run(["-i", wav, "-c:a", "libmp3lame", "-q:a", "4", out_path])
+            os.remove(wav)
+            print("  [VOZ] Voz offline (espeak-ng).")
+            return out_path, _timings_from_duration(text, dur)
+        except Exception as exc:
+            print(f"  [VOZ] espeak falló ({exc}). Uso audio silencioso.")
+
+    # 3) Último recurso: audio silencioso (para no romper el armado).
     words, dur = _estimate_timings(text)
     ffutil.run([
-        "-f", "lavfi",
-        "-i", f"anullsrc=r=24000:cl=mono",
-        "-t", f"{dur:.2f}",
-        "-c:a", "libmp3lame", "-q:a", "9",
-        out_path,
+        "-f", "lavfi", "-i", "anullsrc=r=24000:cl=mono", "-t", f"{dur:.2f}",
+        "-c:a", "libmp3lame", "-q:a", "9", out_path,
     ])
-    print("  [VOZ] AVISO: se usó audio de respaldo SIN voz (no había red para edge-tts).")
+    print("  [VOZ] AVISO: audio SIN voz (no había edge-tts ni espeak).")
     return out_path, words
 
 

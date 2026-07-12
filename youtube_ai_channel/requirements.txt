@@ -1,6 +1,7 @@
 # Canal de YouTube con IA — pipeline de Shorts (faceless)
 # Núcleo (obligatorio)
 edge-tts>=6.1.0          # Voz en off gratis (Microsoft Neural), sin API key
+espeakng-loader>=0.1.0   # Voz offline de respaldo (sin red, siempre audible)
 imageio-ffmpeg>=0.4.9    # Binario estático de ffmpeg (no requiere instalar ffmpeg)
 Pillow>=10.0.0           # Generación de fondos y miniaturas
 PyYAML>=6.0              # Lectura de config.yaml
