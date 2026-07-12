@@ -34,7 +34,7 @@ def build_metadata(cfg: dict, topic: str, narracion: str) -> dict:
         f"Narración: {narracion}\n"
         f"Generá el JSON de metadata."
     )
-    raw = llm.complete(_SYSTEM, user, cfg["ia"]["modelo"], max_tokens=700)
+    raw = llm.complete(cfg, _SYSTEM, user, max_tokens=700)
     data = llm.extract_json(raw) if raw else None
     if not isinstance(data, dict) or "titulo" not in data:
         data = _fallback(cfg, topic)

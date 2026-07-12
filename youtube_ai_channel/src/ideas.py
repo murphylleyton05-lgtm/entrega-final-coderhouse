@@ -45,7 +45,7 @@ def generate_topics(cfg: dict, n: int = 5, used: set[str] | None = None) -> list
         f"Dame {n} ideas NUEVAS de video (una línea cada una, sin numerar, sin comillas).\n"
         f"Evitá repetir estos temas ya usados:\n- " + "\n- ".join(sorted(used)[:40])
     )
-    raw = llm.complete(system, user, cfg["ia"]["modelo"], max_tokens=600)
+    raw = llm.complete(cfg, system, user, max_tokens=600)
     if raw:
         ideas = [
             line.strip(" -•\t").strip()

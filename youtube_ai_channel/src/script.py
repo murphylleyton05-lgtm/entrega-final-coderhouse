@@ -33,7 +33,7 @@ def write_script(cfg: dict, topic: str) -> dict:
         f"Tema del video: {topic}\n"
         f"Escribí solo la narración final, sin título ni encabezados."
     )
-    raw = llm.complete(_SYSTEM, user, cfg["ia"]["modelo"], max_tokens=cfg["ia"]["max_tokens"])
+    raw = llm.complete(cfg, _SYSTEM, user, max_tokens=cfg["ia"]["max_tokens"])
     narracion = (raw or "").strip()
     if not narracion or len(narracion) < 40:
         narracion = _fallback(topic)
