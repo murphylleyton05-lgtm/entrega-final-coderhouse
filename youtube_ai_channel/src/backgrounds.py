@@ -24,28 +24,50 @@ def list_clips(cfg: dict) -> list[Path]:
     return [p for p in backgrounds_dir(cfg).iterdir() if p.suffix.lower() in _VIDEO_EXTS]
 
 
-def split_source(cfg: dict, src: str, seg_len: float = 15.0, prefijo: str = "seg") -> list[str]:
+def split_source(
+    cfg: dict,
+    src: str,
+    seg_len: float = 15.0,
+    skip_start: float = 0.0,
+    skip_end: float = 0.0,
+    prefijo: str = "seg",
+) -> list[str]:
     """Corta `src` en segmentos de `seg_len` seg. Los guarda en assets/backgrounds/.
 
-    Re-codifica sin audio y a formato uniforme para que el pipeline los use sin
-    sorpresas. Devuelve las rutas creadas.
+    `skip_start` / `skip_end` descartan segundos del principio y del final (útil
+    para saltar el intro/outro de TikTok, que no sirven como fondo).
+    Borra segmentos previos con el mismo prefijo, re-codifica sin audio y a
+    formato uniforme. Devuelve las rutas creadas.
     """
     src_path = Path(src)
     if not src_path.exists():
         raise FileNotFoundError(f"No existe el video: {src}")
 
-    dur = ffutil.media_duration(str(src_path))
-    if dur <= 0:
+    total = ffutil.media_duration(str(src_path))
+    if total <= 0:
         raise RuntimeError("No pude leer la duración del video.")
 
+    usable_start = max(0.0, skip_start)
+    usable_end = max(usable_start, total - max(0.0, skip_end))
+    usable = usable_end - usable_start
+    if usable < 3:
+        raise RuntimeError("Después de saltar intro/outro no queda video suficiente.")
+
     out_dir = backgrounds_dir(cfg)
-    n = max(1, math.ceil(dur / seg_len))
+    # Limpiamos segmentos previos del mismo prefijo para no dejar basura vieja.
+    for old in out_dir.glob(f"{prefijo}_*.mp4"):
+        old.unlink()
+
+    n = max(1, math.ceil(usable / seg_len))
     creados: list[str] = []
-    print(f"Cortando '{src_path.name}' ({dur:.1f}s) en ~{n} segmentos de {seg_len:.0f}s...")
+    print(
+        f"Cortando '{src_path.name}' (usable {usable:.1f}s de {total:.1f}s) "
+        f"en ~{n} segmentos de {seg_len:.0f}s..."
+    )
 
     for i in range(n):
-        start = i * seg_len
-        length = min(seg_len, dur - start)
+        start = usable_start + i * seg_len
+        length = min(seg_len, usable_end - start)
         if length < 3:  # descartamos colas muy cortas
             continue
         out = out_dir / f"{prefijo}_{i + 1:03d}.mp4"

@@ -43,6 +43,8 @@ def main(argv=None):
     f = sub.add_parser("fondos", help="Gestión de clips de fondo (gameplay)")
     f.add_argument("--dividir", metavar="ARCHIVO", help="Corta un gameplay en segmentos")
     f.add_argument("--segundos", type=float, default=15.0, help="Duración de cada segmento")
+    f.add_argument("--saltar-inicio", type=float, default=0.0, help="Segundos a saltar del principio (intro)")
+    f.add_argument("--saltar-fin", type=float, default=0.0, help="Segundos a saltar del final (outro)")
     f.add_argument("--listar", action="store_true", help="Lista los clips de fondo")
 
     args = parser.parse_args(argv)
@@ -64,7 +66,10 @@ def main(argv=None):
             print(v)
     elif args.cmd == "fondos":
         if args.dividir:
-            bg_mod.split_source(cfg, args.dividir, seg_len=args.segundos)
+            bg_mod.split_source(
+                cfg, args.dividir, seg_len=args.segundos,
+                skip_start=args.saltar_inicio, skip_end=args.saltar_fin,
+            )
         elif args.listar or True:
             clips = bg_mod.list_clips(cfg)
             if not clips:

@@ -25,6 +25,10 @@ video:
     carpeta_videos: "assets/backgrounds"  # poné acá tus clips de fondo (.mp4)
     oscurecer: -0.12             # oscurece el fondo para que se lean los subtítulos
     saturacion: 1.12             # +punch de color
+    recortar_marca: true         # saca la marca de agua (TikTok, etc.) de la esquina
+    zoom_marca: 1.22             # cuánto acercar para empujarla fuera de cuadro
+    marca_sesgo_x: 0.12          # 0 = pegado a la izquierda (saca la derecha)
+    marca_sesgo_y: 0.0           # 0 = pegado arriba (saca la marca de abajo)
     pexels_query: "satisfying"   # si no hay clips y hay PEXELS_API_KEY, busca esto
     # --- modo gradiente (último recurso) ---
     color_a: [18, 22, 48]
@@ -35,7 +39,7 @@ video:
     fuente: "Arial"
     tamano: 110                  # grandes y al centro para máximo impacto
     color_texto: "&H00FFFFFF"    # blanco (formato ASS: &HAABBGGRR)
-    color_resaltado: "&H0000FFFF" # amarillo, palabra que se está diciendo
+    color_resaltado: "&H0000FF2B" # verde neón, la palabra que se está diciendo (alto engagement)
     color_borde: "&H00000000"    # negro
     grosor_borde: 8
     palabras_por_linea: 3

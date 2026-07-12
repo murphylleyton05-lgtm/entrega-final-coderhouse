@@ -37,16 +37,34 @@ def _find_clips(cfg: dict) -> list[str]:
 
 
 def _postproc_filters(cfg: dict) -> str:
-    """Filtros comunes: cubrir 9:16, oscurecer y dar punch de color."""
+    """Filtros comunes: cubrir 9:16, (opcional) recortar marca de agua, oscurecer.
+
+    Para sacar la marca de agua (típicamente abajo a la derecha) hacemos un zoom
+    y sesgamos el recorte hacia arriba-izquierda, empujando esa esquina fuera de
+    cuadro. Se controla con video.fondo.recortar_marca / zoom_marca.
+    """
     W = cfg["video"]["ancho"]
     H = cfg["video"]["alto"]
     fondo = cfg["video"]["fondo"]
     brillo = fondo.get("oscurecer", -0.12)
     sat = fondo.get("saturacion", 1.1)
-    return (
-        f"scale={W}:{H}:force_original_aspect_ratio=increase,"
-        f"crop={W}:{H},eq=brightness={brillo}:saturation={sat},format=yuv420p"
-    )
+
+    if fondo.get("recortar_marca", False):
+        z = float(fondo.get("zoom_marca", 1.22))
+        w2, h2 = int(W * z), int(H * z)
+        # Sesgo del recorte: 0 = pegado arriba-izquierda (saca abajo-derecha).
+        xf = float(fondo.get("marca_sesgo_x", 0.12))
+        yf = float(fondo.get("marca_sesgo_y", 0.0))
+        scale_crop = (
+            f"scale={w2}:{h2}:force_original_aspect_ratio=increase,"
+            f"crop={W}:{H}:'(in_w-out_w)*{xf}':'(in_h-out_h)*{yf}'"
+        )
+    else:
+        scale_crop = (
+            f"scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H}"
+        )
+
+    return f"{scale_crop},eq=brightness={brillo}:saturation={sat},format=yuv420p"
 
 
 def _gameplay_video(cfg: dict, duration: float, out_mp4: str) -> str | None:

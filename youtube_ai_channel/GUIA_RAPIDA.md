@@ -40,16 +40,19 @@ El canal ya viene configurado en modo `gameplay`. Para que se vea pro:
 
 1. Conseguí un gameplay largo (propio, o "satisfying"/loops de licencia libre en
    https://www.pexels.com/videos/ o https://pixabay.com/videos/).
-2. Cortalo en segmentos distintos para que los Shorts no se vean todos iguales:
+2. Cortalo en segmentos distintos para que los Shorts no se vean todos iguales.
+   Si el clip es de TikTok, saltá el intro/outro (el cartel final de la app):
 
    ```bash
-   python main.py fondos --dividir mi_gameplay.mp4 --segundos 15
+   python main.py fondos --dividir mi_gameplay.mp4 --segundos 15 --saltar-fin 6.5
    python main.py fondos --listar        # ver los segmentos creados
    ```
 
    Esto genera `seg_001.mp4`, `seg_002.mp4`, … en `assets/backgrounds/`.
+   (`--saltar-inicio N` descarta N segundos del principio.)
 3. Listo: cada Short elige un segmento al azar, lo recorta a 9:16, lo pone en loop
-   con inicio aleatorio y lo oscurece. Máxima variedad a partir de un solo video.
+   con inicio aleatorio, lo oscurece y **recorta la marca de agua** de la esquina
+   (config `video.fondo.recortar_marca`). Máxima variedad de un solo video.
 
 > 💡 Si ya tenés varios clips sueltos, solo copialos a `assets/backgrounds/`
 > (sin dividir) y el sistema los usa igual.
