@@ -1,0 +1,13 @@
+# Entornos y dependencias
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Secretos y credenciales — NUNCA subir
+.env
+credentials/client_secret.json
+credentials/token.json
+
+# Salida generada (videos, audios, temas usados)
+output/

@@ -1,0 +1,53 @@
+# ---------------------------------------------------------------------------
+# Configuración del canal de YouTube con IA (Shorts de curiosidades)
+# Cambiá estos valores para adaptar el canal sin tocar el código.
+# ---------------------------------------------------------------------------
+
+canal:
+  nombre: "Datos que No Sabías"
+  idioma: "es"
+  nicho: "curiosidades"          # curiosidades | motivacion | finanzas | terror
+  # Descripción del nicho que se le pasa a la IA para generar temas y guiones.
+  descripcion_nicho: >
+    Datos curiosos y sorprendentes de ciencia, historia, naturaleza, espacio,
+    cuerpo humano y tecnología. Tono asombroso, cercano y fácil de entender.
+
+video:
+  formato: "short"               # short (vertical 9:16)
+  ancho: 1080
+  alto: 1920
+  fps: 30
+  duracion_objetivo_seg: 40      # apuntamos a videos de ~30-45s
+  # Estilo visual del fondo generado
+  fondo:
+    tipo: "gradiente"            # gradiente | pexels (requiere PEXELS_API_KEY)
+    color_a: [18, 22, 48]        # RGB arriba
+    color_b: [90, 30, 90]        # RGB abajo
+    ken_burns: true              # zoom lento para dar movimiento
+  # Subtítulos animados (se sincronizan palabra por palabra)
+  subtitulos:
+    fuente: "Arial"
+    tamano: 92
+    color_texto: "&H00FFFFFF"    # blanco (formato ASS: &HAABBGGRR)
+    color_resaltado: "&H0000FFFF" # amarillo, palabra que se está diciendo
+    color_borde: "&H00000000"    # negro
+    grosor_borde: 6
+    palabras_por_linea: 4
+
+voz:
+  # Voces neuronales gratis de edge-tts. Listá todas con: python main.py voces
+  voz: "es-MX-JorgeNeural"       # es-MX-JorgeNeural | es-AR-TomasNeural | es-ES-AlvaroNeural ...
+  velocidad: "+8%"               # ritmo (los Shorts funcionan un poco acelerados)
+  tono: "+0Hz"
+
+ia:
+  modelo: "claude-opus-4-8"      # motor de guiones/metadata (requiere ANTHROPIC_API_KEY)
+  max_tokens: 1200
+
+youtube:
+  categoria_id: "27"             # 27 = Educación, 24 = Entretenimiento
+  privacidad: "private"          # private | unlisted | public (empezá en private para revisar)
+  hashtags_fijos: ["#shorts", "#curiosidades", "#datoscuriosos", "#sabiasque"]
+
+salida:
+  carpeta: "output"              # dónde se guardan los videos generados
