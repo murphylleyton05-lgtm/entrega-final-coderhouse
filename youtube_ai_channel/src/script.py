@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import re
 
-from . import llm
+from . import guiones_offline, llm
 
 # Estructura de un Short que retiene: gancho (0-3s) -> desarrollo -> remate/CTA.
 _SYSTEM = (
@@ -36,7 +36,9 @@ def write_script(cfg: dict, topic: str) -> dict:
     raw = llm.complete(cfg, _SYSTEM, user, max_tokens=cfg["ia"]["max_tokens"])
     narracion = (raw or "").strip()
     if not narracion or len(narracion) < 40:
-        narracion = _fallback(topic)
+        # Sin IA: primero buscamos un guion REAL del banco offline; si no está,
+        # recién ahí usamos la plantilla genérica.
+        narracion = guiones_offline.buscar(topic) or _fallback(topic)
     # Limpieza: sacamos comillas envolventes y espacios raros.
     narracion = re.sub(r"\s+", " ", narracion).strip().strip('"').strip()
     return {"topic": topic, "narracion": narracion}
