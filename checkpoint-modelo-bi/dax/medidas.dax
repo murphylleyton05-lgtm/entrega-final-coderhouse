@@ -1,0 +1,106 @@
+// ============================================================================
+// MEDIDAS DAX  -  Modelo BI  -  Lleyton Murphy
+// ----------------------------------------------------------------------------
+// Se crean en Power Pivot > Inicio > Medidas > Nueva medida, con la tabla
+// Ventas seleccionada. Copiar SOLO la formula (lo que va despues del "=").
+// ============================================================================
+
+
+// ----------------------------------------------------------------------------
+// 1. Total Ventas          [formato: moneda, 0 decimales]
+// ----------------------------------------------------------------------------
+// Agregacion simple sobre una columna que ya viene calculada desde Power Query.
+Total Ventas = SUM ( Ventas[Importe_Neto] )
+
+
+// ----------------------------------------------------------------------------
+// 2. Costo Total           [formato: moneda, 0 decimales]
+// ----------------------------------------------------------------------------
+Costo Total = SUM ( Ventas[Costo_Total] )
+
+
+// ----------------------------------------------------------------------------
+// 3. Margen Neto           [formato: moneda, 0 decimales]   << VAR / RETURN >>
+// ----------------------------------------------------------------------------
+// Las dos agregaciones se resuelven UNA sola vez y quedan en variables. Sin
+// VAR, cada vez que la expresion se repite el motor vuelve a escanear la
+// columna; con 1.200 filas no se nota, con 12 millones si.
+Margen Neto =
+VAR VentasNetas = [Total Ventas]
+VAR CostoDeVentas = [Costo Total]
+VAR Margen = VentasNetas - CostoDeVentas
+RETURN
+    Margen
+
+
+// ----------------------------------------------------------------------------
+// 4. % Margen              [formato: porcentaje, 1 decimal]  << VAR / RETURN >>
+// ----------------------------------------------------------------------------
+// DIVIDE en lugar de "/" evita el error de division por cero sin necesidad de
+// envolver todo en un IFERROR, que es mas lento.
+% Margen =
+VAR VentasNetas = [Total Ventas]
+VAR Margen = [Margen Neto]
+RETURN
+    DIVIDE ( Margen, VentasNetas, 0 )
+
+
+// ----------------------------------------------------------------------------
+// 5. Ticket Promedio       [formato: moneda, 0 decimales]    << VAR / RETURN >>
+// ----------------------------------------------------------------------------
+// DISTINCTCOUNT sobre la clave del hecho, no COUNTROWS: una misma operacion
+// puede tener varias filas y el ticket quedaria subestimado.
+Ticket Promedio =
+VAR VentasNetas = [Total Ventas]
+VAR CantidadOperaciones = DISTINCTCOUNT ( Ventas[ID_Venta] )
+RETURN
+    DIVIDE ( VentasNetas, CantidadOperaciones, 0 )
+
+
+// ----------------------------------------------------------------------------
+// 6. Ventas Anio Anterior  [formato: moneda, 0 decimales]    << VAR / RETURN >>
+// ----------------------------------------------------------------------------
+// Requiere que Calendario este marcada como Tabla de fechas (ver instrucciones).
+Ventas Anio Anterior =
+VAR VentasPeriodoAnterior =
+    CALCULATE ( [Total Ventas], SAMEPERIODLASTYEAR ( Calendario[Fecha] ) )
+RETURN
+    VentasPeriodoAnterior
+
+
+// ----------------------------------------------------------------------------
+// 7. % Crecimiento Anual   [formato: porcentaje, 1 decimal]  << VAR / RETURN >>
+// ----------------------------------------------------------------------------
+// Caso de manual para VAR: sin variables habria que escribir dos veces la
+// medida del anio anterior (una para restar y otra para dividir), y el motor
+// la evaluaria dos veces. Ademas el BLANK() explicito evita mostrar 100% de
+// crecimiento en el primer anio, donde simplemente no hay comparacion posible.
+% Crecimiento Anual =
+VAR VentasActuales = [Total Ventas]
+VAR VentasPrevias = [Ventas Anio Anterior]
+VAR Variacion = VentasActuales - VentasPrevias
+RETURN
+    IF ( VentasPrevias = 0, BLANK ( ), DIVIDE ( Variacion, VentasPrevias ) )
+
+
+// ============================================================================
+// NOTA DE OPTIMIZACION  (Paso 4 de la consigna)
+// ----------------------------------------------------------------------------
+// La version sin optimizar de "Margen Neto" seria esta:
+//
+//     Margen Neto =
+//     SUMX ( Ventas, Ventas[Unidades] * Ventas[Precio_Unitario] * ( 1 - Ventas[Descuento] ) )
+//         - SUMX ( Ventas, Ventas[Unidades] * Ventas[Costo_Unitario] )
+//
+// Dos iteradores recorriendo la tabla de hechos fila por fila, y cuatro
+// columnas (Precio_Unitario, Costo_Unitario, Descuento, Unidades) que hay que
+// mantener en memoria solo para alimentarlos.
+//
+// La decision de calcular Importe_Neto y Costo_Total en Power Query, del lado
+// del ETL, permite reemplazar ambos SUMX por dos SUM sobre columnas ya
+// materializadas. El motor xVelocity comprime muchisimo mejor una columna de
+// importes que el producto de cuatro columnas evaluado en tiempo de consulta.
+//
+// Efecto combinado con el Table.SelectColumns del final de la consulta Ventas:
+// la tabla de hechos entra al modelo con 9 columnas en vez de 13.
+// ============================================================================
