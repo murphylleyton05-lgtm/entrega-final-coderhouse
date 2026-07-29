@@ -4,6 +4,15 @@
 
 ---
 
+## Entregas en este repositorio
+
+| Entrega | Carpeta | Stack |
+|---------|---------|-------|
+| Ecosistema de automatizacion IA (leads VIP) | raiz del repositorio | n8n + Airtable + Claude + Slack + Gmail |
+| Checkpoint: Flujo ETL, analisis financiero y reporte ejecutivo | [`checkpoint-etl-financiero/`](./checkpoint-etl-financiero) | Excel .xlsm + Power Query + VBA |
+
+---
+
 ## Descripcion del proyecto
 
 Sistema de automatizacion end-to-end que clasifica leads entrantes con IA (Claude), los registra en Airtable, envia una notificacion de validacion al equipo por Slack (Human-in-the-loop) y envia la propuesta personalizada por Gmail **solo si un humano la aprueba**.

@@ -1,0 +1,3 @@
+# Artefacto intermedio: lo regenera build/build_xlsm.py
+build/vbaProject.bin
+build/__pycache__/

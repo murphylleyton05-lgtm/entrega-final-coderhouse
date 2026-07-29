@@ -1,0 +1,329 @@
+ID_Transaccion,Fecha,Region,Categoria,Producto,Vendedor,Unidades,Precio_Unitario,Costo_Unitario,Estado,Notas_Internas,Ref_Sistema
+TRX-00223,10/12/2024,centro,  Indumentaria,Buzo Polar,  Diego Funes,1,879.92,568.62,CONFIRMADA,revisar,SYS762665
+TRX-00119,02/08/2024,Centro,Deportes,Guantes Arquero,Bruno Salas,2,904.51,526.14,CONFIRMADA,duplicado de carga,SYS888690
+TRX-00039,17/09/2024,Litoral,calzado,Zapatilla Running,Bruno Salas,2,2064.54,1244.05,confirmada,ok,SYS341711
+TRX-00159,29/10/2024,Cuyo,accesorios,Gorra Deportiva,Elena Paz,2,400.66,178.73,confirmada,llamar al cliente,SYS779580
+TRX-00017,11/06/2024,Cuyo,accesorios,  Gorra Deportiva,Elena Paz,4,398.05,204.73,confirmada,revisar,SYS591103
+TRX-00002,27/08/2024,Sur,Accesorios,Mochila 30L,Carla Ortiz,1,1258.20,621.61,CONFIRMADA,,SYS860549
+TRX-00114,22/04/2024,sur,INDUMENTARIA,Remera Tecnica,Elena Paz,2,572.09,326.58,Confirmada,ok,SYS722753
+TRX-00128,25/05/2024,Norte,  CALZADO ,Zapatilla Running,Elena Paz,1,1838.76,1223.85,Confirmada,ok,SYS674211
+TRX-00287,02/07/2024,Centro,Calzado   ,Botin Sintetico,Bruno Salas,4,1793.08,1116.83,Confirmada,,SYS918891
+TRX-00185,17/03/2024,  LITORAL ,Deportes,Pelota Profesional,Diego Funes,2,708.93,420.60,Confirmada,,SYS684603
+TRX-00249,09/03/2024,Centro,Accesorios,MOCHILA 30L,Carla Ortiz,1,1265.96,672.35,confirmada,revisar,SYS540205
+TRX-00059,25/02/2024,Centro,accesorios,Gorra Deportiva,  DIEGO FUNES ,3,410.03,175.60,CONFIRMADA,ok,SYS525491
+TRX-00045,23/05/2024,,Calzado,Zapatilla Running,Diego Funes,2,1942.37,1184.73,CONFIRMADA,revisar,SYS576392
+TRX-00047,26/02/2024,Cuyo,deportes,Pelota Profesional,Diego Funes,1,727.20,438.80,Confirmada,,SYS387164
+TRX-00119,02/08/2024,Centro,Deportes,Guantes Arquero,Bruno Salas,2,904.51,526.14,CONFIRMADA,llamar al cliente,SYS888690
+TRX-00199,02/12/2024,  NORTE ,Deportes,  GUANTES ARQUERO ,Diego Funes,1,892.49,538.45,Confirmada,ok,SYS333262
+TRX-00163,05/05/2024,Centro,Deportes,Pelota Profesional,Bruno Salas,1,800.55,553.19,confirmada,revisar,SYS993904
+TRX-00307,12/05/2024,Sur,Accesorios,gorra deportiva,Bruno Salas,1,404.56,208.66,anulada,revisar,SYS468359
+TRX-00290,13/04/2024,CENTRO,Calzado,Botin Sintetico,Ana Gimenez,2,1639.83,1040.37,confirmada,,SYS176058
+TRX-00226,25/01/2024,Litoral,Indumentaria,  Remera Tecnica,Ana Gimenez,2,485.95,289.71,confirmada,,SYS812924
+TRX-00078,08/04/2024,Cuyo,Deportes,Pelota Profesional,Bruno Salas,4,817.81,545.96,confirmada,revisar,SYS898293
+TRX-00292,06/06/2024,  Cuyo,  DEPORTES ,PELOTA PROFESIONAL,Ana Gimenez,2,740.20,501.26,CONFIRMADA,,SYS779938
+TRX-00058,05/04/2024,Norte,Deportes,Guantes Arquero,Ana Gimenez,2,975.32,604.74,confirmada,ok,SYS546657
+TRX-00143,28/09/2024,Norte,Calzado,Zapatilla Running,Elena Paz,3,s/d,1324.74,Confirmada,,SYS887432
+TRX-00110,03/09/2024,Norte,Accesorios,Mochila 30L,  DIEGO FUNES ,6,1178.79,679.12,Confirmada,duplicado de carga,SYS625571
+TRX-00063,14/07/2024,Norte,Indumentaria,Buzo Polar,Carla Ortiz,5,826.25,456.84,CONFIRMADA,ok,SYS837016
+TRX-00228,01/09/2024,Norte,indumentaria,Remera Tecnica,Ana Gimenez,3,517.99,290.92,Confirmada,,SYS147762
+TRX-00182,22/06/2024,Sur,CALZADO,Zapatilla Running,Bruno Salas,2,1946.98,1312.27,confirmada,ok,SYS561720
+TRX-00211,12/03/2024,norte,Deportes,Pelota Profesional,Elena Paz,4,772.35,529.47,confirmada,ok,SYS331902
+TRX-00197,11/01/2024,  LITORAL ,Deportes,Pelota Profesional,Diego Funes,1,782.98,493.68,CONFIRMADA,revisar,SYS869559
+TRX-00196,20/11/2024,Litoral,  Deportes,Pelota Profesional,Diego Funes,3,743.25,489.76,anulada,ok,SYS107698
+TRX-00297,02/02/2024,Cuyo   ,deportes,Guantes Arquero,Ana Gimenez,3,1031.37,629.68,CONFIRMADA,ok,SYS377910
+TRX-00187,29/06/2024,Norte,DEPORTES,Guantes Arquero,ANA GIMENEZ,1,924.68,590.26,CONFIRMADA,revisar,SYS195587
+TRX-00024,17/08/2024,Cuyo,Accesorios,Gorra Deportiva,Diego Funes,3,376.01,189.01,CONFIRMADA,ok,SYS627605
+TRX-00310,05/06/2024,Sur,Indumentaria,Buzo Polar,Bruno Salas,1,942.94,596.94,CONFIRMADA,,SYS736136
+TRX-00277,13/10/2024,  CUYO ,  CALZADO ,Zapatilla Running,Ana Gimenez,2,1859.99,1293.30,confirmada,revisar,SYS424462
+TRX-00243,21/10/2024,  Centro,Accesorios,Mochila 30L,Elena Paz,4,1137.50,703.27,CONFIRMADA,ok,SYS493251
+TRX-00212,19/06/2024,Centro,Calzado,Botin Sintetico,Ana Gimenez,1,1638.96,1071.25,Confirmada,ok,SYS269622
+TRX-00089,08/08/2024,,Calzado   ,Zapatilla Running,Ana Gimenez,1,2025.96,1389.00,Confirmada,,SYS868617
+TRX-00075,30/05/2024,Sur,  Accesorios,mochila 30l,Elena Paz,4,1195.19,668.66,Confirmada,ok,SYS553479
+TRX-00079,21/11/2024,  Centro,Indumentaria,Remera Tecnica,Bruno Salas,1,562.99,330.17,CONFIRMADA,llamar al cliente,SYS735556
+TRX-00053,06/02/2024,Norte,  Indumentaria,Remera Tecnica,Ana Gimenez,5,490.66,265.15,confirmada,llamar al cliente,SYS628452
+TRX-00015,01/03/2024,Centro,Deportes,Pelota Profesional   ,Ana Gimenez,-,822.36,491.69,confirmada,ok,SYS555120
+TRX-00234,16/05/2024,Sur,ACCESORIOS,Gorra Deportiva,Ana Gimenez,2,361.99,165.25,Confirmada,,SYS375164
+TRX-00280,07/05/2024,Litoral,  Accesorios,Gorra Deportiva,Elena Paz,-,414.67,205.94,Confirmada,revisar,SYS105893
+TRX-00240,30/08/2024,litoral,Indumentaria,Campera Trekking,Ana Gimenez,2,1585.79,877.08,confirmada,revisar,SYS586404
+TRX-00071,04/07/2024,  Centro,Accesorios,Gorra Deportiva   ,Elena Paz,2,384.39,173.62,Confirmada,ok,SYS828049
+TRX-00314,29/02/2024,Litoral,Calzado,Zapatilla Running,bruno salas,2,1956.68,1272.05,CONFIRMADA,,SYS296837
+TRX-00299,25/07/2024,Norte,Accesorios,  MOCHILA 30L ,Diego Funes,4,1163.12,577.56,anulada,llamar al cliente,SYS978518
+TRX-00168,03/07/2024,,Deportes,Guantes Arquero,ANA GIMENEZ,3,972.42,551.16,Confirmada,revisar,SYS365553
+TRX-00074,29/11/2024,Litoral,Calzado,Botin Sintetico,Carla Ortiz,3,1511.93,1042.82,Confirmada,,SYS771401
+TRX-00251,25/05/2024,  Centro,accesorios,Gorra Deportiva,DIEGO FUNES,2,415.52,199.09,CONFIRMADA,ok,SYS952968
+TRX-00098,29/11/2024,Centro,Accesorios   ,  Mochila 30L,Diego Funes,1,1160.14,580.12,CONFIRMADA,revisar,SYS422089
+TRX-00105,28/10/2024,Cuyo,Calzado,Zapatilla Running,Bruno Salas,1,1867.63,1234.58,Confirmada,llamar al cliente,SYS782341
+TRX-00100,09/01/2024,  NORTE ,Deportes,Pelota Profesional,Elena Paz,1,758.57,486.86,CONFIRMADA,,SYS462069
+TRX-00267,11/12/2024,Centro,Deportes,Pelota Profesional,Carla Ortiz,1,719.43,467.03,confirmada,llamar al cliente,SYS855126
+TRX-00186,10/01/2024,Litoral,  INDUMENTARIA ,Campera Trekking,Bruno Salas,1,1477.76,943.52,confirmada,,SYS868411
+TRX-00175,17/06/2024,Cuyo,Accesorios,  MOCHILA 30L ,Elena Paz,1,1095.24,679.62,Confirmada,llamar al cliente,SYS551718
+TRX-00316,13/05/2024,CENTRO,ACCESORIOS,mochila 30l,Elena Paz,2,1190.82,743.20,confirmada,llamar al cliente,SYS574120
+TRX-00173,05/12/2024,  SUR ,indumentaria,Remera Tecnica,Elena Paz,5,571.92,331.48,anulada,,SYS395793
+TRX-00298,06/03/2024,SUR,  INDUMENTARIA ,Campera Trekking,Elena Paz,3,1349.80,718.86,CONFIRMADA,ok,SYS767829
+TRX-00023,11/12/2024,  SUR ,Calzado,  Botin Sintetico,Elena Paz,4,1730.39,1212.27,CONFIRMADA,revisar,SYS390387
+TRX-00166,28/02/2024,  Litoral,Indumentaria,  Buzo Polar,Ana Gimenez,2,993.26,625.14,confirmada,revisar,SYS918200
+TRX-00004,28/04/2024,Sur,ACCESORIOS,Gorra Deportiva,Elena Paz,3,396.24,208.16,Confirmada,ok,SYS506083
+TRX-00260,08/04/2024,  CENTRO ,Calzado,zapatilla running,Bruno Salas,2,2069.79,1351.43,confirmada,revisar,SYS754866
+TRX-00001,28/07/2024,Centro,Deportes,Pelota Profesional,Carla Ortiz,5,s/d,535.50,confirmada,revisar,SYS424564
+TRX-00232,12/04/2024,  Sur,Indumentaria,Buzo Polar,Ana Gimenez,3,840.78,532.37,Confirmada,llamar al cliente,SYS564894
+TRX-00036,27/12/2024,  SUR ,  Deportes,  GUANTES ARQUERO ,  BRUNO SALAS ,3,1019.66,586.92,Confirmada,llamar al cliente,SYS518166
+TRX-00306,04/09/2024,LITORAL,  Indumentaria,Campera Trekking,Ana Gimenez,3,1362.97,716.80,CONFIRMADA,llamar al cliente,SYS339009
+TRX-00066,21/01/2024,Centro,Calzado,Zapatilla Running,Carla Ortiz,2,1941.46,1344.67,CONFIRMADA,revisar,SYS949015
+TRX-00264,12/05/2024,  Cuyo,Calzado,Zapatilla Running,Elena Paz,1,2071.79,1404.08,CONFIRMADA,revisar,SYS864675
+TRX-00152,21/03/2024,Norte,CALZADO,Zapatilla Running,carla ortiz,1,1877.27,1134.89,confirmada,revisar,SYS491584
+TRX-00090,29/11/2024,  Norte,Deportes   ,  GUANTES ARQUERO ,  CARLA ORTIZ ,1,905.12,605.17,confirmada,,SYS868990
+TRX-00295,18/01/2024,,Calzado   ,Botin Sintetico,elena paz,5,1607.47,1034.04,Confirmada,,SYS385976
+TRX-00108,03/09/2024,  NORTE ,Deportes,Pelota Profesional,Diego Funes,2,787.10,544.35,confirmada,revisar,SYS813946
+TRX-00032,31/02/2024,LITORAL,Accesorios,Mochila 30L,Ana Gimenez,5,1089.97,558.77,Confirmada,revisar,SYS641090
+TRX-00003,06/08/2024,LITORAL,Calzado,Botin Sintetico,BRUNO SALAS,1,1616.86,1108.06,Confirmada,ok,SYS984954
+TRX-00247,27/03/2024,Norte,Deportes,Guantes Arquero,Carla Ortiz,1,911.95,538.79,Confirmada,,SYS635309
+TRX-00224,29/07/2024,Centro,Accesorios,Mochila 30L,Diego Funes,3,1162.49,712.53,Confirmada,duplicado de carga,SYS761137
+TRX-00050,14/12/2024,Litoral,ACCESORIOS,Gorra Deportiva,Carla Ortiz,3,421.24,241.12,Confirmada,revisar,SYS348179
+TRX-00225,12/09/2024,,Accesorios   ,Mochila 30L,Bruno Salas,2,1286.12,692.86,Confirmada,ok,SYS313667
+TRX-00273,25/01/2024,NORTE,Calzado,Botin Sintetico,Diego Funes,2,1618.52,1128.33,Confirmada,revisar,SYS354147
+TRX-00165,20/01/2024,SUR,Calzado,  Botin Sintetico,Elena Paz   ,1,1569.55,980.96,confirmada,,SYS515355
+TRX-00031,16/06/2024,Litoral,Indumentaria,Buzo Polar,Carla Ortiz,2,930.62,554.41,confirmada,llamar al cliente,SYS624936
+TRX-00206,02/03/2024,Cuyo   ,Deportes,Pelota Profesional,Bruno Salas,2,811.48,563.02,ANULADA,revisar,SYS293176
+TRX-00203,24/07/2024,Sur,Indumentaria,Buzo Polar   ,Bruno Salas,2,956.23,604.92,CONFIRMADA,,SYS794241
+TRX-00254,07/10/2024,Norte,Deportes,Pelota Profesional,Ana Gimenez,3,834.23,520.31,Confirmada,,SYS959056
+TRX-00093,14/02/2024,Litoral   ,Indumentaria,  Campera Trekking,Ana Gimenez,,1439.03,748.63,CONFIRMADA,duplicado de carga,SYS938022
+TRX-00085,27/08/2024,Litoral,Deportes,Pelota Profesional   ,ANA GIMENEZ,6,797.21,506.52,confirmada,,SYS880764
+TRX-00270,09/09/2024,Cuyo,Indumentaria,Campera Trekking,CARLA ORTIZ,1,1607.47,891.85,Confirmada,ok,SYS205903
+TRX-00198,04/06/2024,centro,deportes,Pelota Profesional,  BRUNO SALAS ,2,766.80,496.44,CONFIRMADA,revisar,SYS632810
+TRX-00121,18/03/2024,Cuyo   ,Deportes,Guantes Arquero,Carla Ortiz,2,1001.48,668.70,confirmada,llamar al cliente,SYS991192
+TRX-00157,08/04/2024,Centro,  CALZADO ,Zapatilla Running,Carla Ortiz,4,2147.91,1399.34,CONFIRMADA,llamar al cliente,SYS226399
+TRX-00189,09/01/2024,Centro,ACCESORIOS,Mochila 30L,diego funes,1,1244.00,737.49,confirmada,ok,SYS368254
+TRX-00052,08/02/2024,  Norte,Calzado,Botin Sintetico,Carla Ortiz,5,1549.22,981.35,CONFIRMADA,,SYS902572
+TRX-00220,30/05/2024,Norte,  CALZADO ,Zapatilla Running,  Elena Paz,3,2075.52,1298.73,confirmada,revisar,SYS438894
+TRX-00177,07/12/2024,Litoral,accesorios,Mochila 30L,Elena Paz,1,1191.32,640.78,confirmada,revisar,SYS959390
+TRX-00202,10/09/2024,Centro,  Deportes,Pelota Profesional,  CARLA ORTIZ ,3,824.01,557.06,Confirmada,revisar,SYS530335
+TRX-00038,15/10/2024,  Cuyo,Calzado,Botin Sintetico,Elena Paz,2,1524.51,1005.56,confirmada,revisar,SYS981149
+TRX-00112,06/11/2024,  Litoral,Indumentaria,Buzo Polar,  ELENA PAZ ,4,874.95,472.50,Confirmada,revisar,SYS870882
+TRX-00029,06/05/2024,Norte   ,Calzado,  ZAPATILLA RUNNING ,Elena Paz,4,1965.47,1287.39,confirmada,llamar al cliente,SYS849607
+TRX-00062,30/07/2024,  NORTE ,Deportes,Guantes Arquero,  BRUNO SALAS ,1,924.51,543.29,Confirmada,revisar,SYS300383
+TRX-00041,12/02/2024,Sur,Deportes,Pelota Profesional,Elena Paz,2,797.00,515.43,Confirmada,revisar,SYS297764
+TRX-00021,07/03/2024,Litoral,Deportes,Guantes Arquero,Bruno Salas,3,877.83,581.86,Confirmada,revisar,SYS409811
+TRX-00192,06/08/2024,Litoral,Indumentaria,REMERA TECNICA,Diego Funes   ,3,516.46,249.65,confirmada,ok,SYS425870
+TRX-00026,17/04/2024,Cuyo,Indumentaria,  REMERA TECNICA ,Carla Ortiz,2,569.65,300.15,confirmada,ok,SYS611955
+TRX-00094,03/05/2024,Sur,Indumentaria,Buzo Polar   ,diego funes,3,901.12,489.88,Confirmada,llamar al cliente,SYS387590
+TRX-00205,26/12/2024,  Centro,Indumentaria,Remera Tecnica   ,CARLA ORTIZ,3,540.52,277.80,confirmada,ok,SYS734485
+TRX-00035,18/11/2024,  LITORAL ,  Indumentaria,Campera Trekking,Elena Paz,4,1334.83,844.80,Anulada,llamar al cliente,SYS895359
+TRX-00150,23/09/2024,LITORAL,Accesorios   ,Gorra Deportiva,Ana Gimenez   ,5,357.48,156.97,Confirmada,revisar,SYS918815
+TRX-00009,05/11/2024,Norte,Calzado,Zapatilla Running,carla ortiz,4,2142.91,1371.70,Confirmada,revisar,SYS164468
+TRX-00161,28/06/2024,SUR,Indumentaria,Buzo Polar,Carla Ortiz,4,898.47,511.40,CONFIRMADA,ok,SYS128540
+TRX-00305,14/08/2024,Sur,Deportes,Guantes Arquero,Diego Funes,1,1008.45,575.68,confirmada,llamar al cliente,SYS315039
+TRX-00258,14/10/2024,Centro,Calzado,Botin Sintetico,Bruno Salas,4,1671.05,1058.82,Confirmada,llamar al cliente,SYS392707
+TRX-00043,18/07/2024,  LITORAL ,Accesorios,gorra deportiva,Bruno Salas,1,386.99,211.72,Confirmada,,SYS721557
+TRX-00309,21/11/2024,  LITORAL ,Indumentaria,Campera Trekking,Bruno Salas,1,1402.21,807.66,CONFIRMADA,llamar al cliente,SYS727933
+TRX-00160,18/07/2024,  LITORAL ,Calzado,Botin Sintetico,Diego Funes,4,1779.71,1243.27,confirmada,llamar al cliente,SYS302521
+TRX-00127,09/07/2024,Cuyo,  DEPORTES ,Pelota Profesional,Elena Paz,2,822.78,484.04,Confirmada,,SYS327293
+TRX-00242,06/01/2024,,Accesorios,Mochila 30L,carla ortiz,2,1239.54,758.02,Confirmada,ok,SYS733243
+TRX-00101,08/09/2024,Litoral   ,,Buzo Polar,Carla Ortiz,2,969.09,593.08,confirmada,ok,SYS528158
+TRX-00219,29/07/2024,NORTE,calzado,Zapatilla Running,Elena Paz,2,1983.64,1217.83,CONFIRMADA,llamar al cliente,SYS992751
+TRX-00176,12/11/2024,Litoral,Accesorios,Mochila 30L,Carla Ortiz,1,1123.71,645.79,confirmada,revisar,SYS269928
+TRX-00308,14/09/2024,Litoral,Accesorios,Mochila 30L,Bruno Salas,1,1138.19,638.21,CONFIRMADA,,SYS900323
+TRX-00164,03/03/2024,Litoral,Indumentaria,Remera Tecnica,Carla Ortiz   ,3,s/d,255.27,confirmada,llamar al cliente,SYS948357
+TRX-00144,16/12/2024,  NORTE ,Calzado,Botin Sintetico,Elena Paz,3,1579.08,1092.57,CONFIRMADA,llamar al cliente,SYS292823
+TRX-00065,30/05/2024,Cuyo,accesorios,Mochila 30L,Ana Gimenez,2,1242.93,765.17,confirmada,llamar al cliente,SYS437322
+TRX-00151,23/06/2024,Norte,Calzado,botin sintetico,Bruno Salas,-,1556.38,999.48,CONFIRMADA,duplicado de carga,SYS633065
+TRX-00239,04/02/2024,litoral,indumentaria,campera trekking,Carla Ortiz,1,1497.57,955.60,Confirmada,ok,SYS880148
+TRX-00011,25/12/2024,Sur,  Calzado,BOTIN SINTETICO,Carla Ortiz,2,1680.37,1134.38,Confirmada,,SYS451636
+TRX-00115,09/09/2024,Sur,Indumentaria,Campera Trekking,Carla Ortiz,2,1405.58,896.07,confirmada,ok,SYS177732
+TRX-00286,03/03/2024,Litoral,Accesorios,Mochila 30L,Diego Funes,4,1285.65,652.72,Anulada,,SYS983073
+TRX-00049,11/02/2024,  SUR ,Indumentaria,Buzo Polar,Bruno Salas,2,934.09,580.72,confirmada,,SYS685191
+TRX-00099,30/11/2024,Sur,Deportes,Guantes Arquero,Diego Funes   ,2,887.85,511.66,Confirmada,revisar,SYS747560
+TRX-00106,21/12/2024,Centro,Indumentaria,Remera Tecnica,  Bruno Salas,2,549.60,292.92,Confirmada,llamar al cliente,SYS212772
+TRX-00201,04/11/2024,  Cuyo,Calzado,Zapatilla Running,Diego Funes,1,1949.84,1206.78,confirmada,revisar,SYS755212
+TRX-00005,27/03/2024,SUR,Accesorios,GORRA DEPORTIVA,Ana Gimenez,2,,178.99,CONFIRMADA,revisar,SYS467300
+TRX-00151,23/06/2024,Norte,Calzado,botin sintetico,Bruno Salas,-,1556.38,999.48,CONFIRMADA,ok,SYS633065
+TRX-00081,22/02/2024,  Cuyo,Accesorios,Mochila 30L,Carla Ortiz,3,1109.90,678.73,CONFIRMADA,revisar,SYS456716
+TRX-00113,12/12/2024,Litoral,Deportes,Pelota Profesional,ana gimenez,1,770.98,461.95,CONFIRMADA,ok,SYS595542
+TRX-00093,14/02/2024,Litoral   ,Indumentaria,  Campera Trekking,Ana Gimenez,,1439.03,748.63,CONFIRMADA,llamar al cliente,SYS938022
+TRX-00012,19/04/2024,Cuyo,Indumentaria,Campera Trekking,Diego Funes,6,1552.11,916.02,confirmada,ok,SYS679908
+TRX-00097,02/12/2024,Sur,Calzado,Zapatilla Running,Bruno Salas,1,2145.07,1384.00,confirmada,,SYS227033
+TRX-00315,29/01/2024,  NORTE ,  Indumentaria,Campera Trekking,Ana Gimenez,1,1459.70,785.77,Confirmada,revisar,SYS272033
+TRX-00210,10/05/2024,CENTRO,Calzado,Zapatilla Running,Elena Paz,4,2142.65,1411.65,confirmada,ok,SYS934737
+TRX-00033,,Norte,Accesorios,mochila 30l,Ana Gimenez,1,1122.22,579.10,confirmada,llamar al cliente,SYS566950
+TRX-00095,08/08/2024,cuyo,Calzado,Zapatilla Running,Elena Paz,1,2092.23,1375.14,confirmada,ok,SYS942560
+TRX-00230,28/09/2024,NORTE,Calzado,Zapatilla Running,Bruno Salas,2,1847.27,1165.58,Confirmada,,SYS109590
+TRX-00077,12/10/2024,  NORTE ,calzado,Zapatilla Running,Ana Gimenez,1,1956.50,1320.24,CONFIRMADA,ok,SYS463647
+TRX-00120,19/04/2024,Sur,  ACCESORIOS ,MOCHILA 30L,Bruno Salas,1,1192.53,624.15,CONFIRMADA,revisar,SYS179696
+TRX-00320,13/07/2024,Sur,Calzado,Zapatilla Running,Bruno Salas,1,1888.26,1199.24,confirmada,llamar al cliente,SYS606078
+TRX-00155,25/12/2024,Cuyo,Deportes,Guantes Arquero,Diego Funes,3,907.46,515.07,Confirmada,ok,SYS181537
+TRX-00171,29/08/2024,Litoral,Calzado,Botin Sintetico,Ana Gimenez,2,1712.77,1064.08,CONFIRMADA,revisar,SYS304274
+TRX-00272,12/10/2024,Cuyo,accesorios,Gorra Deportiva,Diego Funes,1,407.13,226.58,Confirmada,ok,SYS136976
+TRX-00281,10/02/2024,Norte   ,deportes,Guantes Arquero,Ana Gimenez,4,905.04,593.14,CONFIRMADA,revisar,SYS857177
+TRX-00312,28/06/2024,  LITORAL ,Accesorios,Gorra Deportiva,Elena Paz,4,363.44,199.80,confirmada,llamar al cliente,SYS231273
+TRX-00149,09/09/2024,  NORTE ,Deportes,Pelota Profesional,Bruno Salas,2,814.38,547.80,Confirmada,,SYS231310
+TRX-00231,13/06/2024,Norte,Calzado,Botin Sintetico,Carla Ortiz,N/D,1802.00,1191.65,CONFIRMADA,llamar al cliente,SYS146715
+TRX-00129,27/11/2024,Norte,Indumentaria,Remera Tecnica,Ana Gimenez,2,517.25,249.99,CONFIRMADA,llamar al cliente,SYS170157
+TRX-00238,15/02/2024,Sur,deportes,Guantes Arquero,Elena Paz,6,1040.68,694.79,CONFIRMADA,ok,SYS689635
+TRX-00284,30/01/2024,Centro,Indumentaria,Remera Tecnica,Ana Gimenez,1,555.12,322.68,Confirmada,ok,SYS153626
+TRX-00169,22/12/2024,LITORAL,Calzado,botin sintetico,Elena Paz,1,1741.92,1119.75,ANULADA,revisar,SYS605246
+TRX-00141,02/05/2024,Cuyo,  Deportes,Pelota Profesional,Diego Funes,2,703.71,476.84,confirmada,revisar,SYS878578
+TRX-00008,17/04/2024,Cuyo,,  Campera Trekking,Elena Paz,5,1400.57,809.20,Confirmada,revisar,SYS191004
+TRX-00207,18/05/2024,Norte,  INDUMENTARIA ,Remera Tecnica   ,Diego Funes,2,537.66,319.88,CONFIRMADA,revisar,SYS104609
+TRX-00224,29/07/2024,Centro,Accesorios,Mochila 30L,Diego Funes,3,1162.49,712.53,Confirmada,revisar,SYS761137
+TRX-00125,02/05/2024,Norte,Accesorios,Mochila 30L,ANA GIMENEZ,-,1149.72,592.80,Confirmada,duplicado de carga,SYS242785
+TRX-00133,03/08/2024,Sur,Calzado,Zapatilla Running,Ana Gimenez,2,1858.47,1117.28,Confirmada,,SYS202754
+TRX-00184,09/12/2024,CUYO,Calzado,Botin Sintetico,Bruno Salas,2,1655.58,1147.94,CONFIRMADA,llamar al cliente,SYS896664
+TRX-00061,10/07/2024,Norte,indumentaria,Campera Trekking,  Carla Ortiz,1,1601.10,881.74,CONFIRMADA,,SYS790068
+TRX-00013,08/08/2024,Norte,Accesorios,Mochila 30L,Carla Ortiz,4,1138.72,567.14,CONFIRMADA,llamar al cliente,SYS269234
+TRX-00019,04/04/2024,Litoral,Accesorios,Gorra Deportiva,Diego Funes,3,368.40,183.18,confirmada,revisar,SYS206286
+TRX-00083,23/03/2024,Litoral,INDUMENTARIA,Campera Trekking,Elena Paz   ,1,1383.90,861.55,confirmada,ok,SYS995991
+TRX-00209,,Centro,  INDUMENTARIA ,Campera Trekking,Carla Ortiz,1,1344.37,704.37,CONFIRMADA,,SYS245883
+TRX-00278,17/02/2024,centro,Accesorios,MOCHILA 30L,Carla Ortiz,3,1311.08,757.86,CONFIRMADA,,SYS857109
+TRX-00195,05/03/2024,Litoral,Accesorios,Mochila 30L,Carla Ortiz,2,1243.71,728.71,Confirmada,llamar al cliente,SYS577810
+TRX-00190,09/02/2024,sur,Accesorios,Mochila 30L,Ana Gimenez,1,1229.42,627.13,Confirmada,llamar al cliente,SYS272112
+TRX-00116,10/05/2024,Cuyo,Indumentaria,Remera Tecnica,Bruno Salas,1,503.54,303.63,CONFIRMADA,ok,SYS707178
+TRX-00010,23/10/2024,Sur,Indumentaria,Remera Tecnica,Carla Ortiz,3,567.56,298.87,confirmada,llamar al cliente,SYS975163
+TRX-00134,02/08/2024,Sur,accesorios,Gorra Deportiva,  Diego Funes,1,374.71,207.31,confirmada,,SYS478867
+TRX-00222,18/11/2024,Centro   ,  DEPORTES ,Pelota Profesional   ,Ana Gimenez,3,769.91,460.27,CONFIRMADA,llamar al cliente,SYS983594
+TRX-00126,13/04/2024,Cuyo   ,Indumentaria,Remera Tecnica,Diego Funes,2,498.31,291.78,CONFIRMADA,llamar al cliente,SYS543940
+TRX-00014,22/03/2024,Norte,  Accesorios,Gorra Deportiva,Bruno Salas,3,419.98,182.00,Confirmada,,SYS791679
+TRX-00107,24/06/2024,Litoral,Accesorios   ,Gorra Deportiva,  Elena Paz,6,413.73,188.75,confirmada,revisar,SYS915788
+TRX-00048,05/01/2024,Cuyo   ,calzado,Botin Sintetico,Elena Paz,1,1635.08,1047.56,Confirmada,ok,SYS157213
+TRX-00022,17/06/2024,Centro,Calzado,botin sintetico,diego funes,2,1712.89,1066.88,Confirmada,ok,SYS328596
+TRX-00269,06/08/2024,norte,DEPORTES,Guantes Arquero,Diego Funes,5,975.90,633.84,CONFIRMADA,revisar,SYS305773
+TRX-00025,09/10/2024,  Centro,,Guantes Arquero,Bruno Salas,3,1041.42,697.37,CONFIRMADA,,SYS395403
+TRX-00302,13/03/2024,litoral,  Deportes,Guantes Arquero,Diego Funes,3,1016.30,669.45,CONFIRMADA,llamar al cliente,SYS292260
+TRX-00027,30/12/2024,sur,Accesorios,Mochila 30L   ,elena paz,2,1245.33,668.95,Confirmada,,SYS466565
+TRX-00318,13/10/2024,Norte   ,Deportes,GUANTES ARQUERO,Carla Ortiz,2,864.87,502.60,CONFIRMADA,llamar al cliente,SYS367282
+TRX-00233,,Sur,Deportes,Guantes Arquero,Bruno Salas,1,1023.87,581.70,confirmada,revisar,SYS470977
+TRX-00289,06/05/2024,Litoral,DEPORTES,Pelota Profesional,Carla Ortiz,1,700.01,417.90,ANULADA,llamar al cliente,SYS581534
+TRX-00087,06/01/2024,Litoral,calzado,  ZAPATILLA RUNNING ,Diego Funes,3,1906.32,1173.82,confirmada,llamar al cliente,SYS200829
+TRX-00130,03/05/2024,  CENTRO ,ACCESORIOS,Gorra Deportiva,Bruno Salas,1,360.83,169.38,CONFIRMADA,ok,SYS372101
+TRX-00174,28/09/2024,Sur,Indumentaria,Remera Tecnica   ,Bruno Salas,1,543.32,300.89,Confirmada,ok,SYS598330
+TRX-00304,24/10/2024,Norte,accesorios,Mochila 30L,Elena Paz,2,1298.46,768.96,Anulada,,SYS433088
+TRX-00217,22/01/2024,Cuyo,Calzado,Zapatilla Running,Carla Ortiz,3,1822.93,1230.36,Confirmada,revisar,SYS153028
+TRX-00055,15/01/2024,Cuyo,Accesorios,Gorra Deportiva,Carla Ortiz,2,404.41,179.69,CONFIRMADA,revisar,SYS483737
+TRX-00291,12/12/2024,Centro,Deportes,Pelota Profesional,Carla Ortiz,4,782.45,477.90,CONFIRMADA,revisar,SYS895826
+TRX-00170,04/07/2024,Cuyo,Indumentaria,Buzo Polar,Bruno Salas,3,978.27,634.78,CONFIRMADA,revisar,SYS605285
+TRX-00162,28/09/2024,Litoral,Accesorios,Gorra Deportiva,diego funes,3,351.96,194.05,confirmada,revisar,SYS892379
+TRX-00194,15/04/2024,Litoral,Calzado   ,BOTIN SINTETICO,Ana Gimenez,5,1539.35,1065.70,CONFIRMADA,,SYS245411
+TRX-00009,05/11/2024,Norte,Calzado,Zapatilla Running,carla ortiz,4,2142.91,1371.70,Confirmada,duplicado de carga,SYS164468
+TRX-00241,23/09/2024,Sur   ,Calzado,Zapatilla Running,Diego Funes,1,2047.33,1356.42,CONFIRMADA,,SYS538135
+TRX-00086,14/03/2024,  LITORAL ,,Buzo Polar,Elena Paz,6,839.56,461.63,Confirmada,revisar,SYS724613
+TRX-00131,04/05/2024,Centro,  INDUMENTARIA ,Remera Tecnica,Elena Paz,2,s/d,257.81,Confirmada,ok,SYS548631
+TRX-00244,27/08/2024,litoral,,Mochila 30L,Elena Paz,3,1266.11,720.62,confirmada,,SYS891322
+TRX-00072,05/04/2024,  Litoral,Accesorios,Mochila 30L,Ana Gimenez,1,1136.42,611.54,Confirmada,ok,SYS826351
+TRX-00156,16/02/2024,Cuyo,  Indumentaria,Remera Tecnica   ,Diego Funes,2,478.77,239.62,CONFIRMADA,llamar al cliente,SYS725193
+TRX-00276,13/11/2024,Norte   ,ACCESORIOS,Mochila 30L,Ana Gimenez,2,1215.64,706.28,Confirmada,revisar,SYS360362
+TRX-00263,08/12/2024,norte,Indumentaria,Campera Trekking,  Diego Funes,1,1395.16,797.19,Confirmada,llamar al cliente,SYS502193
+TRX-00046,24/03/2024,,Calzado,Zapatilla Running,Bruno Salas,1,1935.37,1188.99,CONFIRMADA,revisar,SYS237944
+TRX-00256,18/07/2024,Cuyo,Indumentaria,Buzo Polar,Ana Gimenez,2,925.31,521.41,Confirmada,ok,SYS613227
+TRX-00188,06/01/2024,  CENTRO ,,Pelota Profesional,Diego Funes,1,752.36,500.94,confirmada,,SYS817652
+TRX-00265,11/11/2024,Norte,Accesorios,  GORRA DEPORTIVA ,Diego Funes,1,383.85,200.89,CONFIRMADA,ok,SYS805059
+TRX-00181,19/04/2024,Litoral,Accesorios,Mochila 30L,Elena Paz,2,1285.63,693.74,confirmada,ok,SYS527578
+TRX-00148,22/02/2024,sur,Accesorios,Gorra Deportiva,carla ortiz,2,417.90,188.39,ANULADA,,SYS661996
+TRX-00285,14/09/2024,Centro,Accesorios,Mochila 30L,Diego Funes,3,1283.78,653.66,CONFIRMADA,llamar al cliente,SYS273305
+TRX-00257,26/12/2024,,Deportes,Pelota Profesional,Carla Ortiz,3,796.40,551.37,Confirmada,ok,SYS363817
+TRX-00037,18/05/2024,CUYO,  CALZADO ,Botin Sintetico,Ana Gimenez,3,1612.40,1012.03,Confirmada,revisar,SYS231660
+TRX-00136,13/06/2024,CENTRO,Accesorios,Mochila 30L,Bruno Salas,2,1304.56,690.00,Confirmada,ok,SYS425924
+TRX-00137,27/04/2024,  SUR ,DEPORTES,Pelota Profesional,Bruno Salas,3,720.36,492.00,CONFIRMADA,revisar,SYS408188
+TRX-00069,22/12/2024,LITORAL,Deportes,Guantes Arquero,Ana Gimenez,2,927.07,580.10,confirmada,revisar,SYS426039
+TRX-00259,11/01/2024,Centro,  ACCESORIOS ,Gorra Deportiva,  Ana Gimenez,3,417.23,191.00,Confirmada,,SYS233803
+TRX-00123,11/01/2024,Centro,INDUMENTARIA,Campera Trekking,Ana Gimenez,1,1572.90,970.37,Confirmada,ok,SYS903320
+TRX-00110,03/09/2024,Norte,Accesorios,Mochila 30L,  DIEGO FUNES ,6,1178.79,679.12,Confirmada,llamar al cliente,SYS625571
+TRX-00229,29/10/2024,Centro,Calzado,Botin Sintetico,Bruno Salas,2,1759.83,1195.59,CONFIRMADA,,SYS840557
+TRX-00245,30/06/2024,cuyo,  Calzado,Botin Sintetico   ,Carla Ortiz,1,1718.43,1235.32,Confirmada,,SYS133708
+TRX-00213,01/04/2024,,Deportes,  GUANTES ARQUERO ,Diego Funes,3,870.62,585.13,Confirmada,llamar al cliente,SYS437065
+TRX-00172,19/06/2024,  Norte,Calzado,ZAPATILLA RUNNING,  Elena Paz,3,2001.36,1280.96,confirmada,llamar al cliente,SYS392348
+TRX-00248,06/10/2024,cuyo,,Buzo Polar,Diego Funes,3,882.15,513.11,Confirmada,llamar al cliente,SYS942606
+TRX-00076,10/01/2024,Cuyo,Indumentaria,Remera Tecnica,Diego Funes,4,497.74,265.15,CONFIRMADA,llamar al cliente,SYS923052
+TRX-00279,26/06/2024,Centro,Calzado,Botin Sintetico,Carla Ortiz,4,1506.49,1020.88,Confirmada,ok,SYS788827
+TRX-00153,01/12/2024,Litoral,Indumentaria,Remera Tecnica,  Carla Ortiz,2,561.12,284.80,confirmada,revisar,SYS562972
+TRX-00250,19/06/2024,  CUYO ,Indumentaria,Remera Tecnica,ELENA PAZ,6,573.71,319.57,confirmada,revisar,SYS244023
+TRX-00154,26/03/2024,Norte,Deportes,Guantes Arquero,Bruno Salas,3,1003.08,677.04,CONFIRMADA,llamar al cliente,SYS856340
+TRX-00319,20/10/2024,Centro,Calzado,Botin Sintetico,Bruno Salas,2,1558.87,1105.78,confirmada,,SYS351191
+TRX-00275,30/04/2024,  CENTRO ,Deportes,Pelota Profesional,Ana Gimenez,2,703.33,441.41,Confirmada,revisar,SYS527630
+TRX-00030,28/07/2024,Litoral,Deportes,Pelota Profesional,Ana Gimenez,6,718.56,489.67,CONFIRMADA,,SYS381016
+TRX-00118,08/07/2024,Norte,Deportes,Pelota Profesional,ELENA PAZ,2,835.79,532.55,Confirmada,ok,SYS959849
+TRX-00268,21/03/2024,NORTE,Deportes,Guantes Arquero,Elena Paz,3,933.35,561.39,confirmada,llamar al cliente,SYS324556
+TRX-00255,28/06/2024,Centro,Calzado,Zapatilla Running,  Bruno Salas,4,1911.20,1331.76,Confirmada,llamar al cliente,SYS309061
+TRX-00125,02/05/2024,Norte,Accesorios,Mochila 30L,ANA GIMENEZ,-,1149.72,592.80,Confirmada,,SYS242785
+TRX-00237,13/07/2024,norte,deportes,Guantes Arquero,Elena Paz,6,883.16,569.52,Anulada,,SYS106524
+TRX-00313,30/05/2024,  Cuyo,Calzado,Botin Sintetico,Diego Funes,1,s/d,1021.58,Confirmada,llamar al cliente,SYS247726
+TRX-00253,18/03/2024,Cuyo,DEPORTES,Guantes Arquero,Diego Funes,3,872.35,581.97,confirmada,revisar,SYS183037
+TRX-00288,25/06/2024,centro,Deportes,  Pelota Profesional,Bruno Salas,6,748.33,462.52,Confirmada,,SYS128527
+TRX-00139,21/01/2024,Cuyo,indumentaria,  REMERA TECNICA ,Elena Paz,1,534.15,285.98,confirmada,revisar,SYS234644
+TRX-00146,31/07/2024,Sur,Calzado,Zapatilla Running,ANA GIMENEZ,4,1984.66,1320.44,confirmada,llamar al cliente,SYS241714
+TRX-00266,16/03/2024,Cuyo,Accesorios,Mochila 30L,Elena Paz,5,1176.83,646.18,CONFIRMADA,,SYS513415
+TRX-00301,08/03/2024,Cuyo,Accesorios,Mochila 30L,Ana Gimenez,4,1249.74,701.26,confirmada,ok,SYS159382
+TRX-00180,01/09/2024,,  ACCESORIOS ,  Mochila 30L,Ana Gimenez,2,1181.07,614.74,confirmada,revisar,SYS640656
+TRX-00122,19/07/2024,Sur,Accesorios   ,Mochila 30L,Diego Funes,2,1293.20,670.47,CONFIRMADA,revisar,SYS305565
+TRX-00246,01/02/2024,Litoral,Calzado,Botin Sintetico   ,carla ortiz,4,1673.06,1169.51,confirmada,llamar al cliente,SYS763798
+TRX-00200,09/05/2024,Sur,Indumentaria,Campera Trekking,Carla Ortiz,5,1373.83,861.32,Confirmada,,SYS919292
+TRX-00028,25/05/2024,Litoral,Indumentaria,  Remera Tecnica,Carla Ortiz,1,511.27,293.96,CONFIRMADA,revisar,SYS813493
+TRX-00293,20/01/2024,Sur,Indumentaria,Buzo Polar,Diego Funes,1,853.97,475.88,CONFIRMADA,llamar al cliente,SYS712217
+TRX-00204,23/03/2024,  LITORAL ,Calzado,Zapatilla Running,Ana Gimenez,2,2189.20,1443.57,confirmada,llamar al cliente,SYS797573
+TRX-00208,25/12/2024,Sur,Deportes,Pelota Profesional,Elena Paz,1,797.57,529.05,confirmada,,SYS574240
+TRX-00214,12/07/2024,Litoral,Deportes,Pelota Profesional   ,Carla Ortiz,2,797.42,546.41,Confirmada,,SYS334977
+TRX-00262,12/10/2024,,Accesorios,Gorra Deportiva,Bruno Salas,1,366.75,166.75,Confirmada,llamar al cliente,SYS650589
+TRX-00007,17/07/2024,Sur,calzado,Botin Sintetico,Ana Gimenez,5,1661.25,1113.82,confirmada,llamar al cliente,SYS877412
+TRX-00300,11/04/2024,Centro   ,Accesorios,gorra deportiva,carla ortiz,5,359.30,190.96,CONFIRMADA,ok,SYS281084
+TRX-00056,11/04/2024,CUYO,Calzado,Botin Sintetico,Bruno Salas,6,1500.24,1034.99,confirmada,,SYS888932
+TRX-00296,03/01/2024,Cuyo,Accesorios,  Mochila 30L,Carla Ortiz,2,1130.28,562.68,CONFIRMADA,llamar al cliente,SYS900015
+TRX-00235,16/05/2024,Litoral,Calzado,Zapatilla Running,carla ortiz,1,1917.95,1328.39,confirmada,,SYS569302
+TRX-00060,02/09/2024,Sur,indumentaria,Campera Trekking,Carla Ortiz,3,1344.79,788.15,confirmada,revisar,SYS208261
+TRX-00102,29/09/2024,Centro,CALZADO,Zapatilla Running,Diego Funes,1,1984.97,1219.94,CONFIRMADA,ok,SYS149388
+TRX-00016,01/10/2024,Cuyo   ,Calzado,Zapatilla Running,Bruno Salas,1,2193.62,1422.56,CONFIRMADA,ok,SYS720178
+TRX-00104,02/10/2024,Litoral,Calzado,zapatilla running,Ana Gimenez,3,1850.15,1208.44,CONFIRMADA,llamar al cliente,SYS635464
+TRX-00124,28/08/2024,,Indumentaria,Campera Trekking   ,BRUNO SALAS,2,1459.59,788.96,Confirmada,llamar al cliente,SYS286679
+TRX-00158,22/08/2024,Norte,Calzado,BOTIN SINTETICO,ana gimenez,3,1648.98,1140.16,CONFIRMADA,,SYS338200
+TRX-00261,24/06/2024,  NORTE ,Indumentaria,REMERA TECNICA,Elena Paz,3,0,260.24,Confirmada,llamar al cliente,SYS895535
+TRX-00311,16/03/2024,Norte   ,  Calzado,  BOTIN SINTETICO ,Diego Funes,2,1601.46,1003.96,confirmada,llamar al cliente,SYS858145
+TRX-00092,12/07/2024,  CUYO ,CALZADO,Botin Sintetico,Diego Funes,3,1803.24,1279.83,Confirmada,revisar,SYS928469
+TRX-00064,04/12/2024,Sur,Calzado,Botin Sintetico,Carla Ortiz,1,1699.70,1112.36,CONFIRMADA,llamar al cliente,SYS746611
+TRX-00138,06/06/2024,litoral,Indumentaria,Remera Tecnica,Bruno Salas,N/D,538.71,273.15,CONFIRMADA,,SYS827327
+TRX-00216,01/07/2024,  SUR ,Accesorios,Gorra Deportiva,Elena Paz,3,366.25,168.75,confirmada,,SYS652860
+TRX-00215,18/08/2024,Cuyo,Accesorios,Gorra Deportiva,DIEGO FUNES,-,374.09,201.26,Confirmada,llamar al cliente,SYS912926
+TRX-00042,11/09/2024,Sur,Indumentaria,Remera Tecnica,Carla Ortiz,3,579.24,314.66,confirmada,ok,SYS426387
+TRX-00040,25/06/2024,Cuyo,  CALZADO ,Botin Sintetico,Carla Ortiz,4,0,1125.32,Confirmada,revisar,SYS885313
+TRX-00051,03/08/2024,Centro,Accesorios,Mochila 30L,Ana Gimenez,2,1157.67,723.64,confirmada,revisar,SYS742976
+TRX-00088,31/02/2024,Cuyo,  CALZADO ,Botin Sintetico,Diego Funes,1,1732.40,1181.63,Confirmada,,SYS666167
+TRX-00271,30/10/2024,Cuyo   ,Calzado,Botin Sintetico,Ana Gimenez,3,1784.58,1112.73,Confirmada,llamar al cliente,SYS537579
+TRX-00080,01/12/2024,Centro,Calzado,Zapatilla Running   ,Elena Paz,2,2025.17,1305.84,CONFIRMADA,,SYS549001
+TRX-00068,18/11/2024,sur,  CALZADO ,Zapatilla Running,Diego Funes,2,2117.81,1446.68,CONFIRMADA,revisar,SYS361788
+TRX-00082,13/01/2024,centro,  Deportes,Pelota Profesional,Carla Ortiz   ,2,719.25,447.04,CONFIRMADA,revisar,SYS783497
+TRX-00006,04/11/2024,Centro,Calzado,Zapatilla Running,Diego Funes,3,1899.08,1277.43,CONFIRMADA,ok,SYS391949
+TRX-00117,28/12/2024,Cuyo,Deportes,Pelota Profesional,Carla Ortiz,1,836.99,526.50,Confirmada,,SYS318522
+TRX-00236,16/05/2024,  Sur,INDUMENTARIA,Campera Trekking,Carla Ortiz,2,1540.52,826.04,Confirmada,revisar,SYS791846
+TRX-00282,03/05/2024,Centro,indumentaria,Campera Trekking,Ana Gimenez,2,1516.97,804.46,confirmada,ok,SYS913457
+TRX-00191,15/12/2024,Litoral,Calzado,Zapatilla Running,Elena Paz,1,1997.67,1257.80,CONFIRMADA,,SYS585790
+TRX-00135,31/02/2024,Norte,Indumentaria   ,Campera Trekking,carla ortiz,4,1434.77,807.91,confirmada,,SYS768338
+TRX-00178,16/01/2024,Norte,Accesorios,MOCHILA 30L,Diego Funes,3,1131.42,660.19,confirmada,revisar,SYS785727
+TRX-00103,30/10/2024,Centro   ,Indumentaria,Remera Tecnica   ,Diego Funes,1,534.23,325.62,confirmada,llamar al cliente,SYS364483
+TRX-00147,05/05/2024,sur,accesorios,Gorra Deportiva,Bruno Salas,2,373.47,194.26,Confirmada,,SYS222972
+TRX-00317,29/05/2024,Litoral,Calzado,Zapatilla Running,Ana Gimenez,1,1822.91,1132.57,confirmada,ok,SYS885441
+TRX-00034,31/02/2024,CUYO,Calzado,zapatilla running,Ana Gimenez,5,2089.41,1436.68,Confirmada,llamar al cliente,SYS184159
+TRX-00084,14/02/2024,Centro,  Accesorios,Gorra Deportiva   ,Elena Paz,3,388.25,218.77,confirmada,ok,SYS218522
+TRX-00044,01/03/2024,  NORTE ,CALZADO,Zapatilla Running,Elena Paz,1,2188.68,1350.13,CONFIRMADA,revisar,SYS600257
+TRX-00018,22/09/2024,Sur,Indumentaria   ,Buzo Polar,Bruno Salas,1,886.54,515.84,anulada,revisar,SYS586071
+TRX-00111,03/11/2024,Sur   ,Accesorios,Gorra Deportiva,Elena Paz,4,418.70,218.73,Confirmada,,SYS246963
+TRX-00183,18/03/2024,Litoral,Deportes,Guantes Arquero,Bruno Salas,3,886.49,500.14,Confirmada,llamar al cliente,SYS446712
+TRX-00227,01/01/2024,centro,deportes,Pelota Profesional,  DIEGO FUNES ,4,738.32,472.16,confirmada,revisar,SYS380591
+TRX-00132,09/05/2024,Litoral,Indumentaria,Campera Trekking,Carla Ortiz,5,1521.90,903.28,confirmada,,SYS254330
+TRX-00252,03/07/2024,  Cuyo,Indumentaria,Remera Tecnica,Ana Gimenez,5,546.61,293.44,Confirmada,,SYS841200
+TRX-00067,06/12/2024,Centro,  ACCESORIOS ,Gorra Deportiva,CARLA ORTIZ,2,421.19,217.71,CONFIRMADA,ok,SYS929158
+TRX-00193,03/05/2024,cuyo,Calzado,Botin Sintetico,ELENA PAZ,3,1651.09,1178.28,CONFIRMADA,ok,SYS649932
+TRX-00109,30/09/2024,  Centro,,Pelota Profesional,Carla Ortiz,4,748.57,439.78,CONFIRMADA,,SYS174129
+TRX-00283,02/06/2024,Litoral,Deportes,Guantes Arquero   ,Diego Funes,1,954.97,564.99,CONFIRMADA,revisar,SYS928191
+TRX-00020,23/10/2024,  CENTRO ,Deportes,Guantes Arquero,  Elena Paz,6,900.67,530.98,Confirmada,revisar,SYS848610
+TRX-00100,09/01/2024,  NORTE ,Deportes,Pelota Profesional,Elena Paz,1,758.57,486.86,CONFIRMADA,duplicado de carga,SYS462069
+TRX-00140,14/10/2024,cuyo,Deportes,Pelota Profesional,Carla Ortiz,1,850.18,530.80,Anulada,revisar,SYS617515
+TRX-00057,sin fecha,  Sur,Indumentaria,Campera Trekking,  CARLA ORTIZ ,3,1448.85,802.36,CONFIRMADA,,SYS278759
+TRX-00179,06/07/2024,Cuyo,Accesorios,Gorra Deportiva,Elena Paz,3,402.75,225.11,Confirmada,revisar,SYS819017
+TRX-00091,01/03/2024,Litoral,Accesorios,Mochila 30L,Elena Paz   ,2,1296.40,737.14,CONFIRMADA,llamar al cliente,SYS810363
+TRX-00274,18/02/2024,Cuyo,INDUMENTARIA,Campera Trekking,Bruno Salas,1,1514.88,839.83,confirmada,ok,SYS123396
+TRX-00070,28/03/2024,  SUR ,INDUMENTARIA,Remera Tecnica,Elena Paz   ,5,514.28,269.26,Confirmada,,SYS200443
+TRX-00218,19/09/2024,Centro,Deportes,Guantes Arquero,Diego Funes,1,947.08,557.27,CONFIRMADA,,SYS720359
+TRX-00294,13/11/2024,Cuyo,  INDUMENTARIA ,remera tecnica,Ana Gimenez,N/D,529.22,311.27,CONFIRMADA,revisar,SYS603544
+TRX-00167,08/10/2024,cuyo,accesorios,Mochila 30L,  DIEGO FUNES ,4,1295.40,719.30,confirmada,,SYS330861
+TRX-00096,27/11/2024,Litoral,Indumentaria,Buzo Polar,Bruno Salas,1,860.06,526.37,CONFIRMADA,,SYS233193
+TRX-00221,30/03/2024,Litoral,Indumentaria,Remera Tecnica,Ana Gimenez,2,543.87,268.39,confirmada,ok,SYS623199
+TRX-00142,06/05/2024,Norte,Deportes,GUANTES ARQUERO,Elena Paz,1,911.26,530.08,CONFIRMADA,,SYS209303
+TRX-00073,09/12/2024,Norte,Accesorios   ,Mochila 30L,Diego Funes,1,1235.33,759.96,CONFIRMADA,,SYS352410
+TRX-00054,21/09/2024,  Sur,  INDUMENTARIA ,Buzo Polar,ELENA PAZ,2,903.56,546.04,Confirmada,ok,SYS624535
+TRX-00145,12/12/2024,Centro,Indumentaria,  Remera Tecnica,Diego Funes,N/D,555.52,290.23,confirmada,,SYS644013
+TRX-00303,17/11/2024,Litoral,Accesorios,Mochila 30L,BRUNO SALAS,1,1158.70,680.63,confirmada,revisar,SYS595522
