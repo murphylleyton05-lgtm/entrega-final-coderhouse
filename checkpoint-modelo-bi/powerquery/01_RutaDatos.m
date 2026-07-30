@@ -1,23 +1,41 @@
 // ============================================================================
-// Consulta: RutaDatos   (parametro)
+// Parametro: RutaDatos
 // ----------------------------------------------------------------------------
-// Evita la ruta de origen "hardcodeada". En lugar de escribir C:\Users\...\datos
-// dentro de cada consulta, el path se lee desde la celda con nombre RutaDatos
-// de la hoja Config del propio libro.
+// Resuelve el problema de la ruta de origen "hardcodeada": en lugar de repetir
+// C:\...\datos dentro de cada consulta, el path vive en un unico lugar y las
+// cuatro consultas lo concatenan con el nombre de archivo.
 //
-// Resultado: el evaluador puede mover la carpeta del proyecto a cualquier lado,
-// cambiar una sola celda y las cuatro consultas siguen funcionando.
-// Destino: Solo crear conexion (no se carga al modelo).
+// POR QUE UN PARAMETRO Y NO UNA CONSULTA QUE LEA a UNA CELDA
+// ----------------------------------------------------------------------------
+// La alternativa elegante seria leer la ruta desde una celda del libro con
+// Excel.CurrentWorkbook(). No se usa a proposito: Ventas quedaria referenciando
+// otra consulta Y accediendo a un origen externo con File.Contents en el mismo
+// paso, que es la condicion exacta que dispara el error
+//
+//     Formula.Firewall: la consulta 'Ventas' hace referencia a otras consultas
+//     o pasos, por lo que puede que no tenga acceso directo a un origen de datos
+//
+// Un parametro, en cambio, el motor lo resuelve como valor literal antes de
+// evaluar la consulta, asi que no cuenta como referencia y el firewall no salta.
+// Es la solucion idiomatica al problema, no un rodeo.
+//
+// COMO SE CREA
+// ----------------------------------------------------------------------------
+// Opcion A (recomendada): Datos > Obtener datos > Iniciar el editor de Power
+//   Query > Inicio > Administrar parametros > Nuevo. Nombre: RutaDatos,
+//   Tipo: Texto, Valor actual: la ruta de la carpeta 'datos' terminada en \
+//
+// Opcion B: crear una consulta en blanco, pegar la linea de abajo en el Editor
+//   avanzado y renombrarla RutaDatos. El metadato IsParameterQuery hace que
+//   Excel la trate como parametro, no como consulta.
 // ============================================================================
-let
-    // Excel.CurrentWorkbook lee rangos con nombre del libro que contiene la consulta
-    TablaParametro = Excel.CurrentWorkbook(){[Name = "RutaDatos"]}[Content],
 
-    ValorCrudo = Table.FirstValue(TablaParametro, ""),
-
-    // Normaliza la barra final para poder concatenar el nombre de archivo sin riesgo
-    RutaNormalizada =
-        if Text.EndsWith(ValorCrudo, "\") then ValorCrudo
-        else ValorCrudo & "\"
-in
-    RutaNormalizada
+"C:\Users\TU_USUARIO\Documents\ModeloBI\datos\"
+    meta
+    [
+        IsParameterQuery = true,
+        List = null,
+        DefaultValue = null,
+        Type = "Text",
+        IsParameterQueryRequired = true
+    ]

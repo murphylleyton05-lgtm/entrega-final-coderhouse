@@ -110,11 +110,20 @@ def contenido_anexos(wb):
           "El codigo M incluye el paso renombrado VentasFiltradas")
     check(texto_m.count("//") >= 10,
           "El codigo M tiene comentarios con //", f"{texto_m.count('//')} comentarios")
-    for consulta in ["RutaDatos", "Ventas", "Clientes", "Productos", "Calendario"]:
-        check(f"Consulta: {consulta}" in texto_m or f"Consulta: {consulta} " in texto_m,
+    for consulta in ["Ventas", "Clientes", "Productos", "Calendario"]:
+        check(f"Consulta: {consulta}" in texto_m,
               f"Esta documentada la consulta {consulta}")
-    check("Excel.CurrentWorkbook" in texto_m,
-          "La ruta de origen se resuelve sin hardcodear")
+
+    check("Parametro: RutaDatos" in texto_m, "Esta documentado el parametro RutaDatos")
+    check("IsParameterQuery = true" in texto_m,
+          "RutaDatos se declara como parametro real, no como consulta")
+
+    # Cada acceso a disco tiene que pasar por el parametro: si quedara una ruta
+    # literal dentro de un File.Contents, la consigna del paso 2 no se cumple.
+    accesos = re.findall(r"File\.Contents\(([^)]*)", texto_m)
+    check(len(accesos) >= 2, "Hay accesos a los dos origenes de datos", f"{len(accesos)}")
+    check(all(a.strip().startswith("RutaDatos &") for a in accesos),
+          "Ningun File.Contents tiene la ruta hardcodeada", str(accesos))
 
     texto_dax = "\n".join(
         str(c.value) for fila in wb["Anexo_Medidas_DAX"].iter_rows() for c in fila if c.value

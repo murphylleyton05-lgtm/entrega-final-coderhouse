@@ -210,11 +210,18 @@ def hoja_config(wb):
     ws["C3"] = "<-- EDITAR: ruta real de la carpeta 'datos', terminada en \\"
     ws["C3"].font = Font(bold=True, size=10, color="C00000")
 
-    nota(ws, 5, "Esta celda se llama RutaDatos. La consulta del mismo nombre la lee con "
-                "Excel.CurrentWorkbook() y las otras cuatro consultas la concatenan con el "
-                "nombre de archivo. Para mover el proyecto de carpeta alcanza con editar "
-                "esta celda y actualizar; no hay que tocar ninguna consulta.", ancho=1)
+    nota(ws, 5, "Este es el valor que hay que cargar en el parametro RutaDatos de Power "
+                "Query (Inicio > Administrar parametros). Las cuatro consultas lo "
+                "concatenan con el nombre de archivo, asi que la ruta esta escrita una "
+                "sola vez: mover el proyecto de carpeta es editar el parametro, no las "
+                "consultas.", ancho=1)
     ws.row_dimensions[5].height = 60
+
+    nota(ws, 6, "Se usa un parametro y no una celda leida con Excel.CurrentWorkbook() para "
+                "no disparar el error Formula.Firewall, que aparece cuando una consulta "
+                "referencia a otra y ademas accede a un origen externo en el mismo paso.",
+         col="A", ancho=1)
+    ws.row_dimensions[6].height = 45
 
     etiqueta(ws, 8, "Moneda", negrita=True)
     valor(ws, 8, "ARS", formato="@")
@@ -585,19 +592,24 @@ def hoja_pasos(wb, meta, unidades_meta):
     ws.row_dimensions[3].height = 32
 
     bloques = [
-        ("A", "PONER LA RUTA DE DATOS", [
-            "Hoja Config, celda B3: pegar la ruta de la carpeta 'datos' de este proyecto.",
-            "Tiene que terminar en barra invertida. Ya viene con la ruta con la que se genero.",
+        ("A", "CREAR EL PARAMETRO DE RUTA", [
+            "Dejar el .xlsx en una carpeta y el CSV + maestras.xlsx en una subcarpeta",
+            "llamada 'datos'.",
+            "Datos > Obtener datos > Iniciar el editor de Power Query.",
+            "Inicio > Administrar parametros > Nuevo:",
+            "   Nombre: RutaDatos     Tipo: Texto",
+            "   Valor actual: la ruta de esa carpeta 'datos', TERMINADA EN \\",
+            "   ejemplo:  C:\\Users\\Lleyton\\Documents\\ModeloBI\\datos\\",
+            "La celda B3 de la hoja Config tiene ese mismo valor para copiarlo.",
         ]),
-        ("B", "CREAR LAS 5 CONSULTAS DE POWER QUERY", [
-            "Datos > Obtener datos > De otras fuentes > Consulta en blanco.",
+        ("B", "CREAR LAS 4 CONSULTAS DE POWER QUERY", [
+            "En el editor: Inicio > Nuevos orígenes > Consulta en blanco.",
             "En cada consulta: Inicio > Editor avanzado, borrar todo y pegar el bloque",
             "correspondiente de la hoja Anexo_Codigo_M. Renombrar la consulta con el",
             "nombre exacto del encabezado del bloque.",
-            "Orden obligatorio: RutaDatos, Ventas, Clientes, Productos, Calendario.",
+            "Orden obligatorio: Ventas, Clientes, Productos, Calendario.",
             "(Calendario lee de Ventas, asi que Ventas tiene que existir antes.)",
-            "En RutaDatos: clic derecho > Cargar en... > Solo crear conexion.",
-            "En las otras cuatro: Cargar en... > Solo crear conexion + tildar",
+            "En las cuatro: Cargar en... > Solo crear conexion + tildar",
             "'Agregar estos datos al Modelo de datos'.",
         ]),
         ("C", "ARMAR EL ESQUEMA EN ESTRELLA", [

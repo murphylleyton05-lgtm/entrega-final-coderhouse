@@ -10,6 +10,7 @@
 |---------|---------|-------|
 | Ecosistema de automatizacion IA (leads VIP) | raiz del repositorio | n8n + Airtable + Claude + Slack + Gmail |
 | Checkpoint: Flujo ETL, analisis financiero y reporte ejecutivo | [`checkpoint-etl-financiero/`](./checkpoint-etl-financiero) | Excel .xlsm + Power Query + VBA |
+| Checkpoint: Arquitectura del dato, optimizacion y simulacion | [`checkpoint-modelo-bi/`](./checkpoint-modelo-bi) | Excel .xlsx + Power Query (M) + Power Pivot (DAX) |
 
 ---
 

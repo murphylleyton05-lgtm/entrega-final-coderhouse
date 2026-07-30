@@ -22,7 +22,7 @@ modelo. Todo lo demás está resuelto y verificado.
 
 | Requisito de la rúbrica | Peso | Estado |
 |---|:--:|---|
-| Power Query + lenguaje M | 25% | Código escrito y documentado — **pegar en 5 consultas** |
+| Power Query + lenguaje M | 25% | Código escrito y documentado — **pegar en 4 consultas + 1 parámetro** |
 | Modelado estrella en Power Pivot | 25% | Diagrama y relaciones especificadas — **crear en Vista de diagrama** |
 | Medidas DAX con VAR/RETURN | 20% | 7 medidas escritas — **pegar en Power Pivot** |
 | Simulación de escenarios + resumen | 15% | ✅ Completo en el archivo |
@@ -36,12 +36,12 @@ modelo. Todo lo demás está resuelto y verificado.
 | Hoja | Contenido |
 |---|---|
 | `Inicio` | Portada e índice |
-| `Config` | Celda `RutaDatos`: parámetro de ruta que evita el hardcodeo |
+| `Config` | Valor a cargar en el parámetro `RutaDatos` de Power Query |
 | `Modelo_Estrella` | Diagrama del esquema y tabla de relaciones 1:N a crear |
 | `Simulacion` | Modelo financiero con las celdas cambiantes y Buscar Objetivo |
 | `Resumen_Escenarios` | Comparativa Pesimista / Base / Optimista |
 | `Estadistica_Descriptiva` | Reporte del ToolPak sobre `Importe_Neto` y `Margen_Bruto` |
-| `Anexo_Codigo_M` | Las 5 consultas en M, listas para copiar |
+| `Anexo_Codigo_M` | El parámetro y las 4 consultas en M, listos para copiar |
 | `Anexo_Medidas_DAX` | Las 7 medidas, listas para copiar |
 | `PASOS_EN_EXCEL` | Los pasos manuales, en orden |
 
@@ -59,9 +59,15 @@ La dimensión `Calendario` no tiene archivo detrás: se construye entera en M co
 `List.Dates`, tomando los límites reales de la tabla de hechos. Si mañana entran
 ventas de 2027, el calendario se extiende solo al actualizar.
 
-**Ruta no hardcodeada:** la consulta `RutaDatos` lee la carpeta de origen desde
-la celda con nombre del propio libro vía `Excel.CurrentWorkbook()`. Mover el
-proyecto de carpeta es editar una celda, no cinco consultas.
+**Ruta no hardcodeada:** la carpeta de origen vive en un parámetro `RutaDatos` y
+las cuatro consultas la concatenan con el nombre de archivo. Mover el proyecto
+de carpeta es editar el parámetro, no cuatro consultas.
+
+Se usa un parámetro y no una celda leída con `Excel.CurrentWorkbook()` a
+propósito: con la celda, `Ventas` quedaría referenciando otra consulta **y**
+accediendo a un origen externo en el mismo paso, que es la condición exacta que
+dispara `Formula.Firewall` al actualizar. El parámetro se resuelve como valor
+literal antes de evaluar la consulta, así que no cuenta como referencia.
 
 **Pasos renombrados:** el paso que filtra las ventas anuladas se llama
 `VentasFiltradas` en lugar de `#"Filas filtradas2"`, y el código tiene 69
@@ -127,12 +133,12 @@ hacen falta **9.181 unidades**, un 16,2% sobre la base.
 pip install openpyxl
 python3 build/datos_fuente.py      # CSV sucio + maestras.xlsx
 python3 build/construir_libro.py   # el .xlsx
-python3 build/verificar.py         # 63 controles automáticos
+python3 build/verificar.py         # 65 controles automáticos
 ```
 
 `verificar.py` comprueba la integridad del paquete OPC, que los 17 XML sean
 válidos, que el bloque `<scenarios>` tenga los 3 escenarios en la posición que
-exige el esquema, que el rango con nombre apunte donde corresponde, que el
+exige el esquema, que ningún File.Contents tenga la ruta hardcodeada, que el
 resumen coincida con el modelo financiero, que la estadística coincida con el
 cálculo directo sobre el CSV, y que la cadena de fórmulas de la simulación
 devuelva lo esperado (con un evaluador propio, incluido el resultado de Buscar
@@ -150,7 +156,7 @@ checkpoint-modelo-bi/
 │   ├── ventas_historicas.csv                <- hechos (fuente sucia)
 │   └── maestras.xlsx                        <- dimensiones Clientes y Productos
 ├── powerquery/
-│   ├── 01_RutaDatos.m                       <- parámetro de ruta
+│   ├── 01_RutaDatos.m                       <- parámetro de ruta (no consulta)
 │   ├── 02_Ventas.m                          <- tabla de hechos
 │   └── 03_Dimensiones.m                     <- Clientes, Productos, Calendario
 ├── dax/medidas.dax                          <- las 7 medidas
@@ -158,5 +164,5 @@ checkpoint-modelo-bi/
     ├── datos_fuente.py       genera el CSV y las maestras
     ├── estadistica.py        estimadores de Analysis ToolPak
     ├── construir_libro.py    arma el .xlsx e inyecta los escenarios
-    └── verificar.py          63 controles sobre el resultado
+    └── verificar.py          65 controles sobre el resultado
 ```
