@@ -1,0 +1,111 @@
+// ============================================================================
+// RetailPro - Modelo relacional en 3NF
+// Lleyton Murphy - Pre-entrega M2
+// ----------------------------------------------------------------------------
+// Para ver el diagrama: entrar a https://dbdiagram.io/d , borrar el contenido
+// de ejemplo y pegar este archivo completo. El ER se dibuja solo.
+// ============================================================================
+
+
+// ----------------------------------------------------------------------------
+// CATALOGOS GEOGRAFICOS
+// ----------------------------------------------------------------------------
+
+Table territorios {
+  id_territorio  int          [pk, increment]
+  zona           varchar(50)  [not null, note: 'Norte, Centro, Sur...']
+  region         varchar(50)  [not null, note: 'Cuyo, Patagonia, AMBA...']
+  pais           varchar(50)  [not null]
+
+  indexes {
+    (pais, region, zona) [unique]
+  }
+  Note: 'Jerarquia comercial. Una zona pertenece a una region y una region a un pais.'
+}
+
+Table ciudades {
+  id_ciudad      int          [pk, increment]
+  nombre_ciudad  varchar(80)  [not null]
+  id_territorio  int          [not null, ref: > territorios.id_territorio]
+
+  indexes {
+    (nombre_ciudad, id_territorio) [unique]
+  }
+  Note: 'Resuelve la transitividad ciudad -> territorio: la ciudad no puede vivir dentro de clientes.'
+}
+
+
+// ----------------------------------------------------------------------------
+// CATALOGOS DE NEGOCIO
+// ----------------------------------------------------------------------------
+
+Table segmentos {
+  id_segmento      int          [pk, increment]
+  nombre_segmento  varchar(30)  [not null, unique, note: 'Corporativo, PyME, Consumo Final']
+}
+
+Table canales {
+  id_canal      int          [pk, increment]
+  nombre_canal  varchar(30)  [not null, unique, note: 'Online, Sucursal, Mayorista']
+}
+
+Table categorias {
+  id_categoria      int          [pk, increment]
+  nombre_categoria  varchar(60)  [not null, unique]
+}
+
+Table subcategorias {
+  id_subcategoria      int          [pk, increment]
+  nombre_subcategoria  varchar(60)  [not null]
+  id_categoria         int          [not null, ref: > categorias.id_categoria]
+
+  indexes {
+    (nombre_subcategoria, id_categoria) [unique]
+  }
+  Note: 'Resuelve la transitividad subcategoria -> categoria dentro de productos.'
+}
+
+
+// ----------------------------------------------------------------------------
+// ENTIDADES PRINCIPALES
+// ----------------------------------------------------------------------------
+
+Table clientes {
+  id_cliente      int           [pk, increment]
+  nombre          varchar(120)  [not null]
+  email           varchar(150)  [not null, unique]
+  id_ciudad       int           [not null, ref: > ciudades.id_ciudad]
+  id_segmento     int           [not null, ref: > segmentos.id_segmento]
+  fecha_registro  date          [not null]
+
+  Note: 'La ciudad se referencia por FK. Guardarla como texto arrastraria region y pais.'
+}
+
+Table productos {
+  id_producto      int            [pk, increment]
+  nombre_producto  varchar(120)   [not null]
+  id_subcategoria  int            [not null, ref: > subcategorias.id_subcategoria]
+  precio           decimal(12,2)  [not null, note: 'Precio de lista VIGENTE. El historico vive en ventas.']
+  costo            decimal(12,2)  [not null]
+
+  Note: 'La categoria se alcanza navegando subcategorias, no se repite aca.'
+}
+
+Table ventas {
+  id_venta         int            [pk, increment]
+  fecha_venta      date           [not null]
+  id_cliente       int            [not null, ref: > clientes.id_cliente]
+  id_producto      int            [not null, ref: > productos.id_producto]
+  id_canal         int            [not null, ref: > canales.id_canal]
+  cantidad         int            [not null, note: 'CHECK (cantidad > 0)']
+  precio_unitario  decimal(12,2)  [not null, note: 'Congelado al momento de la venta']
+  descuento        decimal(5,4)   [not null, default: 0, note: '0.15 = 15%']
+  total_venta      decimal(14,2)  [not null, note: 'cantidad * precio_unitario * (1 - descuento)']
+
+  indexes {
+    (fecha_venta)
+    (id_cliente)
+    (id_producto)
+  }
+  Note: 'Grano: una fila por linea de venta (un producto vendido en una operacion).'
+}
