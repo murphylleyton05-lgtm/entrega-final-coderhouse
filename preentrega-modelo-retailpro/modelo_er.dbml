@@ -1,6 +1,6 @@
 // ============================================================================
 // RetailPro - Modelo relacional en 3NF
-// Lleyton Murphy - Pre-entrega M2
+// Lleyton Murphy - Pre-entrega M2  (alineado al brief de M1)
 // ----------------------------------------------------------------------------
 // Para ver el diagrama: entrar a https://dbdiagram.io/d , borrar el contenido
 // de ejemplo y pegar este archivo completo. El ER se dibuja solo.
@@ -8,19 +8,31 @@
 
 
 // ----------------------------------------------------------------------------
-// CATALOGOS GEOGRAFICOS
+// JERARQUIA GEOGRAFICA
+// M1 la describia como una sola tabla territorios con region, provincia,
+// ciudad y zona comercial. Asi tenia la cadena ciudad -> zona -> region -> pais
+// adentro: se parte en tres niveles.
 // ----------------------------------------------------------------------------
+
+Table regiones {
+  id_region      int          [pk, increment]
+  nombre_region  varchar(50)  [not null, unique, note: 'Norte, Centro, Sur, Litoral...']
+  pais           varchar(50)  [not null]
+
+  Note: '''
+  pais depende de nombre_region, que es clave candidata (UNIQUE).
+  Una dependencia sobre una clave candidata NO viola la 3NF.
+  '''
+}
 
 Table territorios {
   id_territorio  int          [pk, increment]
-  zona           varchar(50)  [not null, note: 'Norte, Centro, Sur...']
-  region         varchar(50)  [not null, note: 'Cuyo, Patagonia, AMBA...']
-  pais           varchar(50)  [not null]
+  zona           varchar(50)  [not null, note: 'Zona comercial dentro de la region']
+  id_region      int          [not null, ref: > regiones.id_region]
 
   indexes {
-    (pais, region, zona) [unique]
+    (zona, id_region) [unique]
   }
-  Note: 'Jerarquia comercial. Una zona pertenece a una region y una region a un pais.'
 }
 
 Table ciudades {
@@ -31,12 +43,11 @@ Table ciudades {
   indexes {
     (nombre_ciudad, id_territorio) [unique]
   }
-  Note: 'Resuelve la transitividad ciudad -> territorio: la ciudad no puede vivir dentro de clientes.'
 }
 
 
 // ----------------------------------------------------------------------------
-// CATALOGOS DE NEGOCIO
+// CATALOGOS
 // ----------------------------------------------------------------------------
 
 Table segmentos {
@@ -47,6 +58,11 @@ Table segmentos {
 Table canales {
   id_canal      int          [pk, increment]
   nombre_canal  varchar(30)  [not null, unique, note: 'Online, Sucursal, Mayorista']
+}
+
+Table marcas {
+  id_marca      int          [pk, increment]
+  nombre_marca  varchar(60)  [not null, unique]
 }
 
 Table categorias {
@@ -67,7 +83,7 @@ Table subcategorias {
 
 
 // ----------------------------------------------------------------------------
-// ENTIDADES PRINCIPALES
+// DIMENSIONES PRINCIPALES
 // ----------------------------------------------------------------------------
 
 Table clientes {
@@ -78,34 +94,50 @@ Table clientes {
   id_segmento     int           [not null, ref: > segmentos.id_segmento]
   fecha_registro  date          [not null]
 
-  Note: 'La ciudad se referencia por FK. Guardarla como texto arrastraria region y pais.'
+  Note: '''
+  M1 listaba clientes.id_territorio ademas de la ciudad. No se incluye:
+  el territorio se deduce navegando ciudades -> territorios, y guardarlo
+  aca seria la redundancia que la 3NF busca eliminar.
+  '''
 }
 
 Table productos {
   id_producto      int            [pk, increment]
   nombre_producto  varchar(120)   [not null]
   id_subcategoria  int            [not null, ref: > subcategorias.id_subcategoria]
-  precio           decimal(12,2)  [not null, note: 'Precio de lista VIGENTE. El historico vive en ventas.']
-  costo            decimal(12,2)  [not null]
-
-  Note: 'La categoria se alcanza navegando subcategorias, no se repite aca.'
+  id_marca         int            [not null, ref: > marcas.id_marca]
+  precio           decimal(12,2)  [not null, note: 'Precio de lista VIGENTE']
+  costo            decimal(12,2)  [not null, note: 'Costo VIGENTE']
 }
+
+
+// ----------------------------------------------------------------------------
+// TABLA DE HECHOS
+// ----------------------------------------------------------------------------
 
 Table ventas {
   id_venta         int            [pk, increment]
   fecha_venta      date           [not null]
   id_cliente       int            [not null, ref: > clientes.id_cliente]
   id_producto      int            [not null, ref: > productos.id_producto]
+  id_territorio    int            [not null, ref: > territorios.id_territorio]
   id_canal         int            [not null, ref: > canales.id_canal]
   cantidad         int            [not null, note: 'CHECK (cantidad > 0)']
   precio_unitario  decimal(12,2)  [not null, note: 'Congelado al momento de la venta']
+  costo_unitario   decimal(12,2)  [not null, note: 'Congelado: lo exige el KPI Margen Bruto de M1']
   descuento        decimal(5,4)   [not null, default: 0, note: '0.15 = 15%']
   total_venta      decimal(14,2)  [not null, note: 'cantidad * precio_unitario * (1 - descuento)']
 
   indexes {
     (fecha_venta)
+    (id_territorio, fecha_venta)
     (id_cliente)
     (id_producto)
   }
-  Note: 'Grano: una fila por linea de venta (un producto vendido en una operacion).'
+  Note: '''
+  Grano: una fila por linea de venta.
+  id_territorio va en el hecho (y no solo en el cliente) porque la pregunta
+  central de M1 es por la caida de la region Norte: importa donde se produjo
+  la operacion, que no siempre coincide con el domicilio del cliente.
+  '''
 }
