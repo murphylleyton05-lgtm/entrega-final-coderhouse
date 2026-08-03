@@ -123,6 +123,16 @@
     border-radius:999px;padding:2px 9px;margin-bottom:10px;
   }
   .qtext{font-size:1.08rem;font-weight:600;margin-bottom:16px;white-space:pre-line}
+  /* ---------- Figuras (razonamiento abstracto) ---------- */
+  #qfig{margin:-4px 0 18px;text-align:center;overflow-x:auto}
+  #qfig svg{max-width:100%}
+  #qfig .figrow{height:80px}
+  #qfig .figgrid{width:168px;height:168px;max-width:78%}
+  .fig{width:62px;height:62px}
+  .opt .ofig{margin-left:auto;display:inline-flex;align-items:center;justify-content:center}
+  .opt.figopt{align-items:center;padding:10px 14px}
+  .rev .ofig{display:inline-flex;vertical-align:middle}
+  .rev .ofig .fig{width:46px;height:46px}
   .opts{display:flex;flex-direction:column;gap:9px}
   .opt{
     display:flex;align-items:flex-start;gap:11px;width:100%;text-align:left;
@@ -189,20 +199,20 @@
 
     <button class="mode" data-mode="eng">
       <div class="top"><span class="emoji">&#127760;</span><span class="title">Test de Inglés</span></div>
-      <div class="desc">Gramática (condicionales, pasiva, estilo indirecto), phrasal verbs, atención al pasajero y comprensión con inferencia.</div>
-      <div class="chips"><span class="chip">28 preguntas</span><span class="chip" id="chipEng">10 min</span><span class="chip">Nivel exigente</span></div>
+      <div class="desc">Nivel C1: condicionales, pasiva, estilo indirecto, phrasal verbs, sinónimos/antónimos y comprensión con inferencia.</div>
+      <div class="chips"><span class="chip">30 preguntas</span><span class="chip" id="chipEng">10 min</span><span class="chip">Nivel exigente</span></div>
     </button>
 
     <button class="mode" data-mode="mat">
       <div class="top"><span class="emoji">&#129518;</span><span class="title">Test de Matemática y Lógica</span></div>
-      <div class="desc">Porcentajes, regla de tres, horarios, series numéricas y de formas, analogías, deducción y espacial.</div>
-      <div class="chips"><span class="chip">42 preguntas</span><span class="chip" id="chipMat">15 min</span><span class="chip">No se espera terminar todo</span></div>
+      <div class="desc">Porcentajes, fracciones, series, figuras SVG (series, analogías y matrices tipo Raven) y estilo Wonderlic.</div>
+      <div class="chips"><span class="chip">46 preguntas</span><span class="chip" id="chipMat">15 min</span><span class="chip">Con figuras</span></div>
     </button>
 
     <button class="mode" data-mode="full">
       <div class="top"><span class="emoji">&#128203;</span><span class="title">Simulacro completo</span></div>
-      <div class="desc">50 preguntas mezcladas de las tres áreas. Para medir resistencia y velocidad general.</div>
-      <div class="chips"><span class="chip">50 preguntas</span><span class="chip" id="chipFull">25 min</span></div>
+      <div class="desc">52 preguntas mezcladas de las tres áreas, con figuras incluidas. Para medir resistencia y velocidad.</div>
+      <div class="chips"><span class="chip">52 preguntas</span><span class="chip" id="chipFull">25 min</span></div>
     </button>
 
     <div class="panel">
@@ -241,6 +251,7 @@
     <div class="qcard">
       <span class="qtag" id="qtag">Matemática</span>
       <div class="qtext" id="qtext"></div>
+      <div id="qfig" style="display:none"></div>
       <div class="opts" id="opts"></div>
     </div>
 
@@ -283,8 +294,40 @@
 "use strict";
 
 /* ============================================================
-   BANCO DE 50 PREGUNTAS
+   FIGURAS SVG — razonamiento abstracto (series, analogías, matrices)
+   Dibujadas a mano con SVG: nítidas, escalables y funcionan offline.
+   ============================================================ */
+var _ST = "#eaf0fb";   // trazo
+var _FL = "#38bdf8";   // relleno
+function _fig(inner){ return '<svg viewBox="0 0 60 60" class="fig" xmlns="http://www.w3.org/2000/svg">' + inner + '</svg>'; }
+function _tri(a, f){ return '<polygon points="30,7 53,49 7,49" transform="rotate('+a+' 30 30)" fill="'+(f?_FL:'none')+'" stroke="'+_ST+'" stroke-width="3" stroke-linejoin="round"/>'; }
+function _circ(f){ return '<circle cx="30" cy="30" r="20" fill="'+(f?_FL:'none')+'" stroke="'+_ST+'" stroke-width="3"/>'; }
+function _sq(f){ return '<rect x="11" y="11" width="38" height="38" rx="3" fill="'+(f?_FL:'none')+'" stroke="'+_ST+'" stroke-width="3"/>'; }
+function _diam(f){ return '<polygon points="30,6 54,30 30,54 6,30" fill="'+(f?_FL:'none')+'" stroke="'+_ST+'" stroke-width="3" stroke-linejoin="round"/>'; }
+function _poly(n, f){ var p=[],i,ang; for(i=0;i<n;i++){ ang=-Math.PI/2 + i*2*Math.PI/n; p.push((30+22*Math.cos(ang)).toFixed(1)+','+(30+22*Math.sin(ang)).toFixed(1)); } return '<polygon points="'+p.join(' ')+'" fill="'+(f?_FL:'none')+'" stroke="'+_ST+'" stroke-width="3" stroke-linejoin="round"/>'; }
+function _star(f){ var p=[],i,r,ang; for(i=0;i<10;i++){ r=(i%2)?9:22; ang=-Math.PI/2 + i*Math.PI/5; p.push((30+r*Math.cos(ang)).toFixed(1)+','+(30+r*Math.sin(ang)).toFixed(1)); } return '<polygon points="'+p.join(' ')+'" fill="'+(f?_FL:'none')+'" stroke="'+_ST+'" stroke-width="3" stroke-linejoin="round"/>'; }
+function _arrow(a){ return '<g transform="rotate('+a+' 30 30)" stroke="'+_ST+'" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="30" y1="50" x2="30" y2="12"/><polyline points="19,25 30,11 41,25"/></g>'; }
+function _dots(n){ var pos={1:[[30,30]],2:[[18,30],[42,30]],3:[[12,30],[30,30],[48,30]],4:[[9,30],[23,30],[37,30],[51,30]],5:[[8,30],[19,30],[30,30],[41,30],[52,30]],6:[[8,30],[19,30],[30,30],[41,30],[52,30],[30,46]]}; var s='',p=pos[n]||[[30,30]]; p.forEach(function(c){ s+='<circle cx="'+c[0]+'" cy="'+c[1]+'" r="5.5" fill="'+_FL+'"/>'; }); return s; }
+// Fila horizontal de figuras (con caja "?" para la incógnita)
+function _row(cells){ var w=54, g=8, n=cells.length, W=n*w+(n-1)*g, s='<svg viewBox="0 0 '+W+' 60" class="figrow" xmlns="http://www.w3.org/2000/svg">', i, x;
+  for(i=0;i<n;i++){ x=i*(w+g); if(cells[i]==='?'){ s+='<g transform="translate('+x+',0)"><rect x="4" y="3" width="46" height="54" rx="7" fill="none" stroke="#5b6c8f" stroke-width="2" stroke-dasharray="5 4"/><text x="27" y="41" text-anchor="middle" font-size="30" fill="#9fb0cd" font-family="sans-serif">?</text></g>'; }
+    else if(cells[i]==='|'){ s+='<line x1="'+(x+27)+'" y1="10" x2="'+(x+27)+'" y2="50" stroke="#5b6c8f" stroke-width="2"/>'; }
+    else { s+='<g transform="translate('+x+',3) scale('+(w/60)+')">'+cells[i]+'</g>'; } }
+  return s+'</svg>'; }
+// Matriz 3x3 tipo Raven (9 celdas; usar "?" en la incógnita)
+function _grid(cells){ var C=54, S=C*3, s='<svg viewBox="0 0 '+S+' '+S+'" class="figgrid" xmlns="http://www.w3.org/2000/svg">', i, col, row, x, y;
+  s+='<rect x="1" y="1" width="'+(S-2)+'" height="'+(S-2)+'" fill="none" stroke="#3a4b6e" stroke-width="2"/>';
+  s+='<line x1="'+C+'" y1="0" x2="'+C+'" y2="'+S+'" stroke="#3a4b6e" stroke-width="2"/><line x1="'+(2*C)+'" y1="0" x2="'+(2*C)+'" y2="'+S+'" stroke="#3a4b6e" stroke-width="2"/>';
+  s+='<line x1="0" y1="'+C+'" x2="'+S+'" y2="'+C+'" stroke="#3a4b6e" stroke-width="2"/><line x1="0" y1="'+(2*C)+'" x2="'+S+'" y2="'+(2*C)+'" stroke="#3a4b6e" stroke-width="2"/>';
+  for(i=0;i<9;i++){ col=i%3; row=Math.floor(i/3); x=col*C; y=row*C;
+    if(cells[i]==='?'){ s+='<text x="'+(x+C/2)+'" y="'+(y+C/2+10)+'" text-anchor="middle" font-size="30" fill="#9fb0cd" font-family="sans-serif">?</text>'; }
+    else { s+='<g transform="translate('+(x+5)+','+(y+5)+') scale('+((C-10)/60)+')">'+cells[i]+'</g>'; } }
+  return s+'</svg>'; }
+
+/* ============================================================
+   BANCO DE PREGUNTAS
    cat: "mat" | "log" | "eng"   |   a = índice de la opción correcta
+   fig:true + qimg (SVG) + oimg (4 SVG) para preguntas con figuras
    ============================================================ */
 var BANK = [
 
@@ -398,9 +441,6 @@ var BANK = [
 /* ==================== INGLÉS ==================== */
 {cat:"eng",q:"Please fasten your ______ before take-off.",o:["seatbelt","luggage","aisle","boarding"],a:0,e:"'Fasten your seatbelt' = abrocharse el cinturón."},
 {cat:"eng",q:"The flight has been ______ because of the storm.",o:["delayed","arrived","boarded","landed"],a:0,e:"'Delayed' = demorado."},
-{cat:"eng",q:"The plane lands ______ 6 p.m.",o:["at","in","on","to"],a:0,e:"Con horas exactas se usa la preposición 'at'."},
-{cat:"eng",q:"The passengers ______ already boarded the aircraft.",o:["have","has","are","were"],a:0,e:"Present perfect en plural: 'have' + participio."},
-{cat:"eng",q:"Yesterday the flight ______ two hours late.",o:["arrived","arrives","is arriving","arrive"],a:0,e:"'Yesterday' pide pasado simple: arrived."},
 {cat:"eng",q:"A passenger says: \"Could I have a glass of water, please?\" ¿Cuál es la mejor respuesta de la tripulación?",o:["Certainly, here you are.","No, I don't know.","You are welcome to leave.","Please fasten it."],a:0,e:"Es la respuesta cortés y adecuada al pedido."},
 {cat:"eng",q:"\"Passengers with connecting flights must proceed to gate 12.\" ¿Qué deben hacer esos pasajeros?",o:["Dirigirse a la puerta 12","Retirar su equipaje","Esperar en el avión","Cambiar su pasaje"],a:0,e:"'Proceed to gate 12' = dirigirse a la puerta de embarque 12."},
 {cat:"eng",q:"Please remain seated ______ the seatbelt sign is switched off.",o:["until","during","since","while"],a:0,e:"'Until' indica hasta que ocurra ese momento."},
@@ -408,20 +448,15 @@ var BANK = [
 {cat:"eng",q:"This flight is ______ than the one to Santiago.",o:["longer","longest","more long","long"],a:0,e:"Comparativo de adjetivo corto: long → longer."},
 {cat:"eng",q:"The overhead compartment is used to…",o:["store hand luggage","serve meals","store fuel","seat the crew"],a:0,e:"El compartimento superior sirve para guardar el equipaje de mano."},
 {cat:"eng",q:"\"Cabin crew, prepare for ______.\" (el avión está por tocar tierra)",o:["landing","boarding","check-in","departure"],a:0,e:"Landing = aterrizaje."},
-{cat:"eng",q:"How many bags ______ you checking in today?",o:["are","is","do","have"],a:0,e:"Present continuous con 'you': are + checking."},
-{cat:"eng",q:"She has worked as a flight attendant ______ 2019.",o:["since","for","from","ago"],a:0,e:"Con un punto de inicio (un año) se usa 'since'."},
 {cat:"eng",q:"I have lived in Buenos Aires ______ five years.",o:["for","since","during","ago"],a:0,e:"Con un período de tiempo se usa 'for'."},
-{cat:"eng",q:"The plane is now boarding ______ Gate 5.",o:["at","in","to","on"],a:0,e:"Con un punto específico como una puerta se usa 'at'."},
 {cat:"eng",q:"We will land ______ Madrid in two hours.",o:["in","at","on","to"],a:0,e:"Con ciudades/países se usa 'in'."},
 {cat:"eng",q:"Passengers must not smoke ______ the flight.",o:["during","while","since","for"],a:0,e:"'During' + sustantivo (the flight)."},
-{cat:"eng",q:"There ______ a long delay yesterday.",o:["was","were","is","are"],a:0,e:"Singular en pasado: 'was'."},
 {cat:"eng",q:"______ I help you with your bag?",o:["May","Do","Am","Will"],a:0,e:"'May I help you?' es la fórmula cortés de ofrecimiento."},
 {cat:"eng",q:"Please turn ______ your electronic devices during take-off.",o:["off","on","up","in"],a:0,e:"'Turn off' = apagar."},
 {cat:"eng",q:"The flight from Lima ______ just landed.",o:["has","have","is","are"],a:0,e:"Present perfect singular: 'has' + participio."},
 {cat:"eng",q:"We apologize ______ the delay.",o:["for","to","about","of"],a:0,e:"'Apologize for' = disculparse por algo."},
 {cat:"eng",q:"This is the ______ flight I have ever taken.",o:["best","better","most good","goodest"],a:0,e:"Superlativo irregular de 'good' = best."},
 {cat:"eng",q:"How long ______ the flight take?",o:["does","do","is","has"],a:0,e:"Pregunta en presente simple con 'the flight' (singular): does."},
-{cat:"eng",q:"We are now ready ______ boarding.",o:["for","to","in","at"],a:0,e:"'Ready for' + sustantivo (boarding)."},
 {cat:"eng",q:"There aren't ______ seats available on this flight.",o:["any","some","much","no"],a:0,e:"En oraciones negativas se usa 'any'."},
 {cat:"eng",q:"The meal service will begin ______ take-off.",o:["after","since","until","by"],a:0,e:"'After take-off' = después del despegue."},
 {cat:"eng",q:"\"The flight is fully booked.\" ¿Qué significa?",o:["No quedan asientos disponibles","El vuelo se canceló","El vuelo está vacío","El vuelo se demoró"],a:0,e:"'Fully booked' = completo, sin lugares."},
@@ -459,19 +494,29 @@ var BANK = [
 {cat:"eng",q:"I'd rather you ______ smoke in the lavatory.",o:["didn't","don't","not","won't"],a:0,e:"'I'd rather you' + pasado (didn't) para expresar una preferencia."},
 {cat:"eng",q:"Choose the sentence that is grammatically correct.",o:["The crew has been trained to handle emergencies.","The crew have been train to handle emergencies.","The crew has been train to handling emergencies.","The crew been trained to handle emergencies."],a:0,e:"Present perfect pasivo correcto: has been trained + infinitivo to handle."},
 
-/* ---------- LÓGICA: SECUENCIAS DE FORMAS Y ESPACIAL ---------- */
-{cat:"log",q:"¿Qué figura continúa la secuencia?\n▲  ▶  ▼  ◀  ▲  ▶  ▼  ?",o:["◀","▲","▶","▼"],a:0,e:"La flecha gira 90° en sentido horario. Después de ▼ viene ◀."},
-{cat:"log",q:"¿Qué figura continúa?\n●  ○  ●  ○  ●  ?",o:["○","●","◆","□"],a:0,e:"Se alternan círculo lleno y vacío. Después de ● va ○."},
-{cat:"log",q:"¿Qué figura continúa?\n◆  ◆◆  ◆◆◆  ?",o:["◆◆◆◆","◆◆","◆◆◆","◆"],a:0,e:"Cada paso agrega un rombo: 1, 2, 3, 4."},
-{cat:"log",q:"¿Qué figura continúa?\n◐  ◓  ◑  ◒  ◐  ◓  ?",o:["◑","◒","◐","◓"],a:0,e:"El semicírculo relleno rota un cuarto de vuelta cada vez. Después de ◓ viene ◑."},
-{cat:"log",q:"¿Qué figura continúa?\n▲  △  ▲  △  ▲  ?",o:["△","▲","▽","◆"],a:0,e:"Se alternan triángulo lleno y vacío. Después de ▲ va △."},
-{cat:"log",q:"¿Qué grupo continúa?\n○●   ○○●   ○○○●   ?",o:["○○○○●","○○●","○●","●○"],a:0,e:"En cada grupo hay un círculo lleno al final y uno más vacío adelante: 4 vacíos y 1 lleno."},
-{cat:"log",q:"Completá la analogía de figuras:\n▲ es a △ como ■ es a ?",o:["□","■","◇","△"],a:0,e:"La relación es 'relleno → contorno'. El cuadrado lleno pasa a cuadrado vacío."},
-{cat:"log",q:"Completá la analogía de figuras:\n● es a ○ como ◆ es a ?",o:["◇","◆","□","▲"],a:0,e:"Relación 'relleno → vacío'. El rombo lleno pasa a rombo vacío."},
-{cat:"log",q:"¿Qué figura continúa? (los cuadrados suben y bajan)\n▪  ▪▪  ▪▪▪  ▪▪  ?",o:["▪","▪▪▪▪","▪▪▪","▪▪"],a:0,e:"La cantidad crece y decrece: 1, 2, 3, 2, 1."},
-{cat:"log",q:"¿Qué grupo continúa?\n◇◆◇   ◆◇◆   ◇◆◇   ?",o:["◆◇◆","◇◆◇","◆◆◆","◇◇◇"],a:0,e:"Cada grupo invierte el relleno del anterior."},
-{cat:"log",q:"Si ▶ girado 180° es ◀, entonces ▲ girado 180° es…",o:["▼","△","◀","▶"],a:0,e:"Girar 180° un triángulo que apunta arriba lo deja apuntando abajo: ▼."},
-{cat:"log",q:"En la fila ▲ ▲ ▼ ▲, ¿cuál figura está en distinta orientación?",o:["La tercera (▼)","La primera (▲)","La segunda (▲)","La cuarta (▲)"],a:0,e:"Tres apuntan hacia arriba y solo la tercera (▼) apunta hacia abajo."},
+/* ---------- LÓGICA: FIGURAS (SVG) — SERIES ---------- */
+{cat:"log",fig:true,q:"¿Qué figura continúa la serie?",qimg:_row([_tri(0,0),_tri(45,0),_tri(90,0),_tri(135,0),'?']),oimg:[_fig(_tri(180,0)),_fig(_tri(90,0)),_fig(_tri(225,0)),_fig(_tri(0,0))],o:["1","2","3","4"],a:0,e:"El triángulo rota 45° en sentido horario en cada paso. Sigue apuntando hacia abajo."},
+{cat:"log",fig:true,q:"¿Qué figura continúa la serie?",qimg:_row([_dots(1),_dots(2),_dots(3),_dots(4),'?']),oimg:[_fig(_dots(5)),_fig(_dots(4)),_fig(_dots(6)),_fig(_dots(3))],o:["1","2","3","4"],a:0,e:"Se agrega un punto en cada paso: 1, 2, 3, 4, 5."},
+{cat:"log",fig:true,q:"¿Qué figura continúa la serie? (según la cantidad de lados)",qimg:_row([_poly(3,0),_poly(4,0),_poly(5,0),'?']),oimg:[_fig(_poly(6,0)),_fig(_poly(7,0)),_fig(_poly(5,0)),_fig(_poly(4,0))],o:["1","2","3","4"],a:0,e:"Aumenta un lado por figura: 3, 4, 5 y luego 6 (hexágono)."},
+{cat:"log",fig:true,q:"¿Qué figura continúa la serie?",qimg:_row([_circ(1),_circ(0),_circ(1),_circ(0),'?']),oimg:[_fig(_circ(1)),_fig(_circ(0)),_fig(_sq(1)),_fig(_diam(1))],o:["1","2","3","4"],a:0,e:"Se alterna relleno y contorno. Después del vacío sigue el círculo relleno."},
+{cat:"log",fig:true,q:"¿Qué figura continúa la serie?",qimg:_row([_arrow(0),_arrow(90),_arrow(180),'?']),oimg:[_fig(_arrow(270)),_fig(_arrow(180)),_fig(_arrow(0)),_fig(_arrow(90))],o:["1","2","3","4"],a:0,e:"La flecha gira 90° en sentido horario: arriba, derecha, abajo y luego izquierda."},
+{cat:"log",fig:true,q:"¿Qué figura continúa la serie?",qimg:_row([_circ(0),_sq(0),_tri(0,0),_circ(0),_sq(0),'?']),oimg:[_fig(_tri(0,0)),_fig(_circ(0)),_fig(_sq(0)),_fig(_diam(0))],o:["1","2","3","4"],a:0,e:"Se repite el patrón círculo – cuadrado – triángulo."},
+/* ---------- LÓGICA: FIGURAS (SVG) — ANALOGÍAS ---------- */
+{cat:"log",fig:true,q:"Completá la analogía: la primera figura es a la segunda como la tercera es a…",qimg:_row([_sq(1),_sq(0),'|',_circ(1),'?']),oimg:[_fig(_circ(0)),_fig(_circ(1)),_fig(_sq(0)),_fig(_diam(0))],o:["1","2","3","4"],a:0,e:"La relación es 'relleno → contorno'. El círculo lleno pasa a círculo vacío."},
+{cat:"log",fig:true,q:"Completá la analogía: la primera figura es a la segunda como la tercera es a…",qimg:_row([_tri(0,0),_tri(90,0),'|',_arrow(0),'?']),oimg:[_fig(_arrow(90)),_fig(_arrow(180)),_fig(_arrow(270)),_fig(_arrow(0))],o:["1","2","3","4"],a:0,e:"La relación es un giro de 90° horario. La flecha que apunta arriba pasa a apuntar a la derecha."},
+{cat:"log",fig:true,q:"Completá la analogía: la primera figura es a la segunda como la tercera es a…",qimg:_row([_poly(3,0),_poly(4,0),'|',_poly(5,0),'?']),oimg:[_fig(_poly(6,0)),_fig(_poly(7,0)),_fig(_poly(5,0)),_fig(_poly(3,0))],o:["1","2","3","4"],a:0,e:"Cada figura tiene un lado más: al pentágono le corresponde el hexágono."},
+{cat:"log",fig:true,q:"Completá la analogía: la primera figura es a la segunda como la tercera es a…",qimg:_row([_circ(0),_circ(1),'|',_diam(0),'?']),oimg:[_fig(_diam(1)),_fig(_diam(0)),_fig(_circ(1)),_fig(_sq(1))],o:["1","2","3","4"],a:0,e:"La relación es 'contorno → relleno'. El rombo vacío pasa a rombo relleno."},
+/* ---------- LÓGICA: FIGURAS (SVG) — CUÁL SOBRA ---------- */
+{cat:"log",fig:true,q:"¿Cuál de las figuras es distinta a las demás?",oimg:[_fig(_tri(180,0)),_fig(_tri(0,0)),_fig(_tri(0,0)),_fig(_tri(0,0))],o:["1","2","3","4"],a:0,e:"Las otras tres apuntan hacia arriba; solo una apunta hacia abajo."},
+{cat:"log",fig:true,q:"¿Cuál de las figuras es distinta a las demás?",oimg:[_fig(_sq(0)),_fig(_sq(1)),_fig(_sq(1)),_fig(_sq(1))],o:["1","2","3","4"],a:0,e:"Las otras tres están rellenas; solo una es de contorno."},
+{cat:"log",fig:true,q:"¿Cuál de las figuras es distinta a las demás?",oimg:[_fig(_circ(1)),_fig(_sq(1)),_fig(_sq(1)),_fig(_sq(1))],o:["1","2","3","4"],a:0,e:"Las otras tres son cuadrados; solo una es un círculo."},
+{cat:"log",fig:true,q:"¿Cuál de las figuras es distinta a las demás? (fijate en los lados)",oimg:[_fig(_poly(6,0)),_fig(_poly(5,0)),_fig(_poly(5,0)),_fig(_poly(5,0))],o:["1","2","3","4"],a:0,e:"Tres son pentágonos (5 lados) y una es un hexágono (6 lados)."},
+{cat:"log",fig:true,q:"¿Cuál de las figuras es distinta a las demás?",oimg:[_fig(_arrow(90)),_fig(_arrow(0)),_fig(_arrow(0)),_fig(_arrow(0))],o:["1","2","3","4"],a:0,e:"Las otras tres apuntan hacia arriba; solo una apunta a la derecha."},
+/* ---------- LÓGICA: FIGURAS (SVG) — MATRICES 3×3 (RAVEN) ---------- */
+{cat:"log",fig:true,q:"Observá la matriz. ¿Qué figura falta en el casillero con el signo de pregunta?",qimg:_grid([_dots(1),_dots(2),_dots(3),_dots(2),_dots(3),_dots(4),_dots(3),_dots(4),'?']),oimg:[_fig(_dots(5)),_fig(_dots(4)),_fig(_dots(6)),_fig(_dots(3))],o:["1","2","3","4"],a:0,e:"En cada fila la cantidad de puntos aumenta de a uno. La última fila es 3, 4, 5."},
+{cat:"log",fig:true,q:"Observá la matriz. ¿Qué figura falta?",qimg:_grid([_poly(3,0),_poly(4,0),_poly(5,0),_poly(3,0),_poly(4,0),_poly(5,0),_poly(3,0),_poly(4,0),'?']),oimg:[_fig(_poly(5,0)),_fig(_poly(6,0)),_fig(_poly(4,0)),_fig(_poly(3,0))],o:["1","2","3","4"],a:0,e:"Cada columna tiene la misma cantidad de lados: 3, 4 y 5. Falta el pentágono."},
+{cat:"log",fig:true,q:"Observá la matriz. ¿Qué figura falta?",qimg:_grid([_circ(1),_circ(0),_circ(0),_circ(0),_circ(1),_circ(0),_circ(0),_circ(0),'?']),oimg:[_fig(_circ(1)),_fig(_circ(0)),_fig(_sq(1)),_fig(_diam(1))],o:["1","2","3","4"],a:0,e:"La diagonal (arriba-izquierda a abajo-derecha) está rellena; el resto es de contorno."},
+{cat:"log",fig:true,q:"Observá la matriz. ¿Qué figura falta?",qimg:_grid([_arrow(0),_arrow(90),_arrow(180),_arrow(270),_arrow(0),_arrow(90),_arrow(180),_arrow(270),'?']),oimg:[_fig(_arrow(0)),_fig(_arrow(90)),_fig(_arrow(180)),_fig(_arrow(270))],o:["1","2","3","4"],a:0,e:"Leyendo casillero por casillero, la flecha gira 90° cada vez. Cierra el ciclo apuntando hacia arriba."},
 {cat:"log",q:"Ordenadas por cantidad de lados: triángulo, cuadrado, pentágono… ¿cuál sigue?",o:["Hexágono","Círculo","Rombo","Óvalo"],a:0,e:"3, 4, 5, 6 lados: después del pentágono va el hexágono."},
 {cat:"log",q:"¿Cuántos lados tienen en total un triángulo y un cuadrado juntos?",o:["7","8","6","5"],a:0,e:"3 + 4 = 7 lados."},
 {cat:"log",q:"¿Cuántos lados suman dos triángulos y un cuadrado?",o:["10","9","11","8"],a:0,e:"3 + 3 + 4 = 10 lados."},
@@ -505,7 +550,56 @@ var BANK = [
 {cat:"mat",q:"Si 250 g de café rinden 20 tazas, ¿cuántos gramos se necesitan para 50 tazas?",o:["625 g","500 g","600 g","650 g"],a:0,e:"250 ÷ 20 = 12,5 g por taza. 12,5 × 50 = 625 g."},
 {cat:"mat",q:"Un avión desciende 800 m por minuto. Desde 10.000 m, ¿en cuánto tiempo llega a 2.000 m?",o:["10 min","8 min","12 min","9 min"],a:0,e:"Debe bajar 8.000 m. 8.000 ÷ 800 = 10 min."},
 {cat:"mat",q:"El precio de un pasaje subió de $120.000 a $150.000. ¿En qué porcentaje aumentó?",o:["25%","30%","20%","15%"],a:0,e:"Aumento: 30.000. 30.000 ÷ 120.000 = 0,25 = 25%."},
-{cat:"mat",q:"Tres tripulantes cubren 24 filas en partes iguales. Si una se ausenta, ¿cuántas filas cubre cada una de las 2 restantes?",o:["12","8","10","16"],a:0,e:"24 ÷ 2 = 12 filas cada una."}
+{cat:"mat",q:"Tres tripulantes cubren 24 filas en partes iguales. Si una se ausenta, ¿cuántas filas cubre cada una de las 2 restantes?",o:["12","8","10","16"],a:0,e:"24 ÷ 2 = 12 filas cada una."},
+
+/* ==================== INGLÉS AVANZADO (C1) ==================== */
+{cat:"eng",q:"The new attendant really \"knows the ropes.\" It means she…",o:["knows the job very well","is completely lost","is brand new","ties knots"],a:0,e:"'To know the ropes' = manejar bien un trabajo, saber cómo funciona todo."},
+{cat:"eng",q:"Shortly after take-off, a technical fault forced the crew to ______.",o:["turn back","turn up","turn in","turn over"],a:0,e:"'Turn back' = regresar/dar la vuelta."},
+{cat:"eng",q:"Which sentence is INCORRECT?",o:["She don't have her boarding pass.","She doesn't have her boarding pass.","They haven't checked in yet.","He has already boarded."],a:0,e:"Con 'she' se usa 'doesn't', no 'don't'."},
+{cat:"eng",q:"\"Should you require any assistance, please do not hesitate to ask.\" Este registro es…",o:["Una forma formal y cortés de ofrecer ayuda","Una orden tajante","Una queja","Una despedida"],a:0,e:"'Should you require…' es una condicional formal muy usada en atención al cliente."},
+{cat:"eng",q:"______ do we cancel a flight without informing our passengers first.",o:["Never","Ever","Always","Often"],a:0,e:"Un adverbio negativo al inicio ('Never') invierte el orden: Never do we…"},
+{cat:"eng",q:"If she had studied English earlier, she ______ more confident now.",o:["would be","would have been","will be","is"],a:0,e:"Condicional mixta: condición pasada + resultado presente = would + base."},
+{cat:"eng",q:"Each passenger is responsible ______ his or her own carry-on items.",o:["for","of","to","with"],a:0,e:"'Responsible for' = responsable de algo."},
+{cat:"eng",q:"The crew handled the emergency ______, keeping everyone calm.",o:["calmly","calm","calmness","calming"],a:0,e:"Se necesita un adverbio (calmly) para describir cómo actuaron."},
+{cat:"eng",q:"Please make sure your tray table is in the upright and ______ position.",o:["locked","opened","folded","turned"],a:0,e:"Fórmula estándar a bordo: 'upright and locked position'."},
+{cat:"eng",q:"The seatbelt sign is on, so there ______ be turbulence ahead.",o:["must","can't","needn't","shouldn't"],a:0,e:"'Must' expresa deducción lógica: seguramente hay turbulencia."},
+{cat:"eng",q:"The passenger ______ luggage was lost filed a complaint.",o:["whose","who's","which","that's"],a:0,e:"'Whose' indica posesión: el pasajero cuyo equipaje se perdió."},
+{cat:"eng",q:"The captain suggested ______ the departure by ten minutes.",o:["delaying","to delay","delay","delayed"],a:0,e:"Después de 'suggest' se usa gerundio (-ing)."},
+{cat:"eng",q:"\"Passengers may use approved devices in flight mode once the aircraft has reached cruising altitude.\" ¿Cuándo pueden usarlos?",o:["Al alcanzar la altura de crucero, en modo avión","En cualquier momento del vuelo","Nunca durante el vuelo","Solo durante el despegue"],a:0,e:"El permiso aplica recién al llegar a altura de crucero y en modo avión."},
+{cat:"eng",q:"By this time tomorrow, we ______ over the Atlantic.",o:["will be flying","will fly","are flying","flew"],a:0,e:"Futuro continuo para una acción en curso en un momento futuro."},
+{cat:"eng",q:"Not only ______ the flight delayed, but the gate was also changed.",o:["was","did","were","had"],a:0,e:"Tras 'Not only' al inicio hay inversión: 'was the flight delayed'."},
+{cat:"eng",q:"I'd rather you ______ your phone off during the safety demonstration.",o:["kept","keep","keeps","to keep"],a:0,e:"'I'd rather you' + pasado (kept) para expresar preferencia."},
+{cat:"eng",q:"Choose the word most SIMILAR in meaning to \"MANDATORY\".",o:["compulsory","optional","flexible","rare"],a:0,e:"Mandatory = compulsory = obligatorio."},
+{cat:"eng",q:"Choose the word OPPOSITE in meaning to \"ARRIVAL\".",o:["departure","landing","gate","luggage"],a:0,e:"Arrival (llegada) ⇄ departure (salida)."},
+{cat:"eng",q:"Choose the word most SIMILAR in meaning to \"PROHIBITED\".",o:["banned","allowed","required","limited"],a:0,e:"Prohibited = banned = prohibido."},
+{cat:"eng",q:"The words \"CAUTIOUS\" and \"RECKLESS\" are…",o:["opposite in meaning","similar in meaning","unrelated","exactly the same"],a:0,e:"Cautious (prudente) es lo opuesto de reckless (imprudente)."},
+{cat:"eng",q:"Choose the word most SIMILAR in meaning to \"ASSIST\".",o:["help","ignore","delay","refuse"],a:0,e:"Assist = help = ayudar."},
+{cat:"eng",q:"A passenger asks to switch seats. ¿Cuál es la forma MÁS cortés de pedirle a otro que se mueva?",o:["Would you mind moving so a family can sit together?","Move over there.","You must change your seat now.","Change seat, please, now."],a:0,e:"'Would you mind…?' es el pedido más cortés y profesional."},
+
+/* ==================== ESTILO WONDERLIC (velocidad y variedad) ==================== */
+{cat:"log",q:"¿Cuántos de estos pares de números son EXACTAMENTE iguales?\n48273 / 48273\n50918 / 50912\n73641 / 73641\n29085 / 29805\n61457 / 61457",o:["3","2","4","5"],a:0,e:"Son iguales el 1º, 3º y 5º; el 2º y el 4º tienen dígitos cambiados."},
+{cat:"log",q:"¿Cuántos de estos pares son EXACTAMENTE iguales?\nMARTINEZ / MARTINEZ\nGONZALES / GONZALEZ\nRODRIGUEZ / RODRIGUEZ\nFERNANDES / FERNANDEZ",o:["2","3","1","4"],a:0,e:"Coinciden solo MARTINEZ y RODRIGUEZ."},
+{cat:"log",q:"Las palabras ABUNDANTE y ESCASO son…",o:["Opuestas","Sinónimas","Sin relación","Idénticas"],a:0,e:"Abundante (mucho) y escaso (poco) son antónimos."},
+{cat:"log",q:"Las palabras HÁBIL y DIESTRO son…",o:["Sinónimas","Opuestas","Sin relación","Contradictorias"],a:0,e:"Ambas significan que hace algo con destreza."},
+{cat:"log",q:"'A caballo regalado no se le miran los dientes' significa…",o:["No hay que criticar lo que se recibe gratis","Los caballos no tienen dientes","Hay que revisar bien los regalos","Nunca aceptes regalos"],a:0,e:"Ante algo que recibimos gratis, no conviene ponernos exigentes."},
+{cat:"log",q:"'Más vale pájaro en mano que cien volando' significa…",o:["Es mejor lo seguro aunque sea poco que arriesgarlo por más","Hay que cazar pájaros","Cien siempre es mejor que uno","No hay que confiar en nadie"],a:0,e:"Conviene valorar lo seguro por sobre una promesa incierta."},
+{cat:"log",q:"Suponé que las dos primeras frases son verdaderas: 'Todos los pilotos usan uniforme. Juan usa uniforme.' La frase 'Juan es piloto' es…",o:["Incierta","Verdadera","Falsa","Imposible"],a:0,e:"Que use uniforme no prueba que sea piloto: otros también lo usan. Es incierta."},
+{cat:"log",q:"Si las dos primeras son verdaderas: 'Algunas azafatas hablan francés. Ninguna que habla francés trabaja de noche.' Entonces 'Algunas azafatas no trabajan de noche' es…",o:["Verdadera","Falsa","Incierta","Contradictoria"],a:0,e:"Las que hablan francés (que existen) no trabajan de noche, así que algunas azafatas no lo hacen."},
+{cat:"log",q:"Reordená las letras N-A-I-V-Ó para formar un medio de transporte:",o:["AVIÓN","NAVÍO","VAINA","NOVIA"],a:0,e:"Las letras A, V, I, Ó, N forman AVIÓN."},
+{cat:"log",q:"Reordená las letras E-Q-U-I-P-A-J-E para formar una palabra:",o:["EQUIPAJE","PAQUETE","EMPAQUE","EQUIPOS"],a:0,e:"Las 8 letras forman EQUIPAJE."},
+{cat:"log",q:"¿Cuál palabra NO corresponde al grupo?",o:["Zanahoria","Manzana","Banana","Naranja"],a:0,e:"Manzana, banana y naranja son frutas; la zanahoria es una verdura."},
+{cat:"log",q:"El noveno mes del año es…",o:["Septiembre","Agosto","Octubre","Noviembre"],a:0,e:"Enero es el 1º… septiembre es el 9º."},
+{cat:"log",q:"Un cliente grita enojado en el mostrador. La mejor acción es…",o:["Escucharlo con calma y ofrecerle una solución","Ignorarlo","Contestarle gritando también","Retirarse sin decir nada"],a:0,e:"La atención al cliente prioriza escuchar y resolver con calma."},
+{cat:"log",q:"Caminás 3 cuadras al norte y luego 4 cuadras al este. ¿A qué distancia en línea recta estás del punto de partida?",o:["5 cuadras","7 cuadras","6 cuadras","4 cuadras"],a:0,e:"Triángulo rectángulo 3-4-5: la distancia directa es 5 cuadras."},
+{cat:"log",q:"¿Cuál es el MENOR de estos números?\n0,7 — 0,68 — 3/4 — 0,709",o:["0,68","0,7","3/4","0,709"],a:0,e:"3/4 = 0,75. El menor es 0,68."},
+{cat:"log",q:"¿Qué número continúa?\n1/2 — 1/4 — 1/8 — ?",o:["1/16","1/10","1/12","1/6"],a:0,e:"Cada término es la mitad del anterior: 1/8 ÷ 2 = 1/16."},
+{cat:"mat",q:"Un trabajo se paga a $4.500 la hora. ¿Cuánto se cobra por 7 horas y media?",o:["$33.750","$31.500","$35.000","$32.250"],a:0,e:"4.500 × 7,5 = 33.750."},
+{cat:"mat",q:"¿Cuánto es 2/3 de 3/4?",o:["1/2","5/12","3/8","2/7"],a:0,e:"2/3 × 3/4 = 6/12 = 1/2."},
+{cat:"mat",q:"Si 4 lápices cuestan $600, ¿cuánto cuestan 10 lápices?",o:["$1.500","$1.200","$1.800","$1.400"],a:0,e:"600 ÷ 4 = 150 c/u. 150 × 10 = 1.500."},
+{cat:"mat",q:"Un artículo cuesta $2.000 y se vende con un 25% de ganancia. ¿A cuánto se vende?",o:["$2.500","$2.250","$2.400","$2.750"],a:0,e:"25% de 2.000 = 500. 2.000 + 500 = 2.500."},
+{cat:"mat",q:"¿Cuánto es el 15% del 15% de 2.000?",o:["45","300","450","30"],a:0,e:"15% de 2.000 = 300. 15% de 300 = 45."},
+{cat:"mat",q:"Un tanque está lleno hasta sus 3/8 con 90 litros. ¿Cuánto le cabe estando lleno?",o:["240 litros","270 litros","180 litros","320 litros"],a:0,e:"Si 3/8 = 90, entonces 1/8 = 30 y el total (8/8) = 240."},
+{cat:"mat",q:"El precio de algo bajó de $500 a $400. ¿Qué porcentaje bajó?",o:["20%","25%","10%","15%"],a:0,e:"Bajó 100 sobre 500: 100 ÷ 500 = 0,20 = 20%."}
 
 ];
 
@@ -514,9 +608,9 @@ var BANK = [
    ============================================================ */
 var CAT_LABEL = {mat:"Matemática", log:"Lógica", eng:"Inglés"};
 var MODE_INFO = {
-  eng:  {label:"Test de Inglés",               order:["eng"],            pick:{eng:28},              input:"tEng"},
-  mat:  {label:"Test de Matemática y Lógica",  order:["mat","log"],      pick:{mat:24, log:18},      input:"tMat"},
-  full: {label:"Simulacro completo",           order:["mat","log","eng"],pick:{mat:18, log:16, eng:16}, input:"tFull"}
+  eng:  {label:"Test de Inglés",               order:["eng"],            pick:{eng:30},              input:"tEng"},
+  mat:  {label:"Test de Matemática y Lógica",  order:["mat","log"],      pick:{mat:24, log:22},      input:"tMat"},
+  full: {label:"Simulacro completo",           order:["mat","log","eng"],pick:{mat:18, log:18, eng:16}, input:"tFull"}
 };
 
 var state = null;   // { mode, qs:[], answers:[], idx, total, endAt, secs }
@@ -557,6 +651,9 @@ function buildQuestions(mode, doShuffle){
       cat: q.cat,
       q: q.q,
       e: q.e,
+      fig: q.fig || false,
+      qimg: q.qimg || null,
+      oimg: q.oimg ? order.map(function(i){ return q.oimg[i]; }) : null,
       o: order.map(function(i){ return q.o[i]; }),
       a: order.indexOf(q.a)
     };
@@ -618,14 +715,27 @@ function render(){
   $("counter").textContent = (state.idx + 1) + " / " + state.total;
   $("progressBar").style.width = ((state.idx + 1) / state.total * 100) + "%";
 
+  var qf = $("qfig");
+  if (q.qimg){ qf.innerHTML = q.qimg; qf.style.display = "block"; }
+  else { qf.innerHTML = ""; qf.style.display = "none"; }
+
   var box = $("opts");
   box.innerHTML = "";
   q.o.forEach(function(text, i){
     var b = document.createElement("button");
-    b.className = "opt" + (state.answers[state.idx] === i ? " sel" : "");
+    b.className = "opt" + (q.oimg ? " figopt" : "") + (state.answers[state.idx] === i ? " sel" : "");
     b.type = "button";
-    b.innerHTML = '<span class="k">' + "ABCD".charAt(i) + '</span><span></span>';
-    b.lastChild.textContent = text;
+    b.innerHTML = '<span class="k">' + "ABCD".charAt(i) + '</span>';
+    if (q.oimg){
+      var f = document.createElement("span");
+      f.className = "ofig";
+      f.innerHTML = q.oimg[i];
+      b.appendChild(f);
+    } else {
+      var t = document.createElement("span");
+      t.textContent = text;
+      b.appendChild(t);
+    }
     b.addEventListener("click", function(){
       state.answers[state.idx] = i;
       render();
@@ -694,16 +804,26 @@ function finish(byTime){
       d.appendChild(num);
       d.appendChild(qt);
 
+      if (w.q.qimg){
+        var qf = document.createElement("div");
+        qf.style.cssText = "text-align:center;margin:2px 0 10px;overflow-x:auto";
+        qf.innerHTML = w.q.qimg;
+        d.appendChild(qf);
+      }
+
       var mine = document.createElement("div");
       mine.className = "ans bad";
-      mine.innerHTML = '<span class="lbl">Tu respuesta</span><span></span>';
-      mine.lastChild.textContent = (w.ans === null ? "Sin responder" : w.q.o[w.ans]);
+      mine.innerHTML = '<span class="lbl">Tu respuesta</span>';
+      if (w.ans === null){ var ms=document.createElement("span"); ms.textContent="Sin responder"; mine.appendChild(ms); }
+      else if (w.q.oimg){ var mf=document.createElement("span"); mf.className="ofig"; mf.innerHTML=w.q.oimg[w.ans]; mine.appendChild(mf); }
+      else { var mt=document.createElement("span"); mt.textContent=w.q.o[w.ans]; mine.appendChild(mt); }
       d.appendChild(mine);
 
       var good = document.createElement("div");
       good.className = "ans good";
-      good.innerHTML = '<span class="lbl">Respuesta correcta</span><span></span>';
-      good.lastChild.textContent = w.q.o[w.q.a];
+      good.innerHTML = '<span class="lbl">Respuesta correcta</span>';
+      if (w.q.oimg){ var gf=document.createElement("span"); gf.className="ofig"; gf.innerHTML=w.q.oimg[w.q.a]; good.appendChild(gf); }
+      else { var gt=document.createElement("span"); gt.textContent=w.q.o[w.q.a]; good.appendChild(gt); }
       d.appendChild(good);
 
       if (w.q.e){
