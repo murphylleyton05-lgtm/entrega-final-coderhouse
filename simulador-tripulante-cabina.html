@@ -190,7 +190,7 @@
     <button class="mode" data-mode="eng">
       <div class="top"><span class="emoji">&#127760;</span><span class="title">Test de Inglés</span></div>
       <div class="desc">Vocabulario de aviación y atención al pasajero, gramática básica y comprensión de oraciones.</div>
-      <div class="chips"><span class="chip">15 preguntas</span><span class="chip" id="chipEng">10 min</span><span class="chip">Multiple choice</span></div>
+      <div class="chips"><span class="chip">25 preguntas</span><span class="chip" id="chipEng">10 min</span><span class="chip">Rotan del banco</span></div>
     </button>
 
     <button class="mode" data-mode="mat">
@@ -201,8 +201,8 @@
 
     <button class="mode" data-mode="full">
       <div class="top"><span class="emoji">&#128203;</span><span class="title">Simulacro completo</span></div>
-      <div class="desc">Las 50 preguntas juntas, mezcladas. Para medir resistencia y velocidad general.</div>
-      <div class="chips"><span class="chip">50 preguntas</span><span class="chip" id="chipFull">25 min</span></div>
+      <div class="desc">40 preguntas mezcladas de las tres áreas. Para medir resistencia y velocidad general.</div>
+      <div class="chips"><span class="chip">40 preguntas</span><span class="chip" id="chipFull">25 min</span></div>
     </button>
 
     <div class="panel">
@@ -288,7 +288,7 @@
    ============================================================ */
 var BANK = [
 
-/* ---------- MATEMÁTICA (18) ---------- */
+/* ==================== MATEMÁTICA ==================== */
 {cat:"mat",q:"Un avión tiene 180 asientos y se vendió el 85% del pasaje. ¿Cuántos asientos quedaron libres?",o:["27","15","25","36"],a:0,e:"180 × 0,85 = 153 vendidos. 180 − 153 = 27 libres."},
 {cat:"mat",q:"Un vuelo despega a las 14:35 y dura 2 horas y 50 minutos. ¿A qué hora aterriza?",o:["17:25","16:85","17:15","18:05"],a:0,e:"14:35 + 2 h = 16:35; 16:35 + 50 min = 17:25."},
 {cat:"mat",q:"Si 3 carritos de servicio alcanzan para atender a 120 pasajeros, ¿cuántos carritos se necesitan para 200 pasajeros?",o:["5","4","6","7"],a:0,e:"120 ÷ 3 = 40 pasajeros por carrito. 200 ÷ 40 = 5 carritos."},
@@ -307,8 +307,47 @@ var BANK = [
 {cat:"mat",q:"Si en la cabina hay 156 pasajeros sentados en filas de 6 asientos completas, ¿cuántas filas ocupan?",o:["26","24","28","30"],a:0,e:"156 ÷ 6 = 26 filas."},
 {cat:"mat",q:"De 90 pasajeros, el 30% pidió menú vegetariano. ¿Cuántos menús vegetarianos se necesitan?",o:["27","30","24","18"],a:0,e:"90 × 0,30 = 27."},
 {cat:"mat",q:"En un vuelo de 200 pasajeros, el 40% son mujeres y el resto hombres. ¿Cuál es la diferencia entre hombres y mujeres?",o:["40","20","60","80"],a:0,e:"Mujeres: 80. Hombres: 120. Diferencia: 120 − 80 = 40."},
+{cat:"mat",q:"Un avión de 320 pasajeros ya embarcó al 60%. ¿Cuántos pasajeros faltan embarcar?",o:["128","192","160","96"],a:0,e:"60% embarcó → falta el 40%. 320 × 0,40 = 128."},
+{cat:"mat",q:"Si 5 tripulantes atienden a 150 pasajeros, ¿cuántos tripulantes se necesitan para 210 pasajeros manteniendo la proporción?",o:["7","6","8","9"],a:0,e:"150 ÷ 5 = 30 pasajeros por tripulante. 210 ÷ 30 = 7."},
+{cat:"mat",q:"Dos valijas pesan juntas 47 kg. Una pesa 5 kg más que la otra. ¿Cuánto pesa la más pesada?",o:["26 kg","21 kg","25 kg","23,5 kg"],a:0,e:"Si la liviana pesa x: x + (x+5) = 47 → x = 21. La pesada: 26 kg."},
+{cat:"mat",q:"Un vuelo despega a las 08:15 y dura 1 hora y 40 minutos. ¿A qué hora aterriza?",o:["09:55","09:45","10:05","08:55"],a:0,e:"08:15 + 1 h 40 min = 09:55."},
+{cat:"mat",q:"Un carrito lleva 48 latas ordenadas en 4 filas iguales. ¿Cuántas latas hay por fila?",o:["12","10","16","8"],a:0,e:"48 ÷ 4 = 12 latas por fila."},
+{cat:"mat",q:"Un servicio a bordo cuesta $2.400. ¿Cuánto es una propina del 15%?",o:["$360","$240","$400","$300"],a:0,e:"15% de 2.400 = 360."},
+{cat:"mat",q:"Un avión recorre 600 km en 45 minutos. ¿A qué velocidad vuela en km/h?",o:["800 km/h","900 km/h","750 km/h","700 km/h"],a:0,e:"45 min = 0,75 h. 600 ÷ 0,75 = 800 km/h."},
+{cat:"mat",q:"De 500 asientos disponibles se ocuparon 375. ¿Qué porcentaje se ocupó?",o:["75%","70%","80%","65%"],a:0,e:"375 ÷ 500 = 0,75 = 75%."},
+{cat:"mat",q:"Con viento en contra, un avión pierde 3 minutos por cada 100 km. En un tramo de 500 km, ¿cuánto tiempo pierde?",o:["15 minutos","12 minutos","20 minutos","10 minutos"],a:0,e:"500 ÷ 100 = 5 tramos. 5 × 3 = 15 minutos."},
+{cat:"mat",q:"El límite de equipaje es 23 kg y un pasajero lleva 27,6 kg. ¿En qué porcentaje excede el límite?",o:["20%","15%","25%","18%"],a:0,e:"Exceso: 27,6 − 23 = 4,6 kg. 4,6 ÷ 23 = 0,20 = 20%."},
+{cat:"mat",q:"En un vuelo de 360 pasajeros, 1/4 son niños. ¿Cuántos niños viajan?",o:["90","72","120","60"],a:0,e:"360 ÷ 4 = 90."},
+{cat:"mat",q:"Un turista cambia 250 euros a 1.400 pesos cada uno. ¿Cuántos pesos recibe?",o:["$350.000","$300.000","$360.000","$340.000"],a:0,e:"250 × 1.400 = 350.000."},
+{cat:"mat",q:"Tres vuelos transportaron 145, 167 y 188 pasajeros. ¿Cuántos pasajeros en total?",o:["500","490","510","480"],a:0,e:"145 + 167 + 188 = 500."},
+{cat:"mat",q:"Un turno dura 9 horas e incluye 45 minutos de descanso. ¿Cuánto tiempo se trabaja de forma efectiva?",o:["8 h 15 min","8 h 45 min","8 h","7 h 45 min"],a:0,e:"9 h − 45 min = 8 h 15 min."},
+{cat:"mat",q:"Un avión sale con 189 pasajeros. En una escala bajan 45 y suben 30. ¿Con cuántos continúa?",o:["174","204","144","159"],a:0,e:"189 − 45 + 30 = 174."},
+{cat:"mat",q:"Un tanque tiene 24.000 litros de combustible y en el primer tramo se gasta el 40%. ¿Cuánto queda?",o:["14.400 litros","9.600 litros","16.000 litros","12.000 litros"],a:0,e:"Gasta 24.000 × 0,40 = 9.600. Queda 24.000 − 9.600 = 14.400."},
+{cat:"mat",q:"Una aerolínea opera 8 vuelos por día durante 6 días a la semana. ¿Cuántos vuelos por semana?",o:["48","54","42","56"],a:0,e:"8 × 6 = 48."},
+{cat:"mat",q:"Una tripulante cobra $600.000 de sueldo más un bono del 15%. ¿Cuánto cobra en total?",o:["$690.000","$615.000","$700.000","$660.000"],a:0,e:"Bono: 600.000 × 0,15 = 90.000. Total: 690.000."},
+{cat:"mat",q:"Se reparten 240 tareas entre 3 tripulantes en la proporción 1:2:3. ¿Cuántas le tocan al que más recibe?",o:["120","80","100","60"],a:0,e:"1+2+3 = 6 partes. 240 ÷ 6 = 40. El mayor recibe 3 × 40 = 120."},
+{cat:"mat",q:"Un producto sale $100.000 y se le aplican dos descuentos sucesivos del 10%. ¿Cuánto queda?",o:["$81.000","$80.000","$82.000","$79.000"],a:0,e:"100.000 × 0,9 = 90.000; 90.000 × 0,9 = 81.000."},
+{cat:"mat",q:"Un vuelo sale con 12 minutos de retraso y recupera 2 minutos cada 30 minutos durante 3 horas. ¿Cómo llega?",o:["Llega a horario","6 min tarde","12 min tarde","6 min antes"],a:0,e:"En 3 h hay 6 intervalos de 30 min. Recupera 6 × 2 = 12 min, justo lo que se atrasó."},
+{cat:"mat",q:"Un artículo cuesta $80.000 sin impuestos. Con el IVA del 21%, ¿cuánto cuesta?",o:["$96.800","$100.800","$92.000","$98.400"],a:0,e:"80.000 × 1,21 = 96.800."},
+{cat:"mat",q:"Se distribuyen 900 kg de carga en 6 pallets iguales. ¿Cuánto pesa cada pallet?",o:["150 kg","120 kg","180 kg","90 kg"],a:0,e:"900 ÷ 6 = 150 kg."},
+{cat:"mat",q:"¿Cuánto suman 2 horas 20 minutos más 3 horas 55 minutos?",o:["6 h 15 min","6 h 5 min","5 h 75 min","6 h 25 min"],a:0,e:"20 + 55 = 75 min = 1 h 15 min. 2 + 3 + 1 = 6 h, y 15 min → 6 h 15 min."},
+{cat:"mat",q:"Un vuelo tenía 40 pasajeros y ahora tiene 50. ¿En qué porcentaje aumentó?",o:["25%","20%","10%","15%"],a:0,e:"Aumento: 10. 10 ÷ 40 = 0,25 = 25%."},
+{cat:"mat",q:"En una cabina se ocupan 2 de cada 3 asientos. Si hay 210 asientos, ¿cuántos están ocupados?",o:["140","70","150","105"],a:0,e:"210 × 2/3 = 140."},
+{cat:"mat",q:"Un vuelo dura 5 horas en total, con una escala de 50 minutos. ¿Cuánto tiempo estuvo en el aire?",o:["4 h 10 min","4 h 50 min","5 h 50 min","3 h 10 min"],a:0,e:"5 h − 50 min = 4 h 10 min."},
+{cat:"mat",q:"El promedio de 4 números es 25. Tres de ellos son 20, 30 y 25. ¿Cuál es el cuarto?",o:["25","20","30","35"],a:0,e:"Suma total: 25 × 4 = 100. 100 − (20+30+25) = 25."},
+{cat:"mat",q:"Si el dólar vale 1.300 pesos, ¿cuántos dólares puedo comprar con $650.000?",o:["500","550","480","520"],a:0,e:"650.000 ÷ 1.300 = 500."},
+{cat:"mat",q:"En un grupo de 60 pasajeros la razón entre adultos y niños es 4 a 1. ¿Cuántos niños hay?",o:["12","15","10","20"],a:0,e:"4 + 1 = 5 partes. 60 ÷ 5 = 12 → los niños son 1 parte = 12."},
+{cat:"mat",q:"Hay un vuelo cada 90 minutos a partir de las 06:00. ¿A qué hora sale el cuarto vuelo?",o:["10:30","09:00","10:00","11:00"],a:0,e:"06:00, 07:30, 09:00, 10:30. El cuarto es a las 10:30."},
+{cat:"mat",q:"Un pasaje de $200.000 tiene un 35% de descuento. ¿Cuánto se paga?",o:["$130.000","$140.000","$120.000","$135.000"],a:0,e:"Descuento: 200.000 × 0,35 = 70.000. 200.000 − 70.000 = 130.000."},
+{cat:"mat",q:"Si 4 tripulantes preparan la cabina en 60 minutos, ¿cuánto tardarían 6 tripulantes al mismo ritmo?",o:["40 min","45 min","90 min","30 min"],a:0,e:"Es proporción inversa: 4 × 60 = 240. 240 ÷ 6 = 40 minutos."},
+{cat:"mat",q:"Un avión de 180 asientos vende pasajes por el 105% de su capacidad (overbooking). ¿Cuántos pasajeros quedarían sin asiento si vienen todos?",o:["9","5","18","0"],a:0,e:"180 × 1,05 = 189 vendidos. 189 − 180 = 9 sin asiento."},
+{cat:"mat",q:"¿Cuántas botellas de agua hay en 3 cajas de 24 unidades cada una?",o:["72","48","96","64"],a:0,e:"3 × 24 = 72."},
+{cat:"mat",q:"Un pasajero tiene $500.000 y gasta 3/8 en su pasaje. ¿Cuánto le queda?",o:["$312.500","$187.500","$300.000","$250.000"],a:0,e:"Le queda 5/8. 500.000 × 5/8 = 312.500."},
+{cat:"mat",q:"Un vuelo sale a las 10:00 y dura 8 horas. El destino tiene 4 horas más (adelantado). ¿Qué hora local es al llegar?",o:["22:00","18:00","14:00","20:00"],a:0,e:"10:00 + 8 h = 18:00 hora de origen. Con +4 h de diferencia: 22:00 local."},
+{cat:"mat",q:"Un avión tiene 7 filas de 6 asientos en económica y 3 filas de 4 en ejecutiva. ¿Cuántos asientos hay en total?",o:["54","48","42","60"],a:0,e:"7 × 6 = 42 y 3 × 4 = 12. Total: 42 + 12 = 54."},
+{cat:"mat",q:"Un reloj marca 00:10. ¿Qué hora marcaba 20 minutos antes?",o:["23:50","00:30","23:40","00:50"],a:0,e:"00:10 − 20 min = 23:50 del día anterior."},
 
-/* ---------- LÓGICA (17) ---------- */
+/* ==================== LÓGICA ==================== */
 {cat:"log",q:"¿Qué número continúa la serie?\n3 — 6 — 12 — 24 — ?",o:["48","36","30","42"],a:0,e:"Cada término se multiplica por 2. 24 × 2 = 48."},
 {cat:"log",q:"¿Qué número continúa la serie?\n2 — 5 — 10 — 17 — 26 — ?",o:["37","35","36","38"],a:0,e:"Las diferencias son +3, +5, +7, +9, y luego +11. 26 + 11 = 37."},
 {cat:"log",q:"¿Qué número continúa la serie?\n100 — 92 — 85 — 79 — ?",o:["74","73","75","72"],a:0,e:"Las diferencias son −8, −7, −6 y luego −5. 79 − 5 = 74."},
@@ -326,8 +365,37 @@ var BANK = [
 {cat:"log",q:"¿Qué número continúa la serie?\n1 — 1 — 2 — 3 — 5 — 8 — ?",o:["13","11","10","16"],a:0,e:"Cada término es la suma de los dos anteriores: 5 + 8 = 13."},
 {cat:"log",q:"En un vuelo hay más argentinos que chilenos, y más chilenos que brasileños. Si hay 3 brasileños, ¿cuál es la menor cantidad posible de argentinos?",o:["5","4","6","3"],a:0,e:"Chilenos al menos 4 (más que 3) y argentinos al menos 5 (más que 4)."},
 {cat:"log",q:"Si AVION se codifica como BWJPO (cada letra avanza una posición), ¿cómo se codifica ALAS?",o:["BMBT","BMBS","AMBT","BLBT"],a:0,e:"A→B, L→M, A→B, S→T."},
+{cat:"log",q:"¿Qué número continúa la serie?\n4 — 9 — 16 — 25 — ?",o:["36","30","32","49"],a:0,e:"Son cuadrados perfectos: 2², 3², 4², 5²… El siguiente es 6² = 36."},
+{cat:"log",q:"¿Qué número continúa la serie?\n81 — 27 — 9 — 3 — ?",o:["1","0","2","3"],a:0,e:"Cada término se divide por 3. 3 ÷ 3 = 1."},
+{cat:"log",q:"¿Qué número continúa la serie?\n1 — 3 — 6 — 10 — 15 — ?",o:["21","20","18","22"],a:0,e:"Las diferencias crecen +2, +3, +4, +5, +6. 15 + 6 = 21."},
+{cat:"log",q:"¿Qué número continúa la serie?\n5 — 11 — 23 — 47 — ?",o:["95","94","96","91"],a:0,e:"Cada término se multiplica por 2 y se le suma 1. 47 × 2 + 1 = 95."},
+{cat:"log",q:"¿Qué número continúa la serie?\n90 — 80 — 71 — 63 — 56 — ?",o:["50","49","51","48"],a:0,e:"Las diferencias son −10, −9, −8, −7 y luego −6. 56 − 6 = 50."},
+{cat:"log",q:"¿Qué número continúa la serie?\n12 — 10 — 15 — 13 — 18 — 16 — ?",o:["21","20","19","22"],a:0,e:"Se alterna −2 y +5. Después de 16 corresponde +5 = 21."},
+{cat:"log",q:"¿Qué letra continúa la serie?\nB — D — G — K — ?",o:["P","O","N","Q"],a:0,e:"Los saltos son +2, +3, +4 y luego +5 posiciones. De K se avanza 5 letras hasta P."},
+{cat:"log",q:"¿Qué letra continúa la serie?\nZ — X — V — T — ?",o:["R","S","U","Q"],a:0,e:"Se retrocede de a 2 letras en el abecedario. Después de T viene R."},
+{cat:"log",q:"¿Cuál es el elemento que NO pertenece al grupo?",o:["Roble","Rosa","Tulipán","Margarita"],a:0,e:"Rosa, tulipán y margarita son flores; el roble es un árbol."},
+{cat:"log",q:"¿Cuál de estos números NO pertenece al grupo?\n3 — 5 — 7 — 9 — 11",o:["9","5","7","11"],a:0,e:"Todos son primos salvo el 9 (3 × 3)."},
+{cat:"log",q:"Caliente es a frío como día es a…",o:["Noche","Sol","Tarde","Luz"],a:0,e:"Es una relación de opuestos: caliente/frío, día/noche."},
+{cat:"log",q:"Mano es a guante como pie es a…",o:["Zapato","Cabeza","Dedo","Pierna"],a:0,e:"Cada prenda cubre su parte del cuerpo: guante/mano, zapato/pie."},
+{cat:"log",q:"Médico es a hospital como maestro es a…",o:["Escuela","Libro","Alumno","Pizarrón"],a:0,e:"Relación de profesional y su lugar de trabajo."},
+{cat:"log",q:"Reloj es a tiempo como termómetro es a…",o:["Temperatura","Calor","Mercurio","Clima"],a:0,e:"Cada instrumento mide su magnitud: reloj/tiempo, termómetro/temperatura."},
+{cat:"log",q:"Abeja es a colmena como…",o:["Hormiga es a hormiguero","Perro es a hueso","Pájaro es a cielo","Pez es a agua"],a:0,e:"Relación de animal y el lugar donde vive en comunidad."},
+{cat:"log",q:"Todos los pájaros tienen plumas. El pingüino es un pájaro. ¿Qué se concluye?",o:["El pingüino tiene plumas","El pingüino vuela","Ningún pájaro nada","El pingüino no es un pájaro"],a:0,e:"Silogismo directo: si todos los pájaros tienen plumas y el pingüino es pájaro, tiene plumas."},
+{cat:"log",q:"Algunos gerentes son ingenieros. Todos los ingenieros estudiaron cálculo. ¿Qué se concluye?",o:["Algunos gerentes estudiaron cálculo","Todos los gerentes son ingenieros","Ningún gerente estudió cálculo","Todos estudiaron cálculo"],a:0,e:"Esos gerentes que son ingenieros, por serlo, estudiaron cálculo."},
+{cat:"log",q:"\"Si llueve, se cancela el picnic.\" El picnic se realizó. ¿Qué se concluye?",o:["No llovió","Llovió","Se canceló el picnic","No se puede saber"],a:0,e:"Si la consecuencia (cancelar) no ocurrió, la causa (lluvia) tampoco."},
+{cat:"log",q:"Todos los A son B. Ningún B es C. ¿Qué se concluye?",o:["Ningún A es C","Algún A es C","Todos los C son A","No se puede concluir nada"],a:0,e:"Si todo A está dentro de B, y B no toca a C, entonces ningún A es C."},
+{cat:"log",q:"Todos los perros son animales. Algunos animales son gatos. ¿Qué se concluye sobre perros y gatos?",o:["No se puede concluir que los perros sean gatos","Todos los perros son gatos","Algunos perros son gatos","Ningún perro es animal"],a:0,e:"No hay relación forzosa entre perros y gatos: la conclusión no se deduce."},
+{cat:"log",q:"Luis es más alto que Marcos y Marcos es más alto que Nico. ¿Quién es el más bajo?",o:["Nico","Marcos","Luis","No se puede saber"],a:0,e:"Orden de altura: Luis > Marcos > Nico. El más bajo es Nico."},
+{cat:"log",q:"Si anteayer fue lunes, ¿qué día será pasado mañana?",o:["Viernes","Jueves","Sábado","Domingo"],a:0,e:"Anteayer lunes → hoy es miércoles → pasado mañana es viernes."},
+{cat:"log",q:"Si CASA se codifica DBTB (cada letra +1), ¿cómo se codifica MESA?",o:["NFTB","NFTA","NFSB","MFTB"],a:0,e:"M→N, E→F, S→T, A→B."},
+{cat:"log",q:"En un grupo, 20 personas hablan inglés, 15 hablan francés y 5 hablan ambos idiomas. ¿Cuántas personas hay en total?",o:["30","35","25","40"],a:0,e:"20 + 15 − 5 (contados dos veces) = 30."},
+{cat:"log",q:"Juan tiene el doble de años que Ana. Entre los dos suman 36 años. ¿Cuántos años tiene Juan?",o:["24","18","12","30"],a:0,e:"Ana + 2·Ana = 36 → Ana = 12, Juan = 24."},
+{cat:"log",q:"Un reloj se atrasa 5 minutos por cada hora. Después de 6 horas, ¿cuánto se atrasó en total?",o:["30 minutos","25 minutos","35 minutos","20 minutos"],a:0,e:"5 × 6 = 30 minutos."},
+{cat:"log",q:"Si 8 es a 4 como 18 es a…",o:["9","6","12","8"],a:0,e:"La relación es la mitad: 8/2 = 4, entonces 18/2 = 9."},
+{cat:"log",q:"Siguiendo el patrón: 3+5=28, 4+6=210. Entonces 5+9 = ?",o:["414","514","419","404"],a:0,e:"Se escribe la resta seguida de la suma: 9−5=4 y 9+5=14 → 414."},
+{cat:"log",q:"¿Cuál NO es una herramienta?",o:["Clavo","Martillo","Destornillador","Pinza"],a:0,e:"El clavo es un material que se usa con herramientas, no una herramienta."},
 
-/* ---------- INGLÉS (15) ---------- */
+/* ==================== INGLÉS ==================== */
 {cat:"eng",q:"Please fasten your ______ before take-off.",o:["seatbelt","luggage","aisle","boarding"],a:0,e:"'Fasten your seatbelt' = abrocharse el cinturón."},
 {cat:"eng",q:"The flight has been ______ because of the storm.",o:["delayed","arrived","boarded","landed"],a:0,e:"'Delayed' = demorado."},
 {cat:"eng",q:"¿Qué significa la palabra \"luggage\"?",o:["Equipaje","Pasaje","Pasillo","Retraso"],a:0,e:"Luggage / baggage = equipaje."},
@@ -342,7 +410,39 @@ var BANK = [
 {cat:"eng",q:"This flight is ______ than the one to Santiago.",o:["longer","longest","more long","long"],a:0,e:"Comparativo de adjetivo corto: long → longer."},
 {cat:"eng",q:"The overhead compartment is used to…",o:["store hand luggage","serve meals","store fuel","seat the crew"],a:0,e:"El compartimento superior sirve para guardar el equipaje de mano."},
 {cat:"eng",q:"\"Cabin crew, prepare for ______.\" (el avión está por tocar tierra)",o:["landing","boarding","check-in","departure"],a:0,e:"Landing = aterrizaje."},
-{cat:"eng",q:"How many bags ______ you checking in today?",o:["are","is","do","have"],a:0,e:"Present continuous con 'you': are + checking."}
+{cat:"eng",q:"How many bags ______ you checking in today?",o:["are","is","do","have"],a:0,e:"Present continuous con 'you': are + checking."},
+{cat:"eng",q:"¿Qué significa \"boarding pass\"?",o:["Tarjeta de embarque","Cinturón de seguridad","Pasaporte","Maleta"],a:0,e:"Boarding pass = tarjeta de embarque."},
+{cat:"eng",q:"¿Qué significa \"delay\"?",o:["Demora","Llegada","Puerta","Asiento"],a:0,e:"Delay = demora / retraso."},
+{cat:"eng",q:"¿Qué significa \"crew\"?",o:["Tripulación","Pasajero","Piloto","Carga"],a:0,e:"Crew = tripulación."},
+{cat:"eng",q:"¿Qué significa \"gate\" en un aeropuerto?",o:["Puerta de embarque","Bodega","Cabina","Pista"],a:0,e:"Gate = puerta de embarque."},
+{cat:"eng",q:"¿Qué significa \"runway\"?",o:["Pista de aterrizaje","Pasillo","Puerta","Ala"],a:0,e:"Runway = pista de aterrizaje/despegue."},
+{cat:"eng",q:"¿Qué significa \"life vest\"?",o:["Chaleco salvavidas","Cinturón","Bufanda","Guante"],a:0,e:"Life vest / life jacket = chaleco salvavidas."},
+{cat:"eng",q:"¿Qué significa \"connecting flight\"?",o:["Vuelo de conexión","Vuelo directo","Vuelo cancelado","Vuelo de carga"],a:0,e:"Connecting flight = vuelo de conexión."},
+{cat:"eng",q:"¿Qué significa \"on time\"?",o:["A horario","Demorado","Cancelado","Adelantado"],a:0,e:"On time = a horario, puntual."},
+{cat:"eng",q:"¿Qué significa \"take-off\"?",o:["Despegue","Aterrizaje","Escala","Demora"],a:0,e:"Take-off = despegue."},
+{cat:"eng",q:"¿Qué significa \"boarding\"?",o:["Embarque","Aterrizaje","Despegue","Escala"],a:0,e:"Boarding = embarque."},
+{cat:"eng",q:"She has worked as a flight attendant ______ 2019.",o:["since","for","from","ago"],a:0,e:"Con un punto de inicio (un año) se usa 'since'."},
+{cat:"eng",q:"I have lived in Buenos Aires ______ five years.",o:["for","since","during","ago"],a:0,e:"Con un período de tiempo se usa 'for'."},
+{cat:"eng",q:"The plane is now boarding ______ Gate 5.",o:["at","in","to","on"],a:0,e:"Con un punto específico como una puerta se usa 'at'."},
+{cat:"eng",q:"We will land ______ Madrid in two hours.",o:["in","at","on","to"],a:0,e:"Con ciudades/países se usa 'in'."},
+{cat:"eng",q:"Passengers must not smoke ______ the flight.",o:["during","while","since","for"],a:0,e:"'During' + sustantivo (the flight)."},
+{cat:"eng",q:"There ______ a long delay yesterday.",o:["was","were","is","are"],a:0,e:"Singular en pasado: 'was'."},
+{cat:"eng",q:"______ I help you with your bag?",o:["May","Do","Am","Will"],a:0,e:"'May I help you?' es la fórmula cortés de ofrecimiento."},
+{cat:"eng",q:"Please turn ______ your electronic devices during take-off.",o:["off","on","up","in"],a:0,e:"'Turn off' = apagar."},
+{cat:"eng",q:"The flight from Lima ______ just landed.",o:["has","have","is","are"],a:0,e:"Present perfect singular: 'has' + participio."},
+{cat:"eng",q:"We apologize ______ the delay.",o:["for","to","about","of"],a:0,e:"'Apologize for' = disculparse por algo."},
+{cat:"eng",q:"This is the ______ flight I have ever taken.",o:["best","better","most good","goodest"],a:0,e:"Superlativo irregular de 'good' = best."},
+{cat:"eng",q:"How long ______ the flight take?",o:["does","do","is","has"],a:0,e:"Pregunta en presente simple con 'the flight' (singular): does."},
+{cat:"eng",q:"We are now ready ______ boarding.",o:["for","to","in","at"],a:0,e:"'Ready for' + sustantivo (boarding)."},
+{cat:"eng",q:"There aren't ______ seats available on this flight.",o:["any","some","much","no"],a:0,e:"En oraciones negativas se usa 'any'."},
+{cat:"eng",q:"The meal service will begin ______ take-off.",o:["after","since","until","by"],a:0,e:"'After take-off' = después del despegue."},
+{cat:"eng",q:"\"The flight is fully booked.\" ¿Qué significa?",o:["No quedan asientos disponibles","El vuelo se canceló","El vuelo está vacío","El vuelo se demoró"],a:0,e:"'Fully booked' = completo, sin lugares."},
+{cat:"eng",q:"A passenger says: \"I missed my connection.\" ¿Qué le pasó?",o:["Perdió su vuelo de conexión","Perdió su equipaje","Perdió su pasaporte","Llegó temprano"],a:0,e:"'Missed my connection' = perdí mi vuelo de conexión."},
+{cat:"eng",q:"\"Boarding will begin shortly.\" ¿Qué significa?",o:["El embarque comenzará pronto","El vuelo fue cancelado","Ya terminó el embarque","El avión aterrizó"],a:0,e:"'Shortly' = en breve, pronto."},
+{cat:"eng",q:"A passenger says \"Thank you for your help.\" ¿Cuál es la mejor respuesta?",o:["You're welcome.","I'm sorry.","Please sit down.","Not possible."],a:0,e:"'You're welcome' = de nada."},
+{cat:"eng",q:"A passenger asks: \"Where is the lavatory?\" ¿Qué está buscando?",o:["El baño","La salida","Su asiento","La bodega"],a:0,e:"Lavatory / toilet = el baño del avión."},
+{cat:"eng",q:"\"We are experiencing some turbulence.\" ¿Qué está ocurriendo?",o:["Hay turbulencia","El avión aterrizó","Se sirve la comida","El vuelo llegó"],a:0,e:"Turbulence = turbulencia."},
+{cat:"eng",q:"Passengers are requested to ______ their seatbelts during the flight.",o:["fasten","fastens","fastened","fastening"],a:0,e:"Después de 'to' va el verbo en infinitivo: fasten."}
 
 ];
 
@@ -351,9 +451,9 @@ var BANK = [
    ============================================================ */
 var CAT_LABEL = {mat:"Matemática", log:"Lógica", eng:"Inglés"};
 var MODE_INFO = {
-  eng:  {label:"Test de Inglés",               cats:["eng"],             input:"tEng"},
-  mat:  {label:"Test de Matemática y Lógica",  cats:["mat","log"],       input:"tMat"},
-  full: {label:"Simulacro completo",           cats:["mat","log","eng"], input:"tFull"}
+  eng:  {label:"Test de Inglés",               order:["eng"],            pick:{eng:25},              input:"tEng"},
+  mat:  {label:"Test de Matemática y Lógica",  order:["mat","log"],      pick:{mat:20, log:15},      input:"tMat"},
+  full: {label:"Simulacro completo",           order:["mat","log","eng"],pick:{mat:14, log:13, eng:13}, input:"tFull"}
 };
 
 var state = null;   // { mode, qs:[], answers:[], idx, total, endAt, secs }
@@ -370,15 +470,23 @@ function shuffle(arr){
   return a;
 }
 
-function buildQuestions(mode, doShuffle){
-  var cats = MODE_INFO[mode].cats;
-  var picked = BANK.filter(function(q){ return cats.indexOf(q.cat) !== -1; });
+// Toma n preguntas de una categoría del banco grande.
+// Con rand=true muestrea al azar (cada intento distinto); si no, toma las primeras n en orden.
+function pickN(cat, n, rand){
+  var pool = BANK.filter(function(q){ return q.cat === cat; });
+  if (rand) pool = shuffle(pool);
+  return pool.slice(0, Math.min(n, pool.length));
+}
 
+function buildQuestions(mode, doShuffle){
+  var info = MODE_INFO[mode];
+  var picked = [];
+  info.order.forEach(function(cat){
+    picked = picked.concat(pickN(cat, info.pick[cat], doShuffle));
+  });
+
+  // Con barajar activado, se mezclan también las categorías entre sí.
   if (doShuffle) picked = shuffle(picked);
-  else if (mode === "mat") {
-    // sin barajar: primero matemática, después lógica (orden del banco ya lo respeta)
-    picked = picked.slice();
-  }
 
   return picked.map(function(q){
     var order = doShuffle ? shuffle([0,1,2,3]) : [0,1,2,3];
