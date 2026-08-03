@@ -189,20 +189,20 @@
 
     <button class="mode" data-mode="eng">
       <div class="top"><span class="emoji">&#127760;</span><span class="title">Test de Inglés</span></div>
-      <div class="desc">Vocabulario de aviación y atención al pasajero, gramática básica y comprensión de oraciones.</div>
-      <div class="chips"><span class="chip">25 preguntas</span><span class="chip" id="chipEng">10 min</span><span class="chip">Rotan del banco</span></div>
+      <div class="desc">Gramática (condicionales, pasiva, estilo indirecto), phrasal verbs, atención al pasajero y comprensión con inferencia.</div>
+      <div class="chips"><span class="chip">28 preguntas</span><span class="chip" id="chipEng">10 min</span><span class="chip">Nivel exigente</span></div>
     </button>
 
     <button class="mode" data-mode="mat">
       <div class="top"><span class="emoji">&#129518;</span><span class="title">Test de Matemática y Lógica</span></div>
-      <div class="desc">Porcentajes, regla de tres, horarios de vuelo, series numéricas, analogías y deducción.</div>
-      <div class="chips"><span class="chip">35 preguntas</span><span class="chip" id="chipMat">15 min</span><span class="chip">No se espera terminar todo</span></div>
+      <div class="desc">Porcentajes, regla de tres, horarios, series numéricas y de formas, analogías, deducción y espacial.</div>
+      <div class="chips"><span class="chip">42 preguntas</span><span class="chip" id="chipMat">15 min</span><span class="chip">No se espera terminar todo</span></div>
     </button>
 
     <button class="mode" data-mode="full">
       <div class="top"><span class="emoji">&#128203;</span><span class="title">Simulacro completo</span></div>
-      <div class="desc">40 preguntas mezcladas de las tres áreas. Para medir resistencia y velocidad general.</div>
-      <div class="chips"><span class="chip">40 preguntas</span><span class="chip" id="chipFull">25 min</span></div>
+      <div class="desc">50 preguntas mezcladas de las tres áreas. Para medir resistencia y velocidad general.</div>
+      <div class="chips"><span class="chip">50 preguntas</span><span class="chip" id="chipFull">25 min</span></div>
     </button>
 
     <div class="panel">
@@ -373,7 +373,7 @@ var BANK = [
 {cat:"log",q:"¿Qué número continúa la serie?\n12 — 10 — 15 — 13 — 18 — 16 — ?",o:["21","20","19","22"],a:0,e:"Se alterna −2 y +5. Después de 16 corresponde +5 = 21."},
 {cat:"log",q:"¿Qué letra continúa la serie?\nB — D — G — K — ?",o:["P","O","N","Q"],a:0,e:"Los saltos son +2, +3, +4 y luego +5 posiciones. De K se avanza 5 letras hasta P."},
 {cat:"log",q:"¿Qué letra continúa la serie?\nZ — X — V — T — ?",o:["R","S","U","Q"],a:0,e:"Se retrocede de a 2 letras en el abecedario. Después de T viene R."},
-{cat:"log",q:"¿Cuál es el elemento que NO pertenece al grupo?",o:["Roble","Rosa","Tulipán","Margarita"],a:0,e:"Rosa, tulipán y margarita son flores; el roble es un árbol."},
+{cat:"log",q:"¿Cuál de estas palabras NO pertenece al grupo?",o:["Roble","Rosa","Tulipán","Margarita"],a:0,e:"Rosa, tulipán y margarita son flores; el roble es un árbol."},
 {cat:"log",q:"¿Cuál de estos números NO pertenece al grupo?\n3 — 5 — 7 — 9 — 11",o:["9","5","7","11"],a:0,e:"Todos son primos salvo el 9 (3 × 3)."},
 {cat:"log",q:"Caliente es a frío como día es a…",o:["Noche","Sol","Tarde","Luz"],a:0,e:"Es una relación de opuestos: caliente/frío, día/noche."},
 {cat:"log",q:"Mano es a guante como pie es a…",o:["Zapato","Cabeza","Dedo","Pierna"],a:0,e:"Cada prenda cubre su parte del cuerpo: guante/mano, zapato/pie."},
@@ -398,29 +398,17 @@ var BANK = [
 /* ==================== INGLÉS ==================== */
 {cat:"eng",q:"Please fasten your ______ before take-off.",o:["seatbelt","luggage","aisle","boarding"],a:0,e:"'Fasten your seatbelt' = abrocharse el cinturón."},
 {cat:"eng",q:"The flight has been ______ because of the storm.",o:["delayed","arrived","boarded","landed"],a:0,e:"'Delayed' = demorado."},
-{cat:"eng",q:"¿Qué significa la palabra \"luggage\"?",o:["Equipaje","Pasaje","Pasillo","Retraso"],a:0,e:"Luggage / baggage = equipaje."},
 {cat:"eng",q:"The plane lands ______ 6 p.m.",o:["at","in","on","to"],a:0,e:"Con horas exactas se usa la preposición 'at'."},
 {cat:"eng",q:"The passengers ______ already boarded the aircraft.",o:["have","has","are","were"],a:0,e:"Present perfect en plural: 'have' + participio."},
 {cat:"eng",q:"Yesterday the flight ______ two hours late.",o:["arrived","arrives","is arriving","arrive"],a:0,e:"'Yesterday' pide pasado simple: arrived."},
 {cat:"eng",q:"A passenger says: \"Could I have a glass of water, please?\" ¿Cuál es la mejor respuesta de la tripulación?",o:["Certainly, here you are.","No, I don't know.","You are welcome to leave.","Please fasten it."],a:0,e:"Es la respuesta cortés y adecuada al pedido."},
 {cat:"eng",q:"\"Passengers with connecting flights must proceed to gate 12.\" ¿Qué deben hacer esos pasajeros?",o:["Dirigirse a la puerta 12","Retirar su equipaje","Esperar en el avión","Cambiar su pasaje"],a:0,e:"'Proceed to gate 12' = dirigirse a la puerta de embarque 12."},
-{cat:"eng",q:"¿Qué es un \"aisle seat\"?",o:["Un asiento de pasillo","Un asiento de ventanilla","Un asiento de la primera fila","Un asiento reclinable"],a:0,e:"Aisle = pasillo; window seat = ventanilla."},
 {cat:"eng",q:"Please remain seated ______ the seatbelt sign is switched off.",o:["until","during","since","while"],a:0,e:"'Until' indica hasta que ocurra ese momento."},
 {cat:"eng",q:"You ______ use your mobile phone during take-off.",o:["mustn't","must","should","may"],a:0,e:"'Mustn't' expresa prohibición."},
 {cat:"eng",q:"This flight is ______ than the one to Santiago.",o:["longer","longest","more long","long"],a:0,e:"Comparativo de adjetivo corto: long → longer."},
 {cat:"eng",q:"The overhead compartment is used to…",o:["store hand luggage","serve meals","store fuel","seat the crew"],a:0,e:"El compartimento superior sirve para guardar el equipaje de mano."},
 {cat:"eng",q:"\"Cabin crew, prepare for ______.\" (el avión está por tocar tierra)",o:["landing","boarding","check-in","departure"],a:0,e:"Landing = aterrizaje."},
 {cat:"eng",q:"How many bags ______ you checking in today?",o:["are","is","do","have"],a:0,e:"Present continuous con 'you': are + checking."},
-{cat:"eng",q:"¿Qué significa \"boarding pass\"?",o:["Tarjeta de embarque","Cinturón de seguridad","Pasaporte","Maleta"],a:0,e:"Boarding pass = tarjeta de embarque."},
-{cat:"eng",q:"¿Qué significa \"delay\"?",o:["Demora","Llegada","Puerta","Asiento"],a:0,e:"Delay = demora / retraso."},
-{cat:"eng",q:"¿Qué significa \"crew\"?",o:["Tripulación","Pasajero","Piloto","Carga"],a:0,e:"Crew = tripulación."},
-{cat:"eng",q:"¿Qué significa \"gate\" en un aeropuerto?",o:["Puerta de embarque","Bodega","Cabina","Pista"],a:0,e:"Gate = puerta de embarque."},
-{cat:"eng",q:"¿Qué significa \"runway\"?",o:["Pista de aterrizaje","Pasillo","Puerta","Ala"],a:0,e:"Runway = pista de aterrizaje/despegue."},
-{cat:"eng",q:"¿Qué significa \"life vest\"?",o:["Chaleco salvavidas","Cinturón","Bufanda","Guante"],a:0,e:"Life vest / life jacket = chaleco salvavidas."},
-{cat:"eng",q:"¿Qué significa \"connecting flight\"?",o:["Vuelo de conexión","Vuelo directo","Vuelo cancelado","Vuelo de carga"],a:0,e:"Connecting flight = vuelo de conexión."},
-{cat:"eng",q:"¿Qué significa \"on time\"?",o:["A horario","Demorado","Cancelado","Adelantado"],a:0,e:"On time = a horario, puntual."},
-{cat:"eng",q:"¿Qué significa \"take-off\"?",o:["Despegue","Aterrizaje","Escala","Demora"],a:0,e:"Take-off = despegue."},
-{cat:"eng",q:"¿Qué significa \"boarding\"?",o:["Embarque","Aterrizaje","Despegue","Escala"],a:0,e:"Boarding = embarque."},
 {cat:"eng",q:"She has worked as a flight attendant ______ 2019.",o:["since","for","from","ago"],a:0,e:"Con un punto de inicio (un año) se usa 'since'."},
 {cat:"eng",q:"I have lived in Buenos Aires ______ five years.",o:["for","since","during","ago"],a:0,e:"Con un período de tiempo se usa 'for'."},
 {cat:"eng",q:"The plane is now boarding ______ Gate 5.",o:["at","in","to","on"],a:0,e:"Con un punto específico como una puerta se usa 'at'."},
@@ -440,9 +428,84 @@ var BANK = [
 {cat:"eng",q:"A passenger says: \"I missed my connection.\" ¿Qué le pasó?",o:["Perdió su vuelo de conexión","Perdió su equipaje","Perdió su pasaporte","Llegó temprano"],a:0,e:"'Missed my connection' = perdí mi vuelo de conexión."},
 {cat:"eng",q:"\"Boarding will begin shortly.\" ¿Qué significa?",o:["El embarque comenzará pronto","El vuelo fue cancelado","Ya terminó el embarque","El avión aterrizó"],a:0,e:"'Shortly' = en breve, pronto."},
 {cat:"eng",q:"A passenger says \"Thank you for your help.\" ¿Cuál es la mejor respuesta?",o:["You're welcome.","I'm sorry.","Please sit down.","Not possible."],a:0,e:"'You're welcome' = de nada."},
-{cat:"eng",q:"A passenger asks: \"Where is the lavatory?\" ¿Qué está buscando?",o:["El baño","La salida","Su asiento","La bodega"],a:0,e:"Lavatory / toilet = el baño del avión."},
 {cat:"eng",q:"\"We are experiencing some turbulence.\" ¿Qué está ocurriendo?",o:["Hay turbulencia","El avión aterrizó","Se sirve la comida","El vuelo llegó"],a:0,e:"Turbulence = turbulencia."},
-{cat:"eng",q:"Passengers are requested to ______ their seatbelts during the flight.",o:["fasten","fastens","fastened","fastening"],a:0,e:"Después de 'to' va el verbo en infinitivo: fasten."}
+{cat:"eng",q:"Passengers are requested to ______ their seatbelts during the flight.",o:["fasten","fastens","fastened","fastening"],a:0,e:"Después de 'to' va el verbo en infinitivo: fasten."},
+
+/* ---------- INGLÉS (nivel más alto) ---------- */
+{cat:"eng",q:"If the weather ______ worse, we would have diverted to another airport.",o:["had got","gets","would get","got"],a:0,e:"Tercera condicional (pasado irreal): if + past perfect → would have. 'had got worse'."},
+{cat:"eng",q:"By the time we reached cruising altitude, the crew ______ the first drinks.",o:["had already served","already served","have already served","were already serving"],a:0,e:"Past perfect: una acción terminada antes de otra en el pasado."},
+{cat:"eng",q:"All in-flight meals ______ in advance and heated on board.",o:["are prepared","prepare","are preparing","prepared"],a:0,e:"Voz pasiva en presente: are + participio (prepared)."},
+{cat:"eng",q:"A passenger said, \"I will need a wheelchair.\" Reported: The passenger said he ______ a wheelchair.",o:["would need","will need","needs","had needed"],a:0,e:"En estilo indirecto, 'will' pasa a 'would'."},
+{cat:"eng",q:"Due to the fog, the airline had to ______ the flight.",o:["call off","call on","call up","call in"],a:0,e:"'Call off' = cancelar."},
+{cat:"eng",q:"Please ______ your personal belongings before leaving the aircraft.",o:["pick up","pick on","pick out","pick at"],a:0,e:"'Pick up' = recoger/levantar tus cosas."},
+{cat:"eng",q:"Would you mind ______ your seat to its upright position?",o:["returning","to return","return","returned"],a:0,e:"'Would you mind' va seguido de gerundio (-ing)."},
+{cat:"eng",q:"The captain, along with the cabin crew, ______ ready for departure.",o:["is","are","were","have"],a:0,e:"El sujeto es 'the captain' (singular); 'along with…' no cambia el verbo: is."},
+{cat:"eng",q:"Neither the pilot nor the flight attendants ______ aware of the problem.",o:["were","was","is","has"],a:0,e:"Con 'neither…nor', el verbo concuerda con el sujeto más cercano (attendants, plural): were."},
+{cat:"eng",q:"The passenger complained that his suitcase ______ damaged during the flight.",o:["had been","has been","is being","will be"],a:0,e:"Reportando el pasado: past perfect pasivo 'had been damaged'."},
+{cat:"eng",q:"Had the passenger arrived earlier, he ______ the flight.",o:["would have caught","would catch","will catch","caught"],a:0,e:"Tercera condicional invertida: would have + participio."},
+{cat:"eng",q:"The aircraft can ______ up to 180 passengers.",o:["accommodate","accommodates","accommodating","accommodated"],a:0,e:"Después de 'can' va el verbo base: accommodate."},
+{cat:"eng",q:"Everyone ______ fastened their seatbelt before take-off.",o:["has","have","are","were"],a:0,e:"'Everyone' es singular: has."},
+{cat:"eng",q:"There's a strong smell of smoke — please remain ______.",o:["calm","calmly","calming","calmness"],a:0,e:"'Remain' + adjetivo (calm), no adverbio."},
+{cat:"eng",q:"The flight was overbooked, so three passengers were ______ to a later flight.",o:["bumped","boarded","upgraded","checked in"],a:0,e:"'To be bumped' = quedar fuera de un vuelo sobrevendido y ser reubicado."},
+{cat:"eng",q:"We apologise for any ______ this delay may have caused.",o:["inconvenience","convenience","inconvenient","convenient"],a:0,e:"Se necesita el sustantivo 'inconvenience' (molestia)."},
+{cat:"eng",q:"Smoking is strictly ______ anywhere on board.",o:["prohibited","allowed","recommended","optional"],a:0,e:"'Strictly prohibited' = terminantemente prohibido."},
+{cat:"eng",q:"This is your captain speaking. We ______ at Ezeiza in about twenty minutes.",o:["will be landing","landed","have landed","land"],a:0,e:"Futuro continuo para un evento programado: will be landing."},
+{cat:"eng",q:"A passenger is furious about a two-hour delay. ¿Cuál es la MEJOR respuesta profesional?",o:["I completely understand your frustration, and I'll do my best to help.","That's really not my problem, sir.","You should have arrived earlier.","There is nothing I can do about it."],a:0,e:"Reconoce la molestia y ofrece ayuda: es la respuesta empática y profesional."},
+{cat:"eng",q:"A passenger asks for an upgrade you cannot give. ¿Cuál es la negativa más cortés?",o:["I'm afraid that won't be possible on this flight, but let me see what I can do for you.","No.","Rules are rules.","Ask somebody else."],a:0,e:"Rechaza con cortesía y muestra disposición a ayudar."},
+{cat:"eng",q:"\"We regret to inform you that flight JS204 has been cancelled. Affected passengers will be rebooked on the next available flight.\" ¿Qué deben esperar los pasajeros afectados?",o:["Ser reubicados en el próximo vuelo disponible","Un reembolso en efectivo en la puerta","Embarcar de inmediato","Retirar el equipaje e irse a casa"],a:0,e:"'Rebooked on the next available flight' = reubicados en el siguiente vuelo."},
+{cat:"eng",q:"\"Passengers requiring special assistance are kindly asked to remain seated until all other passengers have disembarked.\" ¿Quiénes deben quedarse sentados más tiempo?",o:["Los pasajeros que necesitan asistencia especial","Todos los pasajeros","La tripulación","Los de primera clase"],a:0,e:"El aviso se dirige a quienes requieren asistencia especial."},
+{cat:"eng",q:"\"The flight is running behind schedule.\" ¿Qué significa?",o:["Está atrasado respecto al horario","Va adelantado","Está exactamente a horario","Fue cancelado"],a:0,e:"'Running behind schedule' = atrasado respecto de lo previsto."},
+{cat:"eng",q:"You are not allowed to ______ from your seat while the seatbelt sign is on.",o:["stand up","stand for","stand by","stand on"],a:0,e:"'Stand up' = ponerse de pie."},
+{cat:"eng",q:"I'd rather you ______ smoke in the lavatory.",o:["didn't","don't","not","won't"],a:0,e:"'I'd rather you' + pasado (didn't) para expresar una preferencia."},
+{cat:"eng",q:"Choose the sentence that is grammatically correct.",o:["The crew has been trained to handle emergencies.","The crew have been train to handle emergencies.","The crew has been train to handling emergencies.","The crew been trained to handle emergencies."],a:0,e:"Present perfect pasivo correcto: has been trained + infinitivo to handle."},
+
+/* ---------- LÓGICA: SECUENCIAS DE FORMAS Y ESPACIAL ---------- */
+{cat:"log",q:"¿Qué figura continúa la secuencia?\n▲  ▶  ▼  ◀  ▲  ▶  ▼  ?",o:["◀","▲","▶","▼"],a:0,e:"La flecha gira 90° en sentido horario. Después de ▼ viene ◀."},
+{cat:"log",q:"¿Qué figura continúa?\n●  ○  ●  ○  ●  ?",o:["○","●","◆","□"],a:0,e:"Se alternan círculo lleno y vacío. Después de ● va ○."},
+{cat:"log",q:"¿Qué figura continúa?\n◆  ◆◆  ◆◆◆  ?",o:["◆◆◆◆","◆◆","◆◆◆","◆"],a:0,e:"Cada paso agrega un rombo: 1, 2, 3, 4."},
+{cat:"log",q:"¿Qué figura continúa?\n◐  ◓  ◑  ◒  ◐  ◓  ?",o:["◑","◒","◐","◓"],a:0,e:"El semicírculo relleno rota un cuarto de vuelta cada vez. Después de ◓ viene ◑."},
+{cat:"log",q:"¿Qué figura continúa?\n▲  △  ▲  △  ▲  ?",o:["△","▲","▽","◆"],a:0,e:"Se alternan triángulo lleno y vacío. Después de ▲ va △."},
+{cat:"log",q:"¿Qué grupo continúa?\n○●   ○○●   ○○○●   ?",o:["○○○○●","○○●","○●","●○"],a:0,e:"En cada grupo hay un círculo lleno al final y uno más vacío adelante: 4 vacíos y 1 lleno."},
+{cat:"log",q:"Completá la analogía de figuras:\n▲ es a △ como ■ es a ?",o:["□","■","◇","△"],a:0,e:"La relación es 'relleno → contorno'. El cuadrado lleno pasa a cuadrado vacío."},
+{cat:"log",q:"Completá la analogía de figuras:\n● es a ○ como ◆ es a ?",o:["◇","◆","□","▲"],a:0,e:"Relación 'relleno → vacío'. El rombo lleno pasa a rombo vacío."},
+{cat:"log",q:"¿Qué figura continúa? (los cuadrados suben y bajan)\n▪  ▪▪  ▪▪▪  ▪▪  ?",o:["▪","▪▪▪▪","▪▪▪","▪▪"],a:0,e:"La cantidad crece y decrece: 1, 2, 3, 2, 1."},
+{cat:"log",q:"¿Qué grupo continúa?\n◇◆◇   ◆◇◆   ◇◆◇   ?",o:["◆◇◆","◇◆◇","◆◆◆","◇◇◇"],a:0,e:"Cada grupo invierte el relleno del anterior."},
+{cat:"log",q:"Si ▶ girado 180° es ◀, entonces ▲ girado 180° es…",o:["▼","△","◀","▶"],a:0,e:"Girar 180° un triángulo que apunta arriba lo deja apuntando abajo: ▼."},
+{cat:"log",q:"En la fila ▲ ▲ ▼ ▲, ¿cuál figura está en distinta orientación?",o:["La tercera (▼)","La primera (▲)","La segunda (▲)","La cuarta (▲)"],a:0,e:"Tres apuntan hacia arriba y solo la tercera (▼) apunta hacia abajo."},
+{cat:"log",q:"Ordenadas por cantidad de lados: triángulo, cuadrado, pentágono… ¿cuál sigue?",o:["Hexágono","Círculo","Rombo","Óvalo"],a:0,e:"3, 4, 5, 6 lados: después del pentágono va el hexágono."},
+{cat:"log",q:"¿Cuántos lados tienen en total un triángulo y un cuadrado juntos?",o:["7","8","6","5"],a:0,e:"3 + 4 = 7 lados."},
+{cat:"log",q:"¿Cuántos lados suman dos triángulos y un cuadrado?",o:["10","9","11","8"],a:0,e:"3 + 3 + 4 = 10 lados."},
+{cat:"log",q:"Las agujas de un reloj apuntan a: 12 → 3 → 6 → 9 → ? (giran 90°)",o:["12","6","3","9"],a:0,e:"Giran un cuarto de vuelta. Después del 9 vuelven al 12."},
+{cat:"log",q:"Un cubo se pinta de rojo por fuera y se corta en 27 cubitos iguales (3×3×3). ¿Cuántos cubitos quedan sin nada de pintura?",o:["1","8","6","0"],a:0,e:"Solo el cubito del centro no toca ninguna cara exterior."},
+
+/* ---------- LÓGICA: MÁS RAZONAMIENTO ---------- */
+{cat:"log",q:"Todos los que aprueban el examen serán contratados. Marta no fue contratada. ¿Qué se concluye?",o:["Marta no aprobó el examen","Marta aprobó el examen","Marta llegó tarde","No se puede saber nada"],a:0,e:"Si aprobar lleva a ser contratado y no fue contratada, no aprobó (contrarrecíproco)."},
+{cat:"log",q:"En una reunión cada persona saluda a todas las demás una sola vez. Si hay 5 personas, ¿cuántos saludos hay?",o:["10","20","5","15"],a:0,e:"5 × 4 ÷ 2 = 10 saludos."},
+{cat:"log",q:"Algunos médicos son escritores y ningún escritor es analfabeto. ¿Qué se concluye?",o:["Algunos médicos no son analfabetos","Todos los médicos escriben","Ningún médico lee","Todos los escritores son médicos"],a:0,e:"Los médicos que son escritores no pueden ser analfabetos."},
+{cat:"log",q:"María es mayor que Ana pero menor que Sofía. Lucía es menor que Ana. ¿Quién es la mayor?",o:["Sofía","María","Ana","Lucía"],a:0,e:"Orden: Sofía > María > Ana > Lucía."},
+{cat:"log",q:"Un tren sale cada 20 minutos. Si el primero salió a las 09:00, ¿a qué hora sale el sexto?",o:["10:40","10:00","11:00","10:20"],a:0,e:"Del 1º al 6º hay 5 intervalos: 5 × 20 = 100 min. 09:00 + 1 h 40 = 10:40."},
+{cat:"log",q:"Si en un código A=1, B=2, C=3… ¿qué palabra representa 19 — 1 — 12?",o:["SAL","MAR","SOL","LAS"],a:0,e:"S=19, A=1, L=12 → SAL."},
+{cat:"log",q:"Si LUNES se codifica MVOFT (cada letra +1), ¿cómo se codifica MARTES?",o:["NBSUFT","NBSVFT","MBSUFT","NBTUFT"],a:0,e:"M→N, A→B, R→S, T→U, E→F, S→T = NBSUFT."},
+{cat:"log",q:"En una fila, Pedro es el 3º desde adelante y el 4º desde atrás. ¿Cuántas personas hay en la fila?",o:["6","7","5","8"],a:0,e:"3 + 4 − 1 (Pedro contado dos veces) = 6."},
+{cat:"log",q:"Todos los gatos maúllan. Félix maúlla. ¿Se concluye que Félix es un gato?",o:["No necesariamente","Sí, con certeza","Félix no maúlla","Félix es un perro"],a:0,e:"Que maúlle no obliga a que sea gato; podrían maullar otros. No se deduce."},
+{cat:"log",q:"En un torneo de eliminación directa con 16 equipos, ¿cuántos partidos se juegan hasta el campeón?",o:["15","16","8","14"],a:0,e:"En eliminación directa se elimina 1 equipo por partido; para dejar 1 campeón entre 16 hacen falta 15 partidos."},
+{cat:"log",q:"La serie L, M, M, J, V representa…",o:["Los días de la semana","Los meses del año","Las notas musicales","Nada en particular"],a:0,e:"Iniciales de Lunes, Martes, Miércoles, Jueves, Viernes."},
+
+/* ---------- MATEMÁTICA (más) ---------- */
+{cat:"mat",q:"En un avión de 210 asientos hay 12 en primera y 48 en ejecutiva. ¿Cuántos asientos de turista hay?",o:["150","160","140","120"],a:0,e:"210 − 12 − 48 = 150."},
+{cat:"mat",q:"Se reparten 320 comidas en partes iguales entre 8 carritos. ¿Cuántas comidas por carrito?",o:["40","32","45","38"],a:0,e:"320 ÷ 8 = 40."},
+{cat:"mat",q:"Un pasaje cuesta USD 240. Con un impuesto del 5% y una tasa fija de USD 18, ¿cuánto se paga?",o:["USD 270","USD 258","USD 264","USD 252"],a:0,e:"240 × 1,05 = 252; 252 + 18 = 270."},
+{cat:"mat",q:"El 8% de los 250 pasajeros pidió asistencia especial. ¿Cuántos pasajeros son?",o:["20","25","18","15"],a:0,e:"250 × 0,08 = 20."},
+{cat:"mat",q:"Un avión vuela 3.400 km a 800 km/h. ¿Cuánto dura el vuelo?",o:["4 h 15 min","4 h 25 min","4 h 5 min","3 h 45 min"],a:0,e:"3.400 ÷ 800 = 4,25 h = 4 h 15 min."},
+{cat:"mat",q:"Si 2/5 de los 300 asientos son de ventanilla, ¿cuántos NO son de ventanilla?",o:["180","120","150","200"],a:0,e:"Ventanilla: 300 × 2/5 = 120. No ventanilla: 300 − 120 = 180."},
+{cat:"mat",q:"Una tripulante voló 4 h el lunes y 5 h el martes. Para promediar 6 h diarias en 3 días, ¿cuánto debe volar el miércoles?",o:["9 h","6 h","8 h","7 h"],a:0,e:"Total necesario: 6 × 3 = 18 h. 18 − 4 − 5 = 9 h."},
+{cat:"mat",q:"Promo 3x2 en pasajes de $80.000 cada uno. ¿Cuánto pagás por 3 pasajes?",o:["$160.000","$240.000","$180.000","$200.000"],a:0,e:"Pagás 2 y llevás 3: 2 × 80.000 = 160.000."},
+{cat:"mat",q:"De 400 reservas, el 12% no se presentó (no-show). ¿Cuántos pasajeros viajaron?",o:["352","48","388","360"],a:0,e:"No-show: 400 × 0,12 = 48. Viajaron 400 − 48 = 352."},
+{cat:"mat",q:"Son las 18:45. ¿Cuánto falta para la medianoche?",o:["5 h 15 min","6 h 15 min","5 h 45 min","4 h 15 min"],a:0,e:"De 18:45 a 24:00 hay 5 h 15 min."},
+{cat:"mat",q:"Si 250 g de café rinden 20 tazas, ¿cuántos gramos se necesitan para 50 tazas?",o:["625 g","500 g","600 g","650 g"],a:0,e:"250 ÷ 20 = 12,5 g por taza. 12,5 × 50 = 625 g."},
+{cat:"mat",q:"Un avión desciende 800 m por minuto. Desde 10.000 m, ¿en cuánto tiempo llega a 2.000 m?",o:["10 min","8 min","12 min","9 min"],a:0,e:"Debe bajar 8.000 m. 8.000 ÷ 800 = 10 min."},
+{cat:"mat",q:"El precio de un pasaje subió de $120.000 a $150.000. ¿En qué porcentaje aumentó?",o:["25%","30%","20%","15%"],a:0,e:"Aumento: 30.000. 30.000 ÷ 120.000 = 0,25 = 25%."},
+{cat:"mat",q:"Tres tripulantes cubren 24 filas en partes iguales. Si una se ausenta, ¿cuántas filas cubre cada una de las 2 restantes?",o:["12","8","10","16"],a:0,e:"24 ÷ 2 = 12 filas cada una."}
 
 ];
 
@@ -451,9 +514,9 @@ var BANK = [
    ============================================================ */
 var CAT_LABEL = {mat:"Matemática", log:"Lógica", eng:"Inglés"};
 var MODE_INFO = {
-  eng:  {label:"Test de Inglés",               order:["eng"],            pick:{eng:25},              input:"tEng"},
-  mat:  {label:"Test de Matemática y Lógica",  order:["mat","log"],      pick:{mat:20, log:15},      input:"tMat"},
-  full: {label:"Simulacro completo",           order:["mat","log","eng"],pick:{mat:14, log:13, eng:13}, input:"tFull"}
+  eng:  {label:"Test de Inglés",               order:["eng"],            pick:{eng:28},              input:"tEng"},
+  mat:  {label:"Test de Matemática y Lógica",  order:["mat","log"],      pick:{mat:24, log:18},      input:"tMat"},
+  full: {label:"Simulacro completo",           order:["mat","log","eng"],pick:{mat:18, log:16, eng:16}, input:"tFull"}
 };
 
 var state = null;   // { mode, qs:[], answers:[], idx, total, endAt, secs }
