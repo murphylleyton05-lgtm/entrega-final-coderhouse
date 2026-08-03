@@ -149,6 +149,27 @@
   }
   .opt.sel{border-color:var(--accent);background:rgba(45,212,191,.12)}
   .opt.sel .k{background:var(--accent);color:#06251f;border-color:var(--accent)}
+  /* estados de corrección (modo estudio) */
+  .opt.correct{border-color:var(--good);background:rgba(74,222,128,.14)}
+  .opt.correct .k{background:var(--good);color:#052e16;border-color:var(--good)}
+  .opt.wrong{border-color:var(--bad);background:rgba(248,113,113,.14)}
+  .opt.wrong .k{background:var(--bad);color:#3b0a0a;border-color:var(--bad)}
+  .opt.lock{cursor:default}
+  .feedback{margin-top:12px;border-radius:11px;padding:12px 14px;font-size:.9rem;border:1px solid var(--line);background:var(--card-2)}
+  .feedback.ok{border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.08)}
+  .feedback.no{border-color:rgba(248,113,113,.4);background:rgba(248,113,113,.08)}
+  .feedback .fbhead{font-weight:700;margin-bottom:4px}
+  .feedback.ok .fbhead{color:var(--good)}
+  .feedback.no .fbhead{color:var(--bad)}
+  .feedback .fbwhy{color:var(--txt-dim)}
+  /* stats en el inicio */
+  .homestats{display:flex;gap:8px;margin:0 0 16px}
+  .homestats .s{flex:1;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 8px;text-align:center}
+  .homestats .s b{display:block;font-size:1.2rem;font-weight:800;letter-spacing:-.02em}
+  .homestats .s span{font-size:.68rem;color:var(--txt-dim);text-transform:uppercase;letter-spacing:.05em}
+  .mode.special{background:linear-gradient(135deg,rgba(56,189,248,.12),rgba(45,212,191,.06));border-color:rgba(56,189,248,.35)}
+  .mode.special.off{opacity:.55}
+  .mode .badge{margin-left:auto;background:var(--bad);color:#fff;border-radius:999px;padding:1px 9px;font-size:.72rem;font-weight:700}
 
   .nav{display:flex;gap:10px;margin-top:16px}
   .btn{
@@ -197,6 +218,23 @@
     </div>
     <p class="tagline">Práctica de examen para Tripulante de Cabina &mdash; formato multiple choice con tiempo, como el proceso real.</p>
 
+    <div class="homestats" id="homeStats">
+      <div class="s"><b id="stAcc">—</b><span>Precisión</span></div>
+      <div class="s"><b id="stSess">0</b><span>Prácticas</span></div>
+      <div class="s"><b id="stAns">0</b><span>Respondidas</span></div>
+    </div>
+
+    <button class="mode special off" data-mode="rep" id="cardRep">
+      <div class="top"><span class="emoji">&#128293;</span><span class="title">Repasá tus errores</span><span class="badge" id="repBadge">0</span></div>
+      <div class="desc">Practicá SOLO las preguntas que fallaste. Es lo que más rápido te hace mejorar. Se guardan solas en tu celular.</div>
+    </button>
+
+    <button class="mode special" data-mode="wl" id="cardWL">
+      <div class="top"><span class="emoji">&#9889;</span><span class="title">Wonderlic Express</span></div>
+      <div class="desc">50 preguntas mezcladas en 12 minutos. Presión real: velocidad pura de las tres áreas juntas.</div>
+      <div class="chips"><span class="chip">50 preguntas</span><span class="chip">12 min</span><span class="chip">Contrarreloj</span></div>
+    </button>
+
     <button class="mode" data-mode="eng">
       <div class="top"><span class="emoji">&#127760;</span><span class="title">Test de Inglés</span></div>
       <div class="desc">Nivel C1: condicionales, pasiva, estilo indirecto, phrasal verbs, sinónimos/antónimos y comprensión con inferencia.</div>
@@ -231,6 +269,10 @@
       <div class="row">
         <label for="shuf">Barajar preguntas y opciones <span class="hint">Evita memorizar el orden</span></label>
         <span class="switch"><input type="checkbox" id="shuf" checked><span></span></span>
+      </div>
+      <div class="row">
+        <label for="study">Modo estudio <span class="hint">Corrige al instante, con explicación y sin límite de tiempo</span></label>
+        <span class="switch"><input type="checkbox" id="study"><span></span></span>
       </div>
     </div>
 
@@ -610,13 +652,39 @@ var CAT_LABEL = {mat:"Matemática", log:"Lógica", eng:"Inglés"};
 var MODE_INFO = {
   eng:  {label:"Test de Inglés",               order:["eng"],            pick:{eng:30},              input:"tEng"},
   mat:  {label:"Test de Matemática y Lógica",  order:["mat","log"],      pick:{mat:24, log:22},      input:"tMat"},
-  full: {label:"Simulacro completo",           order:["mat","log","eng"],pick:{mat:18, log:18, eng:16}, input:"tFull"}
+  full: {label:"Simulacro completo",           order:["mat","log","eng"],pick:{mat:18, log:18, eng:16}, input:"tFull"},
+  wl:   {label:"Wonderlic Express",            order:["mat","log","eng"],pick:{mat:18, log:18, eng:14}, mins:12},
+  rep:  {label:"Repaso de errores",            order:["mat","log","eng"], mins:15}
 };
 
 var state = null;   // { mode, qs:[], answers:[], idx, total, endAt, secs }
 var ticker = null;
 
 var $ = function(id){ return document.getElementById(id); };
+
+/* ============================================================
+   PERSISTENCIA (localStorage): errores para repasar + estadísticas
+   ============================================================ */
+var LS_KEY = "tcp_sim_v1";
+function qid(q){
+  var s = q.cat + "|" + q.q + "|" + (q.e || "");
+  var h = 5381, i;
+  for (i = 0; i < s.length; i++){ h = ((h << 5) + h + s.charCodeAt(i)) | 0; }
+  return q.cat + Math.abs(h).toString(36);
+}
+function loadStore(){
+  try {
+    var raw = localStorage.getItem(LS_KEY);
+    var o = raw ? JSON.parse(raw) : {};
+    if (!o.wrong) o.wrong = {};
+    if (!o.stats) o.stats = { answered:0, correct:0, sessions:0 };
+    return o;
+  } catch(e){ return { wrong:{}, stats:{ answered:0, correct:0, sessions:0 } }; }
+}
+function saveStore(o){
+  try { localStorage.setItem(LS_KEY, JSON.stringify(o)); } catch(e){}
+}
+function wrongCount(){ var w = loadStore().wrong; return Object.keys(w).length; }
 
 function shuffle(arr){
   var a = arr.slice();
@@ -638,17 +706,29 @@ function pickN(cat, n, rand){
 function buildQuestions(mode, doShuffle){
   var info = MODE_INFO[mode];
   var picked = [];
-  info.order.forEach(function(cat){
-    picked = picked.concat(pickN(cat, info.pick[cat], doShuffle));
-  });
 
-  // Con barajar activado, se mezclan también las categorías entre sí.
-  if (doShuffle) picked = shuffle(picked);
+  if (mode === "rep"){
+    // Repaso: solo las preguntas que fallaste (guardadas en el celular).
+    var w = loadStore().wrong;
+    picked = BANK.filter(function(q){ return w[qid(q)]; });
+    picked = shuffle(picked).slice(0, 40);      // hasta 40 por sesión
+  } else if (mode === "wl"){
+    // Wonderlic: muestra mezclada de las tres áreas.
+    info.order.forEach(function(cat){ picked = picked.concat(pickN(cat, info.pick[cat], true)); });
+    picked = shuffle(picked);
+  } else {
+    info.order.forEach(function(cat){
+      picked = picked.concat(pickN(cat, info.pick[cat], doShuffle));
+    });
+    // Con barajar activado, se mezclan también las categorías entre sí.
+    if (doShuffle) picked = shuffle(picked);
+  }
 
   return picked.map(function(q){
     var order = doShuffle ? shuffle([0,1,2,3]) : [0,1,2,3];
     return {
       cat: q.cat,
+      id: qid(q),
       q: q.q,
       e: q.e,
       fig: q.fig || false,
@@ -677,19 +757,32 @@ function show(id){
    FLUJO DEL TEST
    ============================================================ */
 function start(mode){
-  var mins = parseInt($(MODE_INFO[mode].input).value, 10);
+  if (mode === "rep" && wrongCount() === 0){
+    alert("Todavía no tenés errores guardados. Hacé un test primero: las preguntas que falles se guardan acá para que las repases.");
+    return;
+  }
+
+  var info = MODE_INFO[mode];
+  var mins = info.input ? parseInt($(info.input).value, 10) : info.mins;
   if (isNaN(mins) || mins < 1) mins = 10;
 
+  var study = $("study").checked;
   var qs = buildQuestions(mode, $("shuf").checked);
+
+  if (qs.length === 0){
+    alert("No hay preguntas para este modo. Probá otro.");
+    return;
+  }
 
   state = {
     mode: mode,
+    study: study,
     qs: qs,
     total: qs.length,
     answers: new Array(qs.length).fill(null),
     idx: 0,
     secs: mins * 60,
-    endAt: Date.now() + mins * 60 * 1000
+    endAt: study ? (Date.now() + 24 * 3600 * 1000) : (Date.now() + mins * 60 * 1000)
   };
 
   show("quiz");
@@ -700,8 +793,13 @@ function start(mode){
 
 function tick(){
   if (!state) return;
-  var left = Math.ceil((state.endAt - Date.now()) / 1000);
   var el = $("timer");
+  if (state.study){
+    el.textContent = "📖 Estudio";
+    el.className = "timer";
+    return;
+  }
+  var left = Math.ceil((state.endAt - Date.now()) / 1000);
   el.textContent = fmt(left);
   el.className = "timer" + (left <= 30 ? " danger" : left <= 120 ? " warn" : "");
   if (left <= 0) finish(true);
@@ -719,11 +817,22 @@ function render(){
   if (q.qimg){ qf.innerHTML = q.qimg; qf.style.display = "block"; }
   else { qf.innerHTML = ""; qf.style.display = "none"; }
 
+  var answered = state.answers[state.idx];
+  var reveal = state.study && answered !== null;   // en modo estudio, mostrar corrección
+
   var box = $("opts");
   box.innerHTML = "";
   q.o.forEach(function(text, i){
     var b = document.createElement("button");
-    b.className = "opt" + (q.oimg ? " figopt" : "") + (state.answers[state.idx] === i ? " sel" : "");
+    var cls = "opt" + (q.oimg ? " figopt" : "");
+    if (reveal){
+      cls += " lock";
+      if (i === q.a) cls += " correct";
+      else if (i === answered) cls += " wrong";
+    } else if (answered === i){
+      cls += " sel";
+    }
+    b.className = cls;
     b.type = "button";
     b.innerHTML = '<span class="k">' + "ABCD".charAt(i) + '</span>';
     if (q.oimg){
@@ -736,19 +845,52 @@ function render(){
       t.textContent = text;
       b.appendChild(t);
     }
-    b.addEventListener("click", function(){
-      state.answers[state.idx] = i;
-      render();
-      // avance automático breve para no perder tiempo
-      setTimeout(function(){
-        if (state && state.idx < state.total - 1) { state.idx++; render(); }
-      }, 180);
-    });
+    if (!reveal){
+      b.addEventListener("click", function(){
+        var first = state.answers[state.idx] === null;
+        state.answers[state.idx] = i;
+        if (state.study){
+          if (first) recordAnswer(q, i);   // guardar acierto/error al instante
+          render();                          // revelar corrección, sin avanzar
+        } else {
+          render();
+          setTimeout(function(){
+            if (state && state.idx < state.total - 1) { state.idx++; render(); }
+          }, 180);
+        }
+      });
+    }
     box.appendChild(b);
   });
 
+  // Panel de explicación (modo estudio)
+  if (reveal){
+    var fb = document.createElement("div");
+    var good = answered === q.a;
+    fb.className = "feedback " + (good ? "ok" : "no");
+    var head = document.createElement("div");
+    head.className = "fbhead";
+    head.textContent = good ? "✓ ¡Correcto!" : "✗ Incorrecto";
+    fb.appendChild(head);
+    if (q.e){
+      var why = document.createElement("div");
+      why.className = "fbwhy";
+      why.textContent = q.e;
+      fb.appendChild(why);
+    }
+    box.appendChild(fb);
+  }
+
   $("btnPrev").disabled = state.idx === 0;
   $("btnNext").textContent = (state.idx === state.total - 1) ? "Finalizar" : "Siguiente";
+}
+
+/* Guarda en el celular si acertaste (saca de la lista de repaso) o fallaste (la agrega). */
+function recordAnswer(q, ans){
+  var store = loadStore();
+  if (ans === q.a){ delete store.wrong[q.id]; }
+  else { store.wrong[q.id] = 1; }
+  saveStore(store);
 }
 
 function finish(byTime){
@@ -766,6 +908,20 @@ function finish(byTime){
     else if (ans === q.a) { ok++; }
     else { no++; wrong.push({i:i, q:q, ans:ans}); }
   });
+
+  // Persistir errores (para el repaso) y estadísticas.
+  var store = loadStore();
+  state.qs.forEach(function(q, i){
+    var ans = state.answers[i];
+    if (ans === null) return;                     // sin responder: no se marca
+    if (ans === q.a) { delete store.wrong[q.id]; } // acertada: sale del repaso
+    else { store.wrong[q.id] = 1; }                // errada: entra al repaso
+  });
+  store.stats.answered += (ok + no);
+  store.stats.correct  += ok;
+  store.stats.sessions += 1;
+  saveStore(store);
+  refreshHome();
 
   var pct = Math.round(ok / state.total * 100);
   $("scorePct").textContent = pct + "%";
@@ -839,6 +995,17 @@ function finish(byTime){
   show("result");
 }
 
+/* Actualiza el inicio: precisión, prácticas, respondidas y errores para repasar. */
+function refreshHome(){
+  var st = loadStore().stats;
+  $("stAcc").textContent  = st.answered > 0 ? Math.round(st.correct / st.answered * 100) + "%" : "—";
+  $("stSess").textContent = st.sessions;
+  $("stAns").textContent  = st.answered;
+  var n = wrongCount();
+  $("repBadge").textContent = n;
+  $("cardRep").classList.toggle("off", n === 0);
+}
+
 /* ============================================================
    EVENTOS
    ============================================================ */
@@ -862,6 +1029,7 @@ $("btnAgain").addEventListener("click", function(){
 });
 $("btnHome").addEventListener("click", function(){
   clearInterval(ticker); ticker = null; state = null;
+  refreshHome();
   show("home");
 });
 
@@ -880,12 +1048,23 @@ document.addEventListener("keydown", function(ev){
   var i = "ABCD".indexOf(k);
   if (i === -1) i = "1234".indexOf(k);
   if (i !== -1){
-    state.answers[state.idx] = i;
-    render();
-    if (state.idx < state.total - 1){ state.idx++; render(); }
+    if (state.study){
+      if (state.answers[state.idx] === null){
+        state.answers[state.idx] = i;
+        recordAnswer(state.qs[state.idx], i);
+        render();
+      }
+    } else {
+      state.answers[state.idx] = i;
+      render();
+      if (state.idx < state.total - 1){ state.idx++; render(); }
+    }
   } else if (ev.key === "ArrowRight"){ $("btnNext").click(); }
   else if (ev.key === "ArrowLeft" && state.idx > 0){ state.idx--; render(); }
 });
+
+/* Inicializar el inicio (stats + errores guardados). */
+refreshHome();
 
 })();
 </script>
