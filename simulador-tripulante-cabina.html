@@ -169,7 +169,20 @@
   .homestats .s span{font-size:.68rem;color:var(--txt-dim);text-transform:uppercase;letter-spacing:.05em}
   .mode.special{background:linear-gradient(135deg,rgba(56,189,248,.12),rgba(45,212,191,.06));border-color:rgba(56,189,248,.35)}
   .mode.special.off{opacity:.55}
+  .mode.hot{border-color:var(--accent);box-shadow:0 0 0 1px rgba(45,212,191,.25),0 8px 26px -12px rgba(45,212,191,.5);background:linear-gradient(135deg,rgba(45,212,191,.16),rgba(56,189,248,.08))}
   .mode .badge{margin-left:auto;background:var(--bad);color:#fff;border-radius:999px;padding:1px 9px;font-size:.72rem;font-weight:700}
+  /* guía del día */
+  .guide{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:12px;overflow:hidden}
+  .guide summary{cursor:pointer;padding:14px 16px;font-weight:700;font-size:.95rem;list-style:none;user-select:none}
+  .guide summary::-webkit-details-marker{display:none}
+  .guide summary::after{content:"▸";float:right;color:var(--txt-dim);transition:transform .15s}
+  .guide[open] summary::after{transform:rotate(90deg)}
+  .guide .gbody{padding:0 16px 14px;font-size:.88rem;color:var(--txt-dim);line-height:1.55}
+  .guide .gbody b{color:var(--txt)}
+  .guide .gbody i{color:var(--accent-2);font-style:italic}
+  .guide .gbody ol{margin:6px 0 6px 18px;padding:0}
+  .guide .gbody li{margin-bottom:4px}
+  .guide .gbody p{margin:0 0 10px}
 
   .nav{display:flex;gap:10px;margin-top:16px}
   .btn{
@@ -224,6 +237,29 @@
       <div class="s"><b id="stAns">0</b><span>Respondidas</span></div>
     </div>
 
+    <button class="mode special hot" data-mode="ass">
+      <div class="top"><span class="emoji">&#127919;</span><span class="title">Assessment 1 &mdash; simulacro del día</span></div>
+      <div class="desc">Ensayo del día completo: test psicotécnico (inglés + mate + lógica) <b>más</b> entrevista en inglés y role play. Todo lo que puede pasar mañana, junto.</div>
+      <div class="chips"><span class="chip">40 preguntas</span><span class="chip">20 min</span><span class="chip">Las 3 etapas</span></div>
+    </button>
+
+    <details class="guide">
+      <summary>📋 Guía del día del Assessment (leer antes)</summary>
+      <div class="gbody">
+        <p><b>El proceso tiene 3 etapas</b> — el multiple choice es la primera (el filtro). Pueden seguir el mismo día:</p>
+        <ol>
+          <li><b>Test de tiempo de respuesta</b> (inglés + matemática/lógica, contrarreloj) + presentación de la empresa.</li>
+          <li><b>Entrevista en inglés</b>: nombre, edad, a qué te dedicás, de dónde sos, por qué querés el puesto.</li>
+          <li><b>Role play</b>: te dan una situación con un pasajero y ven cómo la resolvés.</li>
+        </ol>
+        <p><b>Tu presentación en inglés</b> (aprendela de memoria y adaptala):<br>
+        <i>"Hello, my name is ___. I'm ___ years old and I'm from ___. I've worked in customer service for ___ years. I'm a team player, I stay calm under pressure and I love helping people. That's why I want to be part of JetSmart."</i></p>
+        <p><b>Fórmula del role play</b> con un pasajero difícil:<br>
+        Sonreír → <b>escuchar</b> → empatizar (<i>"I completely understand…"</i>) → <b>ofrecer una solución</b> → agradecer. Nunca discutir ni decir un "no" seco. La <b>seguridad va siempre primero</b>.</p>
+        <p><b>Tips:</b> llegá temprano, presentación formal y prolija, sonreí y mirá a los ojos. Si no entendés algo en inglés: <i>"Sorry, could you repeat that, please?"</i></p>
+      </div>
+    </details>
+
     <button class="mode special off" data-mode="rep" id="cardRep">
       <div class="top"><span class="emoji">&#128293;</span><span class="title">Repasá tus errores</span><span class="badge" id="repBadge">0</span></div>
       <div class="desc">Practicá SOLO las preguntas que fallaste. Es lo que más rápido te hace mejorar. Se guardan solas en tu celular.</div>
@@ -251,6 +287,18 @@
       <div class="top"><span class="emoji">&#128203;</span><span class="title">Simulacro completo</span></div>
       <div class="desc">52 preguntas mezcladas de las tres áreas, con figuras incluidas. Para medir resistencia y velocidad.</div>
       <div class="chips"><span class="chip">52 preguntas</span><span class="chip" id="chipFull">25 min</span></div>
+    </button>
+
+    <button class="mode" data-mode="ent">
+      <div class="top"><span class="emoji">&#128172;</span><span class="title">Entrevista en inglés</span></div>
+      <div class="desc">Preguntas típicas de la entrevista con la mejor respuesta modelo: presentación, motivación, fortalezas y por qué JetSmart. (Activá Modo estudio para leer las explicaciones.)</div>
+      <div class="chips"><span class="chip">15 preguntas</span><span class="chip">Respuesta modelo</span></div>
+    </button>
+
+    <button class="mode" data-mode="rol">
+      <div class="top"><span class="emoji">&#129309;</span><span class="title">Role play y servicio</span></div>
+      <div class="desc">Situaciones reales con pasajeros: enojos, miedos, quejas y seguridad. Elegí la mejor reacción y aprendé la fórmula de atención.</div>
+      <div class="chips"><span class="chip">15 preguntas</span><span class="chip">Atención al pasajero</span></div>
     </button>
 
     <div class="panel">
@@ -641,20 +689,60 @@ var BANK = [
 {cat:"mat",q:"Un artículo cuesta $2.000 y se vende con un 25% de ganancia. ¿A cuánto se vende?",o:["$2.500","$2.250","$2.400","$2.750"],a:0,e:"25% de 2.000 = 500. 2.000 + 500 = 2.500."},
 {cat:"mat",q:"¿Cuánto es el 15% del 15% de 2.000?",o:["45","300","450","30"],a:0,e:"15% de 2.000 = 300. 15% de 300 = 45."},
 {cat:"mat",q:"Un tanque está lleno hasta sus 3/8 con 90 litros. ¿Cuánto le cabe estando lleno?",o:["240 litros","270 litros","180 litros","320 litros"],a:0,e:"Si 3/8 = 90, entonces 1/8 = 30 y el total (8/8) = 240."},
-{cat:"mat",q:"El precio de algo bajó de $500 a $400. ¿Qué porcentaje bajó?",o:["20%","25%","10%","15%"],a:0,e:"Bajó 100 sobre 500: 100 ÷ 500 = 0,20 = 20%."}
+{cat:"mat",q:"El precio de algo bajó de $500 a $400. ¿Qué porcentaje bajó?",o:["20%","25%","10%","15%"],a:0,e:"Bajó 100 sobre 500: 100 ÷ 500 = 0,20 = 20%."},
+
+/* ==================== ENTREVISTA EN INGLÉS ==================== */
+{cat:"ent",q:"El entrevistador dice: \"Tell me about yourself.\" ¿Cuál es el mejor enfoque?",o:["Un resumen corto y positivo: nombre, experiencia en atención al cliente y por qué serías buen tripulante","Contar en detalle todos los trabajos que tuviste","Hablar de tus problemas personales","Decir que no te gusta hablar de vos"],a:0,e:"Modelo: \"My name is… I have X years in customer service, I'm a team player and I stay calm under pressure.\" Corto, positivo y enfocado al puesto."},
+{cat:"ent",q:"\"Why do you want to work as cabin crew?\" Mejor respuesta:",o:["Because I love helping people, working in a team and I enjoy dynamic environments.","Because I want free flights.","Because I couldn't find another job.","Because the salary is high."],a:0,e:"Mostrá vocación de servicio y trabajo en equipo, no el beneficio personal."},
+{cat:"ent",q:"\"Why JetSmart?\" Mejor respuesta:",o:["I admire JetSmart's growth in the region and I want to be part of a young, customer-focused airline.","Because it's the only airline hiring.","I don't really know much about the company.","Because a friend works there."],a:0,e:"Demostrá que conocés y elegís a la empresa: crecimiento, low-cost, foco en el cliente."},
+{cat:"ent",q:"El entrevistador pregunta \"Where are you from?\". Respuesta adecuada:",o:["I'm from Buenos Aires, Argentina.","That's personal.","I don't want to say.","I'm from work."],a:0,e:"Respondé claro y natural. Es una pregunta de apertura para escuchar tu inglés."},
+{cat:"ent",q:"\"What are your strengths?\" Mejor respuesta para este puesto:",o:["I stay calm under pressure, I'm empathetic and I work well in a team.","I have no weaknesses at all.","I'm always right.","I don't really know."],a:0,e:"Elegí fortalezas útiles a bordo: calma, empatía y trabajo en equipo."},
+{cat:"ent",q:"\"What is your greatest weakness?\" Mejor estrategia:",o:["Mencionar una debilidad real pero menor y cómo la estás mejorando.","Decir que no tenés ninguna.","Decir que siempre llegás tarde.","Negarte a responder."],a:0,e:"Honestidad + mejora. Nunca 'no tengo debilidades' ni algo grave para el puesto."},
+{cat:"ent",q:"\"Tell me about a time you dealt with a difficult customer.\" Tu respuesta debe incluir:",o:["Una situación real, qué hiciste para resolverla y el resultado positivo (método STAR).","Una historia donde perdiste la paciencia.","Que evitás a los clientes difíciles.","Que el cliente siempre se equivoca."],a:0,e:"Método STAR: Situación, Tarea, Acción, Resultado. Terminá en un resultado positivo."},
+{cat:"ent",q:"Si no entendés una pregunta en inglés, lo mejor es…",o:["Pedir con cortesía que la repitan: \"Sorry, could you repeat that, please?\"","Quedarte en silencio.","Responder cualquier cosa.","Pasarte al español e ignorar la pregunta."],a:0,e:"Pedir que repitan es profesional y correcto; el silencio o inventar es peor."},
+{cat:"ent",q:"\"Can you work weekends, holidays and night shifts?\" Mejor respuesta:",o:["Yes, I understand the job requires flexible schedules and I'm fully available.","No, only weekdays.","Only if it's convenient for me.","I'd have to think about it."],a:0,e:"El puesto exige disponibilidad horaria total; mostrala con seguridad."},
+{cat:"ent",q:"\"Are you willing to be based in another city?\" En una low-cost en expansión, conviene responder:",o:["Yes, I'm flexible about my base.","No, never.","Only in my own city.","I don't like traveling."],a:0,e:"La flexibilidad de base suma muchísimo en aerolíneas que están creciendo."},
+{cat:"ent",q:"¿Qué lenguaje corporal conviene en la entrevista?",o:["Sonreír, mirar a los ojos y mantener una postura erguida.","Mirar al piso y cruzar los brazos.","Revisar el celular.","Encorvarte y bostezar."],a:0,e:"La imagen y la actitud cuentan tanto como lo que decís."},
+{cat:"ent",q:"El entrevistador dice \"Walk me through your CV.\" Quiere que…",o:["Resumas tu experiencia laboral en orden.","Leas el CV palabra por palabra en silencio.","Hables solo de tus hobbies.","Te retires de la sala."],a:0,e:"'Walk me through' = contame/recorré tu CV de forma resumida y ordenada."},
+{cat:"ent",q:"Buena pregunta para hacerle vos al entrevistador al final:",o:["What does the initial training look like?","How much vacation do I get?","When can I leave early?","Do I really have to work?"],a:0,e:"Preguntar por la formación muestra interés genuino en el puesto."},
+{cat:"ent",q:"¿Cuál es la presentación en inglés mejor armada?",o:["\"Hello, my name is Ana. I'm 24 and I'm from Córdoba. I've worked in customer service for two years and I love helping people.\"","\"Hi… em… I don't know what to say.\"","\"My name Ana, 24, Córdoba, work, people.\"","\"Why do you ask me that?\""],a:0,e:"Estructura: saludo + nombre + edad + origen + experiencia + una frase de actitud."},
+{cat:"ent",q:"Si no tenés experiencia previa en aviación, lo mejor es…",o:["Ser honesto y destacar habilidades transferibles: atención al cliente y trabajo en equipo.","Mentir sobre experiencia que no tenés.","Decir que la experiencia no importa.","Echarle la culpa a otros."],a:0,e:"Las habilidades transferibles (servicio, calma, equipo) son lo que buscan."},
+{cat:"ent",q:"Por encima de todo, ¿qué actitud busca la aerolínea?",o:["Vocación de servicio, trabajo en equipo y calma bajo presión.","Ser el más inteligente de la sala.","Trabajar solo.","Evitar a los pasajeros."],a:0,e:"El perfil es de servicio y seguridad, no de lucimiento individual."},
+
+/* ==================== ROLE PLAY / ATENCIÓN AL PASAJERO ==================== */
+{cat:"rol",q:"Un pasajero está enojado porque el vuelo se demoró. Lo PRIMERO que hacés:",o:["Mantener la calma, escucharlo, disculparte y explicar los pasos a seguir.","Discutir y defenderte.","Ignorarlo.","Decirle que no es tu culpa."],a:0,e:"Fórmula: sonreír → escuchar → empatizar (\"I understand…\") → ofrecer solución → agradecer."},
+{cat:"rol",q:"Un pasajero no encuentra lugar para su equipaje de mano. Vos:",o:["Le ofrecés ayuda para ubicarlo o despacharlo a bodega, con una sonrisa.","Le decís que es su problema.","Lo dejás parado sin ayudarlo.","Le decís que el avión está lleno y te vas."],a:0,e:"Ofrecer una solución concreta con amabilidad es la respuesta esperada."},
+{cat:"rol",q:"Un pasajero visiblemente alcoholizado pide otra bebida alcohólica. Vos:",o:["Se la negás con cortesía y le ofrecés agua, siguiendo la política de seguridad.","Se la servís igual.","Lo ignorás.","Discutís en voz alta."],a:0,e:"La seguridad manda: negar con cortesía y ofrecer una alternativa."},
+{cat:"rol",q:"Dos pasajeros discuten por un asiento reclinado. Vos:",o:["Mediás con calma y buscás una solución justa para ambos.","Tomás partido en voz alta por uno.","Lo ignorás.","Les decís que se arreglen solos."],a:0,e:"El tripulante media con neutralidad y busca acuerdo, sin tomar partido."},
+{cat:"rol",q:"Un pasajero tiene miedo a volar y está nervioso con la turbulencia. Vos:",o:["Lo tranquilizás con calma, le explicás que la turbulencia es normal y estás atento.","Le decís que se relaje y te vas.","Le contás que vos también tenés miedo.","Lo ignorás."],a:0,e:"Contención + información + presencia. Transmitir seguridad es clave."},
+{cat:"rol",q:"Un pasajero pide algo que NO podés darle. Mejor frase:",o:["\"I'm afraid that's not possible, but let me offer you…\"","\"No.\"","\"Rules are rules.\"","\"Not my problem.\""],a:0,e:"Negativa cortés + alternativa. Nunca un 'no' seco."},
+{cat:"rol",q:"Durante el embarque un pasajero te trata mal. Vos:",o:["Te mantenés profesional, cortés y en calma.","Le contestás de mala manera.","Te negás a ayudarlo.","Lo reportás sin intentar resolver."],a:0,e:"La profesionalidad no se pierde aunque el pasajero sea grosero."},
+{cat:"rol",q:"Un nene llora y el padre está desbordado. Vos:",o:["Ofrecés ayuda con amabilidad y mantenés un tono cálido y paciente.","Le pedís que haga callar al nene.","Los ignorás.","Los cambiás de lugar al fondo."],a:0,e:"Empatía y paciencia; ofrecer ayuda concreta mejora la situación."},
+{cat:"rol",q:"En el servicio de cabina, la seguridad es…",o:["Siempre la prioridad número uno, antes que el servicio.","Menos importante que servir bebidas.","Opcional.","Solo tarea del piloto."],a:0,e:"La seguridad está siempre primero; el servicio viene después."},
+{cat:"rol",q:"Un pasajero se derrama una bebida encima y se molesta. Vos:",o:["Te disculpás, ayudás a limpiar y ofrecés asistencia.","Te reís.","Lo culpás a él.","Lo ignorás."],a:0,e:"Disculpa sincera + ayuda inmediata."},
+{cat:"rol",q:"Mejor actitud al recibir a los pasajeros en el embarque:",o:["Sonreír, mirar a los ojos y darles la bienvenida con calidez.","Mirar el celular.","Evitar el contacto visual.","Apurarlos en silencio."],a:0,e:"La primera impresión: sonrisa, contacto visual y bienvenida cálida."},
+{cat:"rol",q:"Un pasajero no habla español y parece perdido. Vos:",o:["Usás inglés simple, gestos y mantenés paciencia y amabilidad.","Le hablás más rápido en español.","Lo ignorás.","Le decís que aprenda español."],a:0,e:"Inglés básico + gestos + paciencia. La comunicación es parte del servicio."},
+{cat:"rol",q:"Un pasajero se niega a abrocharse el cinturón para el aterrizaje. Vos:",o:["Le explicás con calma que es un requisito de seguridad e insistís con cortesía.","Lo dejás pasar.","Se lo abrochás a la fuerza.","Lo reportás sin explicar."],a:0,e:"Explicar el motivo de seguridad e insistir con firmeza amable."},
+{cat:"rol",q:"Un pasajero se queja de que la comida está fría. Vos:",o:["Te disculpás con sinceridad y ofrecés una solución o alternativa.","Le decís que la coma igual.","Discutís que está bien.","Ignorás la queja."],a:0,e:"Reconocer la molestia y ofrecer solución transforma una queja."},
+{cat:"rol",q:"El núcleo de una buena atención a bordo es…",o:["Empatía, tono calmo y encontrar soluciones.","La velocidad por encima de la amabilidad.","Hacer lo mínimo.","Evitar a los pasajeros."],a:0,e:"Empatía + calma + orientación a la solución."},
+{cat:"rol",q:"En una emergencia, la cualidad más importante del tripulante es…",o:["Mantener la calma y seguir los procedimientos para proteger a los pasajeros.","Entrar en pánico.","Correr primero a la salida.","Filmar lo que pasa."],a:0,e:"Calma + procedimientos. La seguridad de los pasajeros es la misión."},
+{cat:"rol",q:"Un pasajero te agradece con calidez. Mejor respuesta:",o:["\"You're welcome, it's my pleasure. Enjoy your flight!\"","\"Finally.\"","\"It's just my job.\"","No decir nada."],a:0,e:"Respuesta cálida y profesional que cierra bien la interacción."}
 
 ];
 
 /* ============================================================
    ESTADO
    ============================================================ */
-var CAT_LABEL = {mat:"Matemática", log:"Lógica", eng:"Inglés"};
+var CAT_LABEL = {mat:"Matemática", log:"Lógica", eng:"Inglés", ent:"Entrevista", rol:"Role play"};
 var MODE_INFO = {
   eng:  {label:"Test de Inglés",               order:["eng"],            pick:{eng:30},              input:"tEng"},
   mat:  {label:"Test de Matemática y Lógica",  order:["mat","log"],      pick:{mat:24, log:22},      input:"tMat"},
   full: {label:"Simulacro completo",           order:["mat","log","eng"],pick:{mat:18, log:18, eng:16}, input:"tFull"},
   wl:   {label:"Wonderlic Express",            order:["mat","log","eng"],pick:{mat:18, log:18, eng:14}, mins:12},
-  rep:  {label:"Repaso de errores",            order:["mat","log","eng"], mins:15}
+  rep:  {label:"Repaso de errores",            order:["mat","log","eng"], mins:15},
+  ent:  {label:"Entrevista en inglés",         order:["ent"],            pick:{ent:15},              mins:10},
+  rol:  {label:"Role play y servicio",         order:["rol"],            pick:{rol:15},              mins:10},
+  ass:  {label:"Assessment 1 — simulacro del día", order:["eng","mat","log","ent","rol"], pick:{eng:10, mat:7, log:7, ent:8, rol:8}, mins:20}
 };
 
 var state = null;   // { mode, qs:[], answers:[], idx, total, endAt, secs }
