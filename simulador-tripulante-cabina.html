@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1220">
+<title>Simulador de Examen &mdash; Tripulante de Cabina</title>
+<style>
+  :root{
+    --bg:#0b1220;
+    --bg-soft:#131c2e;
+    --card:#18233a;
+    --card-2:#1f2c47;
+    --line:#2b3a5a;
+    --txt:#eaf0fb;
+    --txt-dim:#9fb0cd;
+    --accent:#2dd4bf;
+    --accent-2:#38bdf8;
+    --warn:#fbbf24;
+    --bad:#f87171;
+    --good:#4ade80;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    background:radial-gradient(1200px 600px at 50% -10%, #1b2a47 0%, var(--bg) 60%);
+    background-attachment:fixed;
+    color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:16px;
+    line-height:1.5;
+    min-height:100vh;
+    padding:0 0 env(safe-area-inset-bottom);
+  }
+  .wrap{max-width:640px;margin:0 auto;padding:18px 16px 40px}
+  h1,h2,h3{margin:0 0 8px;line-height:1.25}
+  h1{font-size:1.5rem;letter-spacing:-.02em}
+  h2{font-size:1.15rem}
+  p{margin:0 0 12px}
+  .muted{color:var(--txt-dim);font-size:.9rem}
+  .center{text-align:center}
+
+  /* ---------- Home ---------- */
+  .brand{display:flex;align-items:center;gap:10px;justify-content:center;margin:14px 0 6px}
+  .brand .logo{
+    width:38px;height:38px;border-radius:11px;flex:0 0 auto;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    display:grid;place-items:center;font-size:20px;
+  }
+  .tagline{text-align:center;color:var(--txt-dim);font-size:.92rem;margin-bottom:22px}
+
+  .mode{
+    display:block;width:100%;text-align:left;cursor:pointer;
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px;margin-bottom:12px;color:inherit;font:inherit;
+    transition:border-color .15s, transform .06s, background .15s;
+  }
+  .mode:active{transform:scale(.99)}
+  .mode:hover{border-color:var(--accent)}
+  .mode .top{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .mode .emoji{font-size:22px}
+  .mode .title{font-weight:700;font-size:1.05rem}
+  .mode .desc{color:var(--txt-dim);font-size:.88rem}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+  .chip{
+    background:var(--card-2);border:1px solid var(--line);border-radius:999px;
+    padding:3px 10px;font-size:.75rem;color:var(--txt-dim);
+  }
+
+  .panel{
+    background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px 16px;margin-top:18px;
+  }
+  .row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0}
+  .row + .row{border-top:1px solid var(--line)}
+  .row label{font-size:.92rem}
+  .row .hint{display:block;color:var(--txt-dim);font-size:.78rem}
+  input[type=number]{
+    width:78px;background:var(--card);border:1px solid var(--line);color:var(--txt);
+    border-radius:9px;padding:8px 10px;font:inherit;font-size:.95rem;text-align:center;
+  }
+  input[type=number]:focus{outline:2px solid var(--accent);outline-offset:1px}
+
+  .switch{position:relative;width:48px;height:28px;flex:0 0 auto}
+  .switch input{opacity:0;width:100%;height:100%;margin:0;cursor:pointer;position:relative;z-index:2}
+  .switch span{
+    position:absolute;inset:0;background:var(--card);border:1px solid var(--line);
+    border-radius:999px;transition:background .15s;pointer-events:none;
+  }
+  .switch span::after{
+    content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;
+    background:var(--txt-dim);transition:transform .15s, background .15s;
+  }
+  .switch input:checked + span{background:rgba(45,212,191,.25);border-color:var(--accent)}
+  .switch input:checked + span::after{transform:translateX(20px);background:var(--accent)}
+
+  /* ---------- Quiz ---------- */
+  .bar{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);
+    padding:10px 14px;position:sticky;top:8px;z-index:5;
+    backdrop-filter:blur(6px);
+  }
+  .timer{font-variant-numeric:tabular-nums;font-weight:700;font-size:1.25rem;letter-spacing:.02em}
+  .timer.warn{color:var(--warn)}
+  .timer.danger{color:var(--bad);animation:pulse 1s infinite}
+  @keyframes pulse{50%{opacity:.45}}
+  .counter{font-size:.85rem;color:var(--txt-dim)}
+  .btn-quit{
+    background:none;border:1px solid var(--line);color:var(--txt-dim);
+    border-radius:9px;padding:6px 10px;font:inherit;font-size:.8rem;cursor:pointer;
+  }
+  .btn-quit:hover{border-color:var(--bad);color:var(--bad)}
+
+  .progress{height:6px;background:var(--card);border-radius:999px;overflow:hidden;margin:12px 0 16px}
+  .progress > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width .25s}
+
+  .qcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px 16px}
+  .qtag{
+    display:inline-block;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;
+    color:var(--accent);background:rgba(45,212,191,.1);border:1px solid rgba(45,212,191,.3);
+    border-radius:999px;padding:2px 9px;margin-bottom:10px;
+  }
+  .qtext{font-size:1.08rem;font-weight:600;margin-bottom:16px;white-space:pre-line}
+  .opts{display:flex;flex-direction:column;gap:9px}
+  .opt{
+    display:flex;align-items:flex-start;gap:11px;width:100%;text-align:left;
+    background:var(--card-2);border:1px solid var(--line);border-radius:11px;
+    padding:13px 14px;color:inherit;font:inherit;font-size:.97rem;cursor:pointer;
+    transition:border-color .12s, background .12s, transform .06s;
+  }
+  .opt:active{transform:scale(.995)}
+  .opt:hover{border-color:var(--accent-2)}
+  .opt .k{
+    flex:0 0 auto;width:24px;height:24px;border-radius:7px;background:var(--card);
+    border:1px solid var(--line);display:grid;place-items:center;
+    font-size:.8rem;font-weight:700;color:var(--txt-dim);
+  }
+  .opt.sel{border-color:var(--accent);background:rgba(45,212,191,.12)}
+  .opt.sel .k{background:var(--accent);color:#06251f;border-color:var(--accent)}
+
+  .nav{display:flex;gap:10px;margin-top:16px}
+  .btn{
+    flex:1;border:none;border-radius:11px;padding:14px;font:inherit;font-weight:700;
+    cursor:pointer;transition:filter .15s, opacity .15s;
+  }
+  .btn:active{filter:brightness(.92)}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#06251f}
+  .btn-ghost{background:var(--card);color:var(--txt);border:1px solid var(--line);flex:0 0 auto;padding:14px 18px}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+
+  /* ---------- Resultados ---------- */
+  .score{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:22px 16px;text-align:center;margin-bottom:14px;
+  }
+  .score .big{font-size:3rem;font-weight:800;line-height:1;letter-spacing:-.03em}
+  .score .verdict{margin-top:8px;font-weight:600}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:18px}
+  .stat{background:var(--bg-soft);border:1px solid var(--line);border-radius:11px;padding:12px 8px;text-align:center}
+  .stat b{display:block;font-size:1.4rem;line-height:1.2}
+  .stat span{font-size:.74rem;color:var(--txt-dim);text-transform:uppercase;letter-spacing:.05em}
+  .stat.ok b{color:var(--good)} .stat.no b{color:var(--bad)} .stat.sk b{color:var(--txt-dim)}
+
+  .rev{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px}
+  .rev .num{font-size:.75rem;color:var(--txt-dim);margin-bottom:5px}
+  .rev .q{font-weight:600;margin-bottom:10px;white-space:pre-line}
+  .ans{border-radius:9px;padding:9px 11px;font-size:.92rem;margin-bottom:6px;border:1px solid transparent}
+  .ans.bad{background:rgba(248,113,113,.12);border-color:rgba(248,113,113,.35)}
+  .ans.good{background:rgba(74,222,128,.12);border-color:rgba(74,222,128,.35)}
+  .ans .lbl{display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--txt-dim);margin-bottom:2px}
+  .why{font-size:.86rem;color:var(--txt-dim);margin-top:8px;padding-left:10px;border-left:2px solid var(--line)}
+
+  .hide{display:none !important}
+  footer{text-align:center;color:var(--txt-dim);font-size:.75rem;margin-top:26px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ================= HOME ================= -->
+  <section id="home">
+    <div class="brand">
+      <div class="logo">&#9992;</div>
+      <h1>Simulador de Ingreso</h1>
+    </div>
+    <p class="tagline">Práctica de examen para Tripulante de Cabina &mdash; formato multiple choice con tiempo, como el proceso real.</p>
+
+    <button class="mode" data-mode="eng">
+      <div class="top"><span class="emoji">&#127760;</span><span class="title">Test de Inglés</span></div>
+      <div class="desc">Vocabulario de aviación y atención al pasajero, gramática básica y comprensión de oraciones.</div>
+      <div class="chips"><span class="chip">15 preguntas</span><span class="chip" id="chipEng">10 min</span><span class="chip">Multiple choice</span></div>
+    </button>
+
+    <button class="mode" data-mode="mat">
+      <div class="top"><span class="emoji">&#129518;</span><span class="title">Test de Matemática y Lógica</span></div>
+      <div class="desc">Porcentajes, regla de tres, horarios de vuelo, series numéricas, analogías y deducción.</div>
+      <div class="chips"><span class="chip">35 preguntas</span><span class="chip" id="chipMat">15 min</span><span class="chip">No se espera terminar todo</span></div>
+    </button>
+
+    <button class="mode" data-mode="full">
+      <div class="top"><span class="emoji">&#128203;</span><span class="title">Simulacro completo</span></div>
+      <div class="desc">Las 50 preguntas juntas, mezcladas. Para medir resistencia y velocidad general.</div>
+      <div class="chips"><span class="chip">50 preguntas</span><span class="chip" id="chipFull">25 min</span></div>
+    </button>
+
+    <div class="panel">
+      <div class="row">
+        <label for="tEng">Minutos &mdash; Inglés <span class="hint">Tiempo total del bloque</span></label>
+        <input type="number" id="tEng" value="10" min="1" max="90" inputmode="numeric">
+      </div>
+      <div class="row">
+        <label for="tMat">Minutos &mdash; Matemática y Lógica <span class="hint">Default 15, como en el examen</span></label>
+        <input type="number" id="tMat" value="15" min="1" max="90" inputmode="numeric">
+      </div>
+      <div class="row">
+        <label for="tFull">Minutos &mdash; Simulacro completo</label>
+        <input type="number" id="tFull" value="25" min="1" max="120" inputmode="numeric">
+      </div>
+      <div class="row">
+        <label for="shuf">Barajar preguntas y opciones <span class="hint">Evita memorizar el orden</span></label>
+        <span class="switch"><input type="checkbox" id="shuf" checked><span></span></span>
+      </div>
+    </div>
+
+    <footer>
+      Consejo: no te trabes. Si una pregunta te lleva más de 40 segundos, pasá a la siguiente<br>y volvé al final si sobra tiempo.
+    </footer>
+  </section>
+
+  <!-- ================= QUIZ ================= -->
+  <section id="quiz" class="hide">
+    <div class="bar">
+      <div class="timer" id="timer">00:00</div>
+      <div class="counter" id="counter">1 / 50</div>
+      <button class="btn-quit" id="btnQuit">Terminar</button>
+    </div>
+    <div class="progress"><i id="progressBar"></i></div>
+
+    <div class="qcard">
+      <span class="qtag" id="qtag">Matemática</span>
+      <div class="qtext" id="qtext"></div>
+      <div class="opts" id="opts"></div>
+    </div>
+
+    <div class="nav">
+      <button class="btn btn-ghost" id="btnPrev">&#8592;</button>
+      <button class="btn btn-primary" id="btnNext">Siguiente</button>
+    </div>
+    <p class="muted center" style="margin-top:12px">Podés dejar preguntas sin responder y volver con la flecha.</p>
+  </section>
+
+  <!-- ================= RESULTADOS ================= -->
+  <section id="result" class="hide">
+    <div class="score">
+      <div class="big" id="scorePct">0%</div>
+      <div class="muted" id="scoreLine">0 de 0 correctas</div>
+      <div class="verdict" id="verdict"></div>
+      <div class="muted" id="timeUsed" style="margin-top:6px"></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat ok"><b id="stOk">0</b><span>Correctas</span></div>
+      <div class="stat no"><b id="stNo">0</b><span>Erradas</span></div>
+      <div class="stat sk"><b id="stSk">0</b><span>Sin responder</span></div>
+    </div>
+
+    <div class="nav" style="margin-bottom:22px">
+      <button class="btn btn-primary" id="btnAgain">Repetir práctica</button>
+      <button class="btn btn-ghost" id="btnHome">Inicio</button>
+    </div>
+
+    <h2 id="revTitle">Repaso</h2>
+    <p class="muted" id="revSub"></p>
+    <div id="review"></div>
+  </section>
+
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============================================================
+   BANCO DE 50 PREGUNTAS
+   cat: "mat" | "log" | "eng"   |   a = índice de la opción correcta
+   ============================================================ */
+var BANK = [
+
+/* ---------- MATEMÁTICA (18) ---------- */
+{cat:"mat",q:"Un avión tiene 180 asientos y se vendió el 85% del pasaje. ¿Cuántos asientos quedaron libres?",o:["27","15","25","36"],a:0,e:"180 × 0,85 = 153 vendidos. 180 − 153 = 27 libres."},
+{cat:"mat",q:"Un vuelo despega a las 14:35 y dura 2 horas y 50 minutos. ¿A qué hora aterriza?",o:["17:25","16:85","17:15","18:05"],a:0,e:"14:35 + 2 h = 16:35; 16:35 + 50 min = 17:25."},
+{cat:"mat",q:"Si 3 carritos de servicio alcanzan para atender a 120 pasajeros, ¿cuántos carritos se necesitan para 200 pasajeros?",o:["5","4","6","7"],a:0,e:"120 ÷ 3 = 40 pasajeros por carrito. 200 ÷ 40 = 5 carritos."},
+{cat:"mat",q:"Se despachan 12 valijas de 23 kg cada una. ¿Cuál es el peso total?",o:["276 kg","256 kg","264 kg","286 kg"],a:0,e:"12 × 23 = 276 kg."},
+{cat:"mat",q:"Un pasaje cuesta $180.000 y tiene un 15% de descuento. ¿Cuánto se paga?",o:["$153.000","$165.000","$150.000","$157.500"],a:0,e:"15% de 180.000 = 27.000. 180.000 − 27.000 = 153.000."},
+{cat:"mat",q:"Un avión consume 2.400 litros de combustible por hora. ¿Cuánto consume en un vuelo de 3 horas y 45 minutos?",o:["9.000 litros","8.400 litros","9.600 litros","10.000 litros"],a:0,e:"3 h 45 min = 3,75 h. 2.400 × 3,75 = 9.000 litros."},
+{cat:"mat",q:"En un vuelo, 45 pasajeros representan el 25% del total. ¿Cuántos pasajeros hay en total?",o:["180","150","200","225"],a:0,e:"Si 25% = 45, el 100% = 45 × 4 = 180."},
+{cat:"mat",q:"Un pasajero llega a las 22:40 y su vuelo de conexión sale a la 01:15 del día siguiente. ¿Cuánto tiempo espera?",o:["2 h 35 min","3 h 35 min","2 h 25 min","1 h 35 min"],a:0,e:"De 22:40 a 00:40 hay 2 h; de 00:40 a 01:15 hay 35 min. Total: 2 h 35 min."},
+{cat:"mat",q:"Cuatro vuelos salieron con retrasos de 10, 25, 15 y 30 minutos. ¿Cuál fue el retraso promedio?",o:["20 minutos","18 minutos","22 minutos","25 minutos"],a:0,e:"(10+25+15+30) ÷ 4 = 80 ÷ 4 = 20 minutos."},
+{cat:"mat",q:"De 200 pasajeros, 3/5 son argentinos. ¿Cuántos pasajeros argentinos hay?",o:["120","125","140","60"],a:0,e:"200 ÷ 5 = 40; 40 × 3 = 120."},
+{cat:"mat",q:"La bodega admite 4.500 kg y ya se cargaron 3.180 kg. ¿Cuántas valijas de 22 kg se pueden agregar?",o:["60","55","62","58"],a:0,e:"4.500 − 3.180 = 1.320 kg disponibles. 1.320 ÷ 22 = 60 valijas."},
+{cat:"mat",q:"Si 1 dólar equivale a 1.250 pesos, ¿cuánto son 340 dólares en pesos?",o:["$425.000","$400.000","$437.500","$412.500"],a:0,e:"340 × 1.250 = 425.000."},
+{cat:"mat",q:"Un pasaje de $96.000 aumenta un 12,5%. ¿Cuál es el nuevo precio?",o:["$108.000","$106.000","$110.400","$112.000"],a:0,e:"12,5% de 96.000 = 12.000. 96.000 + 12.000 = 108.000."},
+{cat:"mat",q:"Un avión vuela a 850 km/h. ¿Cuánto tarda en recorrer 2.550 km?",o:["3 horas","2 h 30 min","3 h 30 min","4 horas"],a:0,e:"2.550 ÷ 850 = 3 horas."},
+{cat:"mat",q:"Una tripulante inicia su turno de 8 horas a las 06:20. ¿A qué hora lo termina?",o:["14:20","13:20","15:20","14:40"],a:0,e:"06:20 + 8 h = 14:20."},
+{cat:"mat",q:"Si en la cabina hay 156 pasajeros sentados en filas de 6 asientos completas, ¿cuántas filas ocupan?",o:["26","24","28","30"],a:0,e:"156 ÷ 6 = 26 filas."},
+{cat:"mat",q:"De 90 pasajeros, el 30% pidió menú vegetariano. ¿Cuántos menús vegetarianos se necesitan?",o:["27","30","24","18"],a:0,e:"90 × 0,30 = 27."},
+{cat:"mat",q:"En un vuelo de 200 pasajeros, el 40% son mujeres y el resto hombres. ¿Cuál es la diferencia entre hombres y mujeres?",o:["40","20","60","80"],a:0,e:"Mujeres: 80. Hombres: 120. Diferencia: 120 − 80 = 40."},
+
+/* ---------- LÓGICA (17) ---------- */
+{cat:"log",q:"¿Qué número continúa la serie?\n3 — 6 — 12 — 24 — ?",o:["48","36","30","42"],a:0,e:"Cada término se multiplica por 2. 24 × 2 = 48."},
+{cat:"log",q:"¿Qué número continúa la serie?\n2 — 5 — 10 — 17 — 26 — ?",o:["37","35","36","38"],a:0,e:"Las diferencias son +3, +5, +7, +9, y luego +11. 26 + 11 = 37."},
+{cat:"log",q:"¿Qué número continúa la serie?\n100 — 92 — 85 — 79 — ?",o:["74","73","75","72"],a:0,e:"Las diferencias son −8, −7, −6 y luego −5. 79 − 5 = 74."},
+{cat:"log",q:"Todos los tripulantes de cabina saben nadar. Algunos empleados de la empresa son tripulantes de cabina. ¿Qué se concluye con certeza?",o:["Algunos empleados de la empresa saben nadar","Todos los empleados saben nadar","Ningún empleado sabe nadar","Todos los que saben nadar son tripulantes"],a:0,e:"Si algunos empleados son tripulantes y todos los tripulantes saben nadar, esos empleados saben nadar."},
+{cat:"log",q:"Ningún avión de carga transporta pasajeros. Todos los A320 transportan pasajeros. ¿Qué se concluye?",o:["Ningún A320 es avión de carga","Algunos A320 son aviones de carga","Todos los aviones de carga son A320","No se puede concluir nada"],a:0,e:"Si los A320 llevan pasajeros y los de carga no, ningún A320 puede ser de carga."},
+{cat:"log",q:"Piloto es a avión como capitán es a…",o:["Barco","Puerto","Uniforme","Tripulación"],a:0,e:"Se mantiene la relación 'quien conduce' → 'vehículo que conduce'."},
+{cat:"log",q:"¿Qué letra continúa la serie?\nA — C — F — J — ?",o:["O","N","M","P"],a:0,e:"Los saltos son +2, +3, +4 y luego +5 posiciones. De J se avanza 5 letras: K, L, M, N, O."},
+{cat:"log",q:"¿Qué número continúa la serie?\n5 — 10 — 8 — 16 — 14 — 28 — ?",o:["26","30","24","32"],a:0,e:"Se alterna ×2 y −2. Después de 28 corresponde restar 2: 26."},
+{cat:"log",q:"Ana llegó antes que Beto. Beto llegó antes que Carla. Diana llegó después de Carla. ¿Quién llegó último?",o:["Diana","Carla","Beto","Ana"],a:0,e:"El orden es Ana, Beto, Carla, Diana."},
+{cat:"log",q:"En una fila de tres personas, María está a la derecha de Juan y Pedro está a la izquierda de Juan. ¿Quién está en el medio?",o:["Juan","María","Pedro","Falta información"],a:0,e:"El orden de izquierda a derecha es Pedro, Juan, María."},
+{cat:"log",q:"¿Cuál es el elemento que NO pertenece al grupo?",o:["Barco","Avión","Helicóptero","Planeador"],a:0,e:"Los otros tres se desplazan por el aire; el barco no."},
+{cat:"log",q:"¿Cuál de estos elementos NO es un equipo de seguridad a bordo?",o:["Revista de a bordo","Chaleco salvavidas","Máscara de oxígeno","Cinturón de seguridad"],a:0,e:"La revista es material de entretenimiento, no de seguridad."},
+{cat:"log",q:"Si hoy es martes, ¿qué día de la semana será dentro de 45 días?",o:["Viernes","Jueves","Sábado","Miércoles"],a:0,e:"45 ÷ 7 = 6 semanas y sobran 3 días. Martes + 3 = viernes."},
+{cat:"log",q:"\"Si el vuelo se demora, los pasajeros reciben un voucher.\" Un pasajero NO recibió voucher. ¿Qué se concluye?",o:["El vuelo no se demoró","El vuelo se demoró","El pasajero perdió el vuelo","El voucher se entregó a otro"],a:0,e:"Si la consecuencia no ocurrió, la condición tampoco pudo ocurrir."},
+{cat:"log",q:"¿Qué número continúa la serie?\n1 — 1 — 2 — 3 — 5 — 8 — ?",o:["13","11","10","16"],a:0,e:"Cada término es la suma de los dos anteriores: 5 + 8 = 13."},
+{cat:"log",q:"En un vuelo hay más argentinos que chilenos, y más chilenos que brasileños. Si hay 3 brasileños, ¿cuál es la menor cantidad posible de argentinos?",o:["5","4","6","3"],a:0,e:"Chilenos al menos 4 (más que 3) y argentinos al menos 5 (más que 4)."},
+{cat:"log",q:"Si AVION se codifica como BWJPO (cada letra avanza una posición), ¿cómo se codifica ALAS?",o:["BMBT","BMBS","AMBT","BLBT"],a:0,e:"A→B, L→M, A→B, S→T."},
+
+/* ---------- INGLÉS (15) ---------- */
+{cat:"eng",q:"Please fasten your ______ before take-off.",o:["seatbelt","luggage","aisle","boarding"],a:0,e:"'Fasten your seatbelt' = abrocharse el cinturón."},
+{cat:"eng",q:"The flight has been ______ because of the storm.",o:["delayed","arrived","boarded","landed"],a:0,e:"'Delayed' = demorado."},
+{cat:"eng",q:"¿Qué significa la palabra \"luggage\"?",o:["Equipaje","Pasaje","Pasillo","Retraso"],a:0,e:"Luggage / baggage = equipaje."},
+{cat:"eng",q:"The plane lands ______ 6 p.m.",o:["at","in","on","to"],a:0,e:"Con horas exactas se usa la preposición 'at'."},
+{cat:"eng",q:"The passengers ______ already boarded the aircraft.",o:["have","has","are","were"],a:0,e:"Present perfect en plural: 'have' + participio."},
+{cat:"eng",q:"Yesterday the flight ______ two hours late.",o:["arrived","arrives","is arriving","arrive"],a:0,e:"'Yesterday' pide pasado simple: arrived."},
+{cat:"eng",q:"A passenger says: \"Could I have a glass of water, please?\" ¿Cuál es la mejor respuesta de la tripulación?",o:["Certainly, here you are.","No, I don't know.","You are welcome to leave.","Please fasten it."],a:0,e:"Es la respuesta cortés y adecuada al pedido."},
+{cat:"eng",q:"\"Passengers with connecting flights must proceed to gate 12.\" ¿Qué deben hacer esos pasajeros?",o:["Dirigirse a la puerta 12","Retirar su equipaje","Esperar en el avión","Cambiar su pasaje"],a:0,e:"'Proceed to gate 12' = dirigirse a la puerta de embarque 12."},
+{cat:"eng",q:"¿Qué es un \"aisle seat\"?",o:["Un asiento de pasillo","Un asiento de ventanilla","Un asiento de la primera fila","Un asiento reclinable"],a:0,e:"Aisle = pasillo; window seat = ventanilla."},
+{cat:"eng",q:"Please remain seated ______ the seatbelt sign is switched off.",o:["until","during","since","while"],a:0,e:"'Until' indica hasta que ocurra ese momento."},
+{cat:"eng",q:"You ______ use your mobile phone during take-off.",o:["mustn't","must","should","may"],a:0,e:"'Mustn't' expresa prohibición."},
+{cat:"eng",q:"This flight is ______ than the one to Santiago.",o:["longer","longest","more long","long"],a:0,e:"Comparativo de adjetivo corto: long → longer."},
+{cat:"eng",q:"The overhead compartment is used to…",o:["store hand luggage","serve meals","store fuel","seat the crew"],a:0,e:"El compartimento superior sirve para guardar el equipaje de mano."},
+{cat:"eng",q:"\"Cabin crew, prepare for ______.\" (el avión está por tocar tierra)",o:["landing","boarding","check-in","departure"],a:0,e:"Landing = aterrizaje."},
+{cat:"eng",q:"How many bags ______ you checking in today?",o:["are","is","do","have"],a:0,e:"Present continuous con 'you': are + checking."}
+
+];
+
+/* ============================================================
+   ESTADO
+   ============================================================ */
+var CAT_LABEL = {mat:"Matemática", log:"Lógica", eng:"Inglés"};
+var MODE_INFO = {
+  eng:  {label:"Test de Inglés",               cats:["eng"],             input:"tEng"},
+  mat:  {label:"Test de Matemática y Lógica",  cats:["mat","log"],       input:"tMat"},
+  full: {label:"Simulacro completo",           cats:["mat","log","eng"], input:"tFull"}
+};
+
+var state = null;   // { mode, qs:[], answers:[], idx, total, endAt, secs }
+var ticker = null;
+
+var $ = function(id){ return document.getElementById(id); };
+
+function shuffle(arr){
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--){
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+function buildQuestions(mode, doShuffle){
+  var cats = MODE_INFO[mode].cats;
+  var picked = BANK.filter(function(q){ return cats.indexOf(q.cat) !== -1; });
+
+  if (doShuffle) picked = shuffle(picked);
+  else if (mode === "mat") {
+    // sin barajar: primero matemática, después lógica (orden del banco ya lo respeta)
+    picked = picked.slice();
+  }
+
+  return picked.map(function(q){
+    var order = doShuffle ? shuffle([0,1,2,3]) : [0,1,2,3];
+    return {
+      cat: q.cat,
+      q: q.q,
+      e: q.e,
+      o: order.map(function(i){ return q.o[i]; }),
+      a: order.indexOf(q.a)
+    };
+  });
+}
+
+function fmt(sec){
+  if (sec < 0) sec = 0;
+  var m = Math.floor(sec / 60), s = sec % 60;
+  return (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+}
+
+function show(id){
+  ["home","quiz","result"].forEach(function(s){
+    $(s).classList.toggle("hide", s !== id);
+  });
+  window.scrollTo(0, 0);
+}
+
+/* ============================================================
+   FLUJO DEL TEST
+   ============================================================ */
+function start(mode){
+  var mins = parseInt($(MODE_INFO[mode].input).value, 10);
+  if (isNaN(mins) || mins < 1) mins = 10;
+
+  var qs = buildQuestions(mode, $("shuf").checked);
+
+  state = {
+    mode: mode,
+    qs: qs,
+    total: qs.length,
+    answers: new Array(qs.length).fill(null),
+    idx: 0,
+    secs: mins * 60,
+    endAt: Date.now() + mins * 60 * 1000
+  };
+
+  show("quiz");
+  render();
+  tick();
+  ticker = setInterval(tick, 250);
+}
+
+function tick(){
+  if (!state) return;
+  var left = Math.ceil((state.endAt - Date.now()) / 1000);
+  var el = $("timer");
+  el.textContent = fmt(left);
+  el.className = "timer" + (left <= 30 ? " danger" : left <= 120 ? " warn" : "");
+  if (left <= 0) finish(true);
+}
+
+function render(){
+  var q = state.qs[state.idx];
+
+  $("qtag").textContent = CAT_LABEL[q.cat];
+  $("qtext").textContent = q.q;
+  $("counter").textContent = (state.idx + 1) + " / " + state.total;
+  $("progressBar").style.width = ((state.idx + 1) / state.total * 100) + "%";
+
+  var box = $("opts");
+  box.innerHTML = "";
+  q.o.forEach(function(text, i){
+    var b = document.createElement("button");
+    b.className = "opt" + (state.answers[state.idx] === i ? " sel" : "");
+    b.type = "button";
+    b.innerHTML = '<span class="k">' + "ABCD".charAt(i) + '</span><span></span>';
+    b.lastChild.textContent = text;
+    b.addEventListener("click", function(){
+      state.answers[state.idx] = i;
+      render();
+      // avance automático breve para no perder tiempo
+      setTimeout(function(){
+        if (state && state.idx < state.total - 1) { state.idx++; render(); }
+      }, 180);
+    });
+    box.appendChild(b);
+  });
+
+  $("btnPrev").disabled = state.idx === 0;
+  $("btnNext").textContent = (state.idx === state.total - 1) ? "Finalizar" : "Siguiente";
+}
+
+function finish(byTime){
+  if (!state) return;
+  clearInterval(ticker);
+  ticker = null;
+
+  var left = Math.max(0, Math.ceil((state.endAt - Date.now()) / 1000));
+  var used = state.secs - left;
+
+  var ok = 0, no = 0, sk = 0, wrong = [];
+  state.qs.forEach(function(q, i){
+    var ans = state.answers[i];
+    if (ans === null) { sk++; wrong.push({i:i, q:q, ans:null}); }
+    else if (ans === q.a) { ok++; }
+    else { no++; wrong.push({i:i, q:q, ans:ans}); }
+  });
+
+  var pct = Math.round(ok / state.total * 100);
+  $("scorePct").textContent = pct + "%";
+  $("scorePct").style.color = pct >= 70 ? "var(--good)" : pct >= 50 ? "var(--warn)" : "var(--bad)";
+  $("scoreLine").textContent = ok + " de " + state.total + " correctas — " + MODE_INFO[state.mode].label;
+  $("verdict").textContent =
+    pct >= 85 ? "Excelente. Estás en nivel de aprobar cómodo." :
+    pct >= 70 ? "Muy bien. Repasá los errores y quedás fino." :
+    pct >= 50 ? "Vas encaminado. Falta velocidad y repaso." :
+                "A practicar. Repasá el detalle de abajo y volvé a intentar.";
+  $("timeUsed").textContent = (byTime ? "Se acabó el tiempo. " : "") +
+    "Tiempo usado: " + fmt(used) + " de " + fmt(state.secs) + ".";
+
+  $("stOk").textContent = ok;
+  $("stNo").textContent = no;
+  $("stSk").textContent = sk;
+
+  var rev = $("review");
+  rev.innerHTML = "";
+  if (wrong.length === 0){
+    $("revSub").textContent = "No hay nada que repasar: respondiste todo bien. 🎉";
+  } else {
+    $("revSub").textContent = "Preguntas erradas o sin responder (" + wrong.length + "):";
+    wrong.forEach(function(w){
+      var d = document.createElement("div");
+      d.className = "rev";
+
+      var num = document.createElement("div");
+      num.className = "num";
+      num.textContent = "Pregunta " + (w.i + 1) + " · " + CAT_LABEL[w.q.cat];
+
+      var qt = document.createElement("div");
+      qt.className = "q";
+      qt.textContent = w.q.q;
+
+      d.appendChild(num);
+      d.appendChild(qt);
+
+      var mine = document.createElement("div");
+      mine.className = "ans bad";
+      mine.innerHTML = '<span class="lbl">Tu respuesta</span><span></span>';
+      mine.lastChild.textContent = (w.ans === null ? "Sin responder" : w.q.o[w.ans]);
+      d.appendChild(mine);
+
+      var good = document.createElement("div");
+      good.className = "ans good";
+      good.innerHTML = '<span class="lbl">Respuesta correcta</span><span></span>';
+      good.lastChild.textContent = w.q.o[w.q.a];
+      d.appendChild(good);
+
+      if (w.q.e){
+        var why = document.createElement("div");
+        why.className = "why";
+        why.textContent = w.q.e;
+        d.appendChild(why);
+      }
+      rev.appendChild(d);
+    });
+  }
+
+  show("result");
+}
+
+/* ============================================================
+   EVENTOS
+   ============================================================ */
+document.querySelectorAll(".mode").forEach(function(b){
+  b.addEventListener("click", function(){ start(b.getAttribute("data-mode")); });
+});
+
+$("btnNext").addEventListener("click", function(){
+  if (state.idx === state.total - 1) finish(false);
+  else { state.idx++; render(); }
+});
+$("btnPrev").addEventListener("click", function(){
+  if (state.idx > 0){ state.idx--; render(); }
+});
+$("btnQuit").addEventListener("click", function(){
+  if (confirm("¿Terminar el test y ver los resultados?")) finish(false);
+});
+$("btnAgain").addEventListener("click", function(){
+  var m = state.mode;
+  start(m);
+});
+$("btnHome").addEventListener("click", function(){
+  clearInterval(ticker); ticker = null; state = null;
+  show("home");
+});
+
+/* chips de tiempo sincronizados con los inputs */
+[["tEng","chipEng"],["tMat","chipMat"],["tFull","chipFull"]].forEach(function(p){
+  var inp = $(p[0]), chip = $(p[1]);
+  var sync = function(){ chip.textContent = (inp.value || "?") + " min"; };
+  inp.addEventListener("input", sync);
+  sync();
+});
+
+/* atajos de teclado para practicar en desktop */
+document.addEventListener("keydown", function(ev){
+  if ($("quiz").classList.contains("hide")) return;
+  var k = ev.key.toUpperCase();
+  var i = "ABCD".indexOf(k);
+  if (i === -1) i = "1234".indexOf(k);
+  if (i !== -1){
+    state.answers[state.idx] = i;
+    render();
+    if (state.idx < state.total - 1){ state.idx++; render(); }
+  } else if (ev.key === "ArrowRight"){ $("btnNext").click(); }
+  else if (ev.key === "ArrowLeft" && state.idx > 0){ state.idx--; render(); }
+});
+
+})();
+</script>
+</body>
+</html>
