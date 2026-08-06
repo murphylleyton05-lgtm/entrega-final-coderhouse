@@ -1,0 +1,116 @@
+// ===========================================================================
+//  TechStore - Medidas DAX del modelo en estrella
+//  Modulo 8 - Arquitectura del dato, optimizacion y simulacion de escenarios
+//
+//  Como cargarlas: Power Pivot > Administrar > pestana Hechos_Ventas >
+//  area de calculo > pegar una medida por celda.
+//
+//  Criterio de optimizacion:
+//    1. la aritmetica de fila se resuelve en Power Query, no en DAX;
+//    2. las medidas base son SUM() sobre columnas, no SUMX() sobre tablas;
+//    3. todo subtotal que se usa mas de una vez va en un VAR.
+// ===========================================================================
+
+// --- Total Ventas ---
+// Agregacion simple. La columna Venta_Neta ya viene resuelta desde Power
+// Query, asi que el motor solo suma una columna comprimida: es la operacion
+// mas barata que existe en VertiPaq.
+Total Ventas := SUM ( Hechos_Ventas[Venta_Neta] )
+
+// --- Costo Total ---
+// Misma logica que Total Ventas.
+Costo Total := SUM ( Hechos_Ventas[Costo_Total] )
+
+// --- Costo Logistico ---
+// Se aisla el envio porque es la variable que mas mueve el margen entre
+// canales, y es una de las celdas cambiantes de la simulacion.
+Costo Logistico := SUM ( Hechos_Ventas[Costo_Envio] )
+
+// --- Margen Bruto ---
+// Suma directa de la columna calculada en M. La alternativa
+// SUMX(Hechos_Ventas, ...) daria el mismo numero iterando 5.200 filas en
+// cada celda de cada tabla dinamica.
+Margen Bruto := SUM ( Hechos_Ventas[Margen_Bruto] )
+
+// --- % Margen Bruto ---
+// VAR/RETURN. Cada subtotal se resuelve una sola vez y se reutiliza. DIVIDE
+// ademas evita el error de division por cero sin tener que envolver todo en
+// un IF.
+% Margen Bruto :=
+VAR VentasNetas = [Total Ventas]
+VAR MargenBruto = [Margen Bruto]
+RETURN
+    DIVIDE ( MargenBruto, VentasNetas )
+
+// --- Ticket Promedio ---
+// VAR/RETURN. Separar el numerador del denominador deja explicito que el
+// ticket se mide por operacion y no por unidad.
+Ticket Promedio :=
+VAR VentasNetas = [Total Ventas]
+VAR CantidadOperaciones = DISTINCTCOUNT ( Hechos_Ventas[ID_Venta] )
+RETURN
+    DIVIDE ( VentasNetas, CantidadOperaciones )
+
+// --- Crecimiento Interanual % ---
+// VAR/RETURN con inteligencia de tiempo. El subtotal del ano anterior es el
+// calculo caro de la medida: guardarlo en una variable lo resuelve una vez y
+// despues se usa tres veces (en la resta, en el ISBLANK y en el divisor).
+// Necesita que Dim_Calendario este marcada como Tabla de fechas en Power
+// Pivot.
+Crecimiento Interanual % :=
+VAR VentasPeriodoActual = [Total Ventas]
+VAR VentasPeriodoAnterior =
+    CALCULATE ( [Total Ventas], SAMEPERIODLASTYEAR ( Dim_Calendario[Fecha] ) )
+VAR Variacion = VentasPeriodoActual - VentasPeriodoAnterior
+RETURN
+    IF (
+        NOT ISBLANK ( VentasPeriodoAnterior ) && VentasPeriodoAnterior <> 0,
+        DIVIDE ( Variacion, VentasPeriodoAnterior )
+    )
+
+// --- % Costo Logistico s/Ventas ---
+// Es el KPI que conecta el modelo con la hoja Simulacion: la tasa logistica
+// que mueven los escenarios es exactamente esta medida.
+% Costo Logistico s/Ventas :=
+VAR VentasNetas = [Total Ventas]
+VAR CostoEnvios = [Costo Logistico]
+RETURN
+    DIVIDE ( CostoEnvios, VentasNetas )
+
+
+// ===========================================================================
+//  Antes y despues: la misma metrica sin optimizar y optimizada
+// ===========================================================================
+
+% Margen Bruto (version lenta - NO USAR) :=
+DIVIDE (
+    SUMX (
+        FILTER ( Hechos_Ventas, Hechos_Ventas[Unidades] > 0 ),
+        Hechos_Ventas[Unidades] * Hechos_Ventas[Precio_Unitario]
+            * ( 1 - Hechos_Ventas[Descuento] )
+            - Hechos_Ventas[Unidades] * Hechos_Ventas[Costo_Unitario]
+            - Hechos_Ventas[Costo_Envio]
+    ),
+    SUMX (
+        FILTER ( Hechos_Ventas, Hechos_Ventas[Unidades] > 0 ),
+        Hechos_Ventas[Unidades] * Hechos_Ventas[Precio_Unitario]
+            * ( 1 - Hechos_Ventas[Descuento] )
+    )
+)
+
+// Problemas de la version de arriba:
+//   - FILTER ( Hechos_Ventas, ... ) materializa la tabla de hechos entera en
+//     memoria antes de filtrar; el filtro se puede resolver en la columna, sin
+//     construir la tabla.
+//   - El mismo SUMX aparece dos veces: el motor lo evalua dos veces por cada
+//     celda del reporte.
+//   - La aritmetica de fila se repite en cada consulta en vez de estar
+//     resuelta una sola vez en el ETL.
+//   - Al no reutilizar medidas, cualquier cambio de definicion hay que
+//     replicarlo a mano en cada formula.
+
+% Margen Bruto :=
+VAR VentasNetas = [Total Ventas]
+VAR MargenBruto = [Margen Bruto]
+RETURN
+    DIVIDE ( MargenBruto, VentasNetas )

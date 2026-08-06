@@ -97,6 +97,7 @@ repositorio guarda los checkpoints de **Coderhouse — Data Analyst**:
 | Carpeta | Entrega |
 |---------|---------|
 | [`checkpoint_sql_ventas_tech/`](./checkpoint_sql_ventas_tech) | Script SQL de la base `Ventas_Tech_DB`: DDL, restricciones de integridad y carga de datos |
+| [`modulo8_arquitectura_dato/`](./modulo8_arquitectura_dato) | Modulo 8 — arquitectura del dato: ETL en Power Query (lenguaje M), modelo en estrella para Power Pivot, medidas DAX con `VAR`/`RETURN`, estadistica descriptiva y simulacion de escenarios |
 | [`modulo9_dashboard_final/`](./modulo9_dashboard_final) | Modulo 9 — capa de visualizacion: dashboard en Excel con segmentadores, cascada, dispersion y narrativa, mas el registro de prompts de IA |
 
 ---
