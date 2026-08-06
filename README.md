@@ -89,6 +89,16 @@ fallo de API) estan documentados en el PDF de arquitectura, seccion 6.
 | Filtro anti-bucle | IF valida email antes de procesar |
 | Prompt dinamico | System + User prompt con variables del sistema |
 
+## Otras entregas en este repositorio
+
+Ademas de la entrega final de CoderCamp IA Automation (todo lo de arriba), el
+repositorio guarda los checkpoints de **Coderhouse — Data Analyst**:
+
+| Carpeta | Entrega |
+|---------|---------|
+| [`checkpoint_sql_ventas_tech/`](./checkpoint_sql_ventas_tech) | Script SQL de la base `Ventas_Tech_DB`: DDL, restricciones de integridad y carga de datos |
+| [`modulo9_dashboard_final/`](./modulo9_dashboard_final) | Modulo 9 — capa de visualizacion: dashboard en Excel con segmentadores, cascada, dispersion y narrativa, mas el registro de prompts de IA |
+
 ---
 
 **Lleyton Murphy** | lleyton-ia-page.netlify.app | linkedin.com/in/lleyton-murphy-3716093a3
