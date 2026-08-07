@@ -54,6 +54,9 @@
 
 *,*::before,*::after{box-sizing:border-box;}
 html{-webkit-text-size-adjust:100%;}
+/* overflow-x va en html, no en body: en body convierte al elemento en
+   contenedor de scroll y rompe position:sticky del tablero y del CTA. */
+html{overflow-x:hidden;}
 body{
   margin:0;
   min-height:100vh;
@@ -63,7 +66,6 @@ body{
   font-family:var(--body);
   font-size:16px;
   line-height:1.5;
-  overflow-x:hidden;
   -webkit-font-smoothing:antialiased;
 }
 
@@ -114,12 +116,12 @@ h1,h2,h3,.display{
 
 /* =====================  PANTALLA DE INICIO  ===================== */
 .crest{
-  width:88px; height:88px; margin:6px auto 20px;
+  width:72px; height:72px; margin:0 auto 14px;
   border-radius:50%;
   background:
     linear-gradient(160deg,var(--red-light) 0%, var(--red) 45%, var(--red-dark) 100%);
   display:grid; place-items:center;
-  font-size:42px; line-height:1;
+  font-size:34px; line-height:1;
   box-shadow:
     0 0 0 3px var(--ink),
     0 0 0 6px var(--gold),
@@ -129,13 +131,13 @@ h1,h2,h3,.display{
 .kicker{
   text-align:center;
   color:var(--gold);
-  font-size:11px; font-weight:700;
-  letter-spacing:.24em; text-transform:uppercase;
-  margin-bottom:12px;
+  font-size:10.5px; font-weight:700;
+  letter-spacing:.22em; text-transform:uppercase;
+  margin-bottom:10px;
 }
 .title-main{
   text-align:center;
-  font-size:clamp(46px,13vw,74px);
+  font-size:clamp(40px,11.5vw,68px);
   color:var(--white);
   text-shadow:0 3px 0 rgba(0,0,0,.55), 0 0 34px rgba(246,241,231,.13);
 }
@@ -145,7 +147,7 @@ h1,h2,h3,.display{
   text-shadow:0 3px 0 rgba(0,0,0,.55), 0 0 30px var(--red-glow);
 }
 .stripe-rule{
-  width:150px; height:7px; margin:16px auto 20px;
+  width:130px; height:6px; margin:12px auto 14px;
   border-radius:4px;
   background:repeating-linear-gradient(90deg,
     var(--red) 0 15px, var(--white) 15px 30px);
@@ -153,13 +155,13 @@ h1,h2,h3,.display{
 }
 .lead{
   text-align:center; color:var(--muted);
-  font-size:15.5px; line-height:1.6;
+  font-size:14.5px; line-height:1.5;
   max-width:440px; margin:0 auto;
 }
 .lead b{color:var(--white); font-weight:700;}
 
 .rules{
-  margin:22px 0 0;
+  margin:16px 0 0;
   border:1px solid var(--line);
   border-radius:var(--r-md);
   background:linear-gradient(180deg,var(--bg-panel-2),var(--bg-panel));
@@ -167,22 +169,22 @@ h1,h2,h3,.display{
 }
 .rules-head{
   display:flex; align-items:center; gap:8px;
-  padding:11px 16px;
+  padding:9px 14px;
   background:var(--ink);
   border-bottom:1px solid var(--line);
-  font-family:var(--display); font-size:15px; letter-spacing:.12em;
+  font-family:var(--display); font-size:14px; letter-spacing:.12em;
   color:var(--gold);
 }
-.rules ul{margin:0; padding:14px 18px 16px 34px; font-size:14.5px; color:var(--muted);}
-.rules li{margin-bottom:7px;}
+.rules ul{margin:0; padding:11px 16px 12px 30px; font-size:13.5px; color:var(--muted);}
+.rules li{margin-bottom:5px;}
 .rules li:last-child{margin-bottom:0;}
 .rules b{color:var(--white);}
 
 .record{
-  margin-top:16px; padding:12px 16px;
+  margin-top:12px; padding:9px 14px;
   border:1px dashed var(--gold-dark);
   border-radius:var(--r-md);
-  font-size:13.5px; color:var(--muted);
+  font-size:13px; color:var(--muted);
   text-align:center;
 }
 .record b{color:var(--gold); font-family:var(--led); font-weight:700;}
@@ -224,7 +226,20 @@ h1,h2,h3,.display{
   margin-top:12px;
 }
 .btn-ghost:hover{border-color:var(--gold-dark); color:var(--gold);}
-.start-foot{margin-top:auto;}
+
+/* El CTA de arranque queda pegado al borde inferior de la pantalla:
+   si el contenido no entra, el botón sigue a la vista en lugar de
+   quedar debajo del fold (que es como se volvía imposible empezar). */
+.start-foot{
+  margin-top:auto;
+  position:sticky;
+  bottom:0;
+  padding-top:30px;
+  padding-bottom:calc(6px + env(safe-area-inset-bottom));
+  background:linear-gradient(180deg,
+    rgba(11,9,8,0) 0%, rgba(11,9,8,.75) 26%, var(--bg) 55%);
+}
+.start-foot .btn-primary{margin-top:0;}
 
 /* =====================  TABLERO DE ESTADIO  ===================== */
 .scoreboard{
