@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0908">
+<meta name="description" content="Trivia de alta dificultad sobre Estudiantes de La Plata: 22 preguntas, 15 segundos cada una y tu carnet de hincha al final.">
+<title>¿Qué tan Pincha sos? · Trivia de Estudiantes de La Plata</title>
+<style>
+/* ============================================================
+   ¿QUÉ TAN PINCHA SOS? — trivia de Estudiantes de La Plata
+   100% autocontenido: sin librerías, sin fuentes externas.
+   ============================================================ */
+
+:root{
+  /* Camiseta sobre noche de estadio */
+  --bg:          #0b0908;
+  --bg-panel:    #16110f;
+  --bg-panel-2:  #1e1714;
+  --line:        #2f2520;
+  --line-soft:   #241c18;
+
+  --red:         #c1272d;
+  --red-dark:    #7c161b;
+  --red-light:   #e8484f;
+  --red-glow:    rgba(232,72,79,.35);
+
+  --white:       #f6f1e7;
+  --muted:       #a1958a;
+  --muted-dim:   #6f6459;
+
+  --gold:        #e0b447;
+  --gold-dark:   #8e6c17;
+  --gold-glow:   rgba(224,180,71,.30);
+
+  --ink:         #050403;
+  --led-off:     #241a16;
+
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 18px;
+
+  /* Cartel de estadio: fuentes condensadas presentes en cada sistema.
+     Sin webfonts, para que el archivo funcione offline y sin pedidos externos. */
+  --display: "Haettenschweiler","Arial Narrow Bold",Impact,
+             "Franklin Gothic Heavy","DejaVu Sans Condensed",
+             "Liberation Sans Narrow","Arial Narrow",
+             ui-sans-serif,system-ui,sans-serif;
+  --body: ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,
+          "Helvetica Neue",Arial,sans-serif;
+  --led: ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,
+         "DejaVu Sans Mono",monospace;
+}
+
+*,*::before,*::after{box-sizing:border-box;}
+html{-webkit-text-size-adjust:100%;}
+body{
+  margin:0;
+  min-height:100vh;
+  min-height:100dvh;
+  background:var(--bg);
+  color:var(--white);
+  font-family:var(--body);
+  font-size:16px;
+  line-height:1.5;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ---------- Fondo: noche de estadio + rayas de la camiseta ---------- */
+.pitch{
+  position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:
+    /* reflectores */
+    radial-gradient(ellipse 120% 60% at 50% -15%, rgba(224,180,71,.10), transparent 60%),
+    radial-gradient(ellipse 90% 50% at 15% 8%,  rgba(246,241,231,.05), transparent 55%),
+    radial-gradient(ellipse 90% 50% at 85% 8%,  rgba(246,241,231,.05), transparent 55%),
+    /* rayas rojas y blancas, bien tenues */
+    repeating-linear-gradient(107deg,
+      rgba(193,39,45,.085) 0 30px,
+      rgba(246,241,231,.022) 30px 60px),
+    linear-gradient(180deg,#150f0d 0%, var(--bg) 45%, #080605 100%);
+}
+.pitch::after{
+  /* grano de transmisión nocturna */
+  content:"";
+  position:absolute; inset:0;
+  opacity:.5;
+  background-image:radial-gradient(rgba(255,255,255,.045) .5px, transparent .5px);
+  background-size:3px 3px;
+}
+
+#app{
+  position:relative; z-index:1;
+  width:100%; max-width:620px;
+  margin:0 auto;
+  padding:20px 16px calc(28px + env(safe-area-inset-bottom));
+  min-height:100vh; min-height:100dvh;
+  display:flex; flex-direction:column;
+}
+
+h1,h2,h3,.display{
+  font-family:var(--display);
+  font-weight:400;
+  letter-spacing:.02em;
+  line-height:.95;
+  margin:0;
+  text-transform:uppercase;
+}
+
+.screen{display:none;}
+.screen.is-active{display:flex; flex-direction:column; flex:1; animation:fade .35s ease both;}
+@keyframes fade{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:none;}}
+
+/* =====================  PANTALLA DE INICIO  ===================== */
+.crest{
+  width:88px; height:88px; margin:6px auto 20px;
+  border-radius:50%;
+  background:
+    linear-gradient(160deg,var(--red-light) 0%, var(--red) 45%, var(--red-dark) 100%);
+  display:grid; place-items:center;
+  font-size:42px; line-height:1;
+  box-shadow:
+    0 0 0 3px var(--ink),
+    0 0 0 6px var(--gold),
+    0 12px 32px rgba(0,0,0,.6),
+    0 0 46px var(--red-glow);
+}
+.kicker{
+  text-align:center;
+  color:var(--gold);
+  font-size:11px; font-weight:700;
+  letter-spacing:.24em; text-transform:uppercase;
+  margin-bottom:12px;
+}
+.title-main{
+  text-align:center;
+  font-size:clamp(46px,13vw,74px);
+  color:var(--white);
+  text-shadow:0 3px 0 rgba(0,0,0,.55), 0 0 34px rgba(246,241,231,.13);
+}
+.title-main em{
+  font-style:normal;
+  color:var(--red-light);
+  text-shadow:0 3px 0 rgba(0,0,0,.55), 0 0 30px var(--red-glow);
+}
+.stripe-rule{
+  width:150px; height:7px; margin:16px auto 20px;
+  border-radius:4px;
+  background:repeating-linear-gradient(90deg,
+    var(--red) 0 15px, var(--white) 15px 30px);
+  box-shadow:0 2px 10px rgba(0,0,0,.5);
+}
+.lead{
+  text-align:center; color:var(--muted);
+  font-size:15.5px; line-height:1.6;
+  max-width:440px; margin:0 auto;
+}
+.lead b{color:var(--white); font-weight:700;}
+
+.rules{
+  margin:22px 0 0;
+  border:1px solid var(--line);
+  border-radius:var(--r-md);
+  background:linear-gradient(180deg,var(--bg-panel-2),var(--bg-panel));
+  overflow:hidden;
+}
+.rules-head{
+  display:flex; align-items:center; gap:8px;
+  padding:11px 16px;
+  background:var(--ink);
+  border-bottom:1px solid var(--line);
+  font-family:var(--display); font-size:15px; letter-spacing:.12em;
+  color:var(--gold);
+}
+.rules ul{margin:0; padding:14px 18px 16px 34px; font-size:14.5px; color:var(--muted);}
+.rules li{margin-bottom:7px;}
+.rules li:last-child{margin-bottom:0;}
+.rules b{color:var(--white);}
+
+.record{
+  margin-top:16px; padding:12px 16px;
+  border:1px dashed var(--gold-dark);
+  border-radius:var(--r-md);
+  font-size:13.5px; color:var(--muted);
+  text-align:center;
+}
+.record b{color:var(--gold); font-family:var(--led); font-weight:700;}
+.record[hidden]{display:none;}
+
+/* =====================  BOTONES  ===================== */
+.btn{
+  display:block; width:100%;
+  padding:17px 20px;
+  border:none; border-radius:var(--r-md);
+  font-family:var(--display); font-size:24px; letter-spacing:.08em;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:transform .12s ease, filter .12s ease, box-shadow .12s ease;
+}
+.btn:focus-visible{outline:3px solid var(--gold); outline-offset:3px;}
+.btn:active{transform:translateY(3px);}
+.btn-primary{
+  background:linear-gradient(180deg,var(--red-light),var(--red) 60%,#a71f25);
+  color:var(--white);
+  box-shadow:0 5px 0 var(--red-dark), 0 12px 26px rgba(0,0,0,.5);
+  margin-top:24px;
+}
+.btn-primary:active{box-shadow:0 2px 0 var(--red-dark), 0 6px 14px rgba(0,0,0,.5);}
+.btn-primary:hover{filter:brightness(1.07);}
+.btn-gold{
+  background:linear-gradient(180deg,#f0c95f,var(--gold) 60%,#b98d21);
+  color:var(--ink);
+  box-shadow:0 5px 0 var(--gold-dark), 0 12px 26px rgba(0,0,0,.5);
+  margin-top:18px;
+}
+.btn-gold:active{box-shadow:0 2px 0 var(--gold-dark), 0 6px 14px rgba(0,0,0,.5);}
+.btn-ghost{
+  background:transparent;
+  border:2px solid var(--line);
+  color:var(--muted);
+  font-size:19px;
+  padding:13px 18px;
+  margin-top:12px;
+}
+.btn-ghost:hover{border-color:var(--gold-dark); color:var(--gold);}
+.start-foot{margin-top:auto;}
+
+/* =====================  TABLERO DE ESTADIO  ===================== */
+.scoreboard{
+  position:sticky; top:8px; z-index:5;
+  background:linear-gradient(180deg,#0a0807,#050403);
+  border:1px solid var(--line);
+  border-radius:var(--r-md);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.05),
+    inset 0 0 30px rgba(0,0,0,.9),
+    0 10px 28px rgba(0,0,0,.55);
+  overflow:hidden;
+}
+.sb-top{
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+  gap:6px;
+  padding:11px 14px 9px;
+  /* trama de dot-matrix del tablero */
+  background-image:radial-gradient(rgba(255,255,255,.035) .5px, transparent .5px);
+  background-size:4px 4px;
+}
+.sb-slot{display:flex; flex-direction:column; gap:3px; min-width:0;}
+.sb-slot.right{align-items:flex-end; text-align:right;}
+.sb-label{
+  font-size:9.5px; letter-spacing:.2em; text-transform:uppercase;
+  color:var(--muted-dim); font-weight:700; white-space:nowrap;
+}
+.sb-digits{
+  font-family:var(--led);
+  font-size:30px; font-weight:700; line-height:1;
+  font-variant-numeric:tabular-nums;
+  letter-spacing:.06em;
+}
+.sb-digits.good{color:var(--gold); text-shadow:0 0 14px var(--gold-glow);}
+.sb-digits.bad{color:var(--red-light); text-shadow:0 0 14px var(--red-glow);}
+.sb-digits.bump{animation:bump .38s cubic-bezier(.3,1.6,.5,1);}
+@keyframes bump{0%{transform:scale(1);}40%{transform:scale(1.32);}100%{transform:scale(1);}}
+
+.sb-clockbox{
+  display:flex; flex-direction:column; align-items:center;
+  padding:2px 14px;
+  border-left:1px solid var(--line-soft);
+  border-right:1px solid var(--line-soft);
+}
+.sb-clock{
+  font-family:var(--led);
+  font-size:34px; font-weight:700; line-height:1;
+  font-variant-numeric:tabular-nums;
+  color:var(--white);
+  text-shadow:0 0 16px rgba(246,241,231,.28);
+}
+.sb-clock.warn{color:var(--red-light); text-shadow:0 0 18px var(--red-glow); animation:blink .5s steps(2,end) infinite;}
+@keyframes blink{50%{opacity:.35;}}
+.sb-clock-label{font-size:9px; letter-spacing:.2em; color:var(--muted-dim); font-weight:700; margin-top:3px;}
+
+.sb-bottom{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:10px;
+  padding:7px 14px 8px;
+  background:#0f0b0a;
+  border-top:1px solid var(--line-soft);
+  font-size:10px; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--muted-dim); font-weight:700;
+}
+.sb-cat{
+  color:var(--gold);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  flex:1; min-width:0;
+}
+.sb-count{font-family:var(--led); color:var(--muted); letter-spacing:.08em;}
+.sb-streak{color:var(--muted); white-space:nowrap;}
+.sb-streak.hot{color:var(--gold); text-shadow:0 0 12px var(--gold-glow);}
+
+/* barra de tiempo pegada al tablero */
+.timer-track{
+  height:6px; width:100%;
+  background:var(--led-off);
+  overflow:hidden;
+}
+.timer-fill{
+  height:100%; width:100%;
+  background:linear-gradient(90deg,var(--gold),var(--red-light));
+  transform-origin:left center;
+  will-change:transform;
+}
+.timer-fill.warn{background:linear-gradient(90deg,var(--red),var(--red-light));}
+
+/* barra de progreso de la partida */
+.progress-track{
+  height:4px; width:100%;
+  background:var(--line);
+  border-radius:3px;
+  margin:14px 0 16px;
+  overflow:hidden;
+}
+.progress-fill{
+  height:100%; width:0%;
+  background:linear-gradient(90deg,var(--red),var(--gold));
+  border-radius:3px;
+  transition:width .35s ease;
+}
+
+/* =====================  PREGUNTA  ===================== */
+.qcard{
+  background:linear-gradient(180deg,var(--bg-panel-2),var(--bg-panel));
+  border:1px solid var(--line);
+  border-radius:var(--r-lg);
+  padding:20px 16px 18px;
+  flex:1;
+  display:flex; flex-direction:column;
+  box-shadow:0 14px 34px rgba(0,0,0,.4);
+}
+/* La pregunta usa la tipografía de cuerpo: tiene que leerse rápido,
+   no ser un cartel. Reseteamos lo que hereda de h2. */
+.q-text{
+  font-family:var(--body);
+  text-transform:none;
+  letter-spacing:-.005em;
+  font-size:19px; font-weight:700; line-height:1.36;
+  margin-bottom:18px;
+  text-wrap:balance;
+}
+.options{display:flex; flex-direction:column; gap:9px;}
+.option{
+  display:flex; align-items:center; gap:12px;
+  width:100%;
+  padding:13px 14px;
+  background:#100c0b;
+  border:2px solid var(--line);
+  border-radius:var(--r-sm);
+  color:var(--white);
+  font-family:inherit; font-size:15.5px; line-height:1.35;
+  text-align:left;
+  cursor:pointer;
+  transition:border-color .14s ease, background .14s ease, transform .1s ease;
+}
+.option:hover:not(.is-locked){border-color:var(--gold-dark); background:#171110;}
+.option:focus-visible{outline:3px solid var(--gold); outline-offset:2px;}
+.option:active:not(.is-locked){transform:scale(.99);}
+.option .key{
+  flex:0 0 28px; height:28px;
+  display:grid; place-items:center;
+  border-radius:50%;
+  background:var(--line-soft);
+  color:var(--muted);
+  font-family:var(--display); font-size:15px; letter-spacing:0;
+  transition:background .14s ease, color .14s ease;
+}
+.option .txt{flex:1; min-width:0;}
+.option.is-locked{cursor:default;}
+.option.is-dim{opacity:.42;}
+.option.is-correct{
+  background:rgba(224,180,71,.16);
+  border-color:var(--gold);
+  box-shadow:0 0 22px rgba(224,180,71,.16);
+}
+.option.is-correct .key{background:var(--gold); color:var(--ink);}
+.option.is-wrong{
+  background:rgba(193,39,45,.20);
+  border-color:var(--red-light);
+}
+.option.is-wrong .key{background:var(--red-light); color:var(--ink);}
+
+/* ---------- Feedback + dato verificable ---------- */
+.feedback{
+  margin-top:16px;
+  border-top:1px solid var(--line);
+  padding-top:14px;
+  animation:fade .3s ease both;
+}
+.feedback[hidden]{display:none;}
+.fb-verdict{
+  font-family:var(--display); font-size:20px; letter-spacing:.06em;
+  margin-bottom:6px;
+}
+.fb-verdict.ok{color:var(--gold);}
+.fb-verdict.no{color:var(--red-light);}
+.fb-dato{font-size:14px; line-height:1.55; color:var(--muted); margin-bottom:14px;}
+.fb-dato b{color:var(--white);}
+.btn-next{
+  display:block; width:100%;
+  padding:12px; border:none; border-radius:var(--r-sm);
+  background:var(--line-soft); color:var(--white);
+  font-family:var(--display); font-size:18px; letter-spacing:.08em;
+  text-transform:uppercase; cursor:pointer;
+  position:relative; overflow:hidden;
+  transition:background .14s ease;
+}
+.btn-next:hover{background:#3a2e26;}
+.btn-next:focus-visible{outline:3px solid var(--gold); outline-offset:2px;}
+.btn-next .auto{
+  position:absolute; left:0; bottom:0; height:3px;
+  background:var(--gold); width:100%;
+  transform-origin:left center;
+  will-change:transform;
+}
+
+/* =====================  CARNET FINAL  ===================== */
+.carnet{
+  position:relative;
+  border-radius:var(--r-lg);
+  padding:2px;
+  background:linear-gradient(150deg,var(--gold),#6b4f10 35%,var(--gold-dark) 60%,#f0c95f 100%);
+  box-shadow:0 18px 44px rgba(0,0,0,.6);
+  margin:6px 0 4px;
+}
+.carnet-inner{
+  position:relative;
+  border-radius:calc(var(--r-lg) - 2px);
+  background:linear-gradient(160deg,#241b15 0%,#14100e 55%,#1b1512 100%);
+  padding:20px 18px 18px;
+  overflow:hidden;
+}
+.carnet-inner::before{
+  content:""; position:absolute; top:-70px; right:-60px;
+  width:200px; height:200px; border-radius:50%;
+  background:radial-gradient(circle, rgba(193,39,45,.34), transparent 70%);
+  pointer-events:none;
+}
+.carnet-inner::after{
+  content:""; position:absolute; inset:0;
+  background:repeating-linear-gradient(107deg,
+    rgba(193,39,45,.06) 0 22px, transparent 22px 44px);
+  pointer-events:none;
+}
+.carnet-top{
+  position:relative; z-index:1;
+  display:flex; align-items:center; justify-content:space-between;
+  gap:10px;
+  border-bottom:1px solid rgba(224,180,71,.28);
+  padding-bottom:11px; margin-bottom:14px;
+}
+.carnet-club{font-family:var(--display); font-size:14px; letter-spacing:.14em; color:var(--gold); line-height:1.2;}
+.carnet-club span{display:block; font-family:var(--body); font-size:9px; letter-spacing:.2em; color:var(--muted-dim); font-weight:700; margin-top:3px;}
+.carnet-nro{font-family:var(--led); font-size:12px; color:var(--muted); text-align:right; line-height:1.5;}
+.carnet-body{position:relative; z-index:1; display:flex; gap:14px; align-items:flex-start;}
+.carnet-photo{
+  flex:0 0 68px; height:78px;
+  border-radius:6px;
+  border:1px solid rgba(224,180,71,.35);
+  background:linear-gradient(160deg,var(--red),var(--red-dark));
+  display:grid; place-items:center;
+  font-size:34px;
+  box-shadow:inset 0 0 20px rgba(0,0,0,.5);
+}
+.carnet-rank{
+  font-family:var(--display);
+  font-size:clamp(26px,7.5vw,36px);
+  color:var(--white); line-height:.94;
+  margin-bottom:7px;
+  text-wrap:balance;
+}
+.carnet-desc{font-size:14px; line-height:1.5; color:var(--muted);}
+.carnet-stats{
+  position:relative; z-index:1;
+  display:grid; grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  margin-top:16px; padding-top:14px;
+  border-top:1px dashed rgba(224,180,71,.28);
+}
+.stat{text-align:center;}
+.stat .n{
+  display:block; font-family:var(--led); font-weight:700;
+  font-size:23px; color:var(--gold); line-height:1.1;
+  font-variant-numeric:tabular-nums;
+}
+.stat .l{display:block; font-size:9px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted-dim); font-weight:700; margin-top:4px;}
+
+/* desglose por eje */
+.breakdown{
+  margin-top:18px;
+  border:1px solid var(--line);
+  border-radius:var(--r-md);
+  background:var(--bg-panel);
+  padding:14px 16px 16px;
+}
+.breakdown h3{font-size:14px; letter-spacing:.14em; color:var(--gold); margin-bottom:12px;}
+.bd-row{margin-bottom:11px;}
+.bd-row:last-child{margin-bottom:0;}
+.bd-head{display:flex; justify-content:space-between; gap:10px; font-size:12.5px; margin-bottom:5px;}
+.bd-head .name{color:var(--muted);}
+.bd-head .val{font-family:var(--led); color:var(--white); font-variant-numeric:tabular-nums;}
+.bd-track{height:6px; background:var(--line-soft); border-radius:3px; overflow:hidden;}
+.bd-fill{height:100%; background:linear-gradient(90deg,var(--red),var(--gold)); border-radius:3px; transition:width .6s ease;}
+
+.share-note{
+  text-align:center; font-size:12.5px; color:var(--muted-dim);
+  margin-top:12px; min-height:18px;
+}
+
+/* =====================  RESPONSIVE  ===================== */
+@media (max-width:359px){
+  .sb-digits{font-size:26px;}
+  .sb-clock{font-size:29px;}
+  .sb-clockbox{padding:2px 9px;}
+  .q-text{font-size:17.5px;}
+  .option{font-size:14.5px; padding:12px;}
+}
+@media (min-width:600px){
+  #app{padding:32px 20px 48px;}
+  /* En pantallas altas la tarjeta no se estira: reserva sitio para el
+     feedback (así no salta el layout) pero sin un hueco enorme. */
+  .qcard{padding:26px 24px 22px; flex:0 0 auto; min-height:400px;}
+  .q-text{font-size:21px;}
+  .carnet-inner{padding:24px 24px 22px;}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;
+  }
+}
+
+.sr-only{
+  position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0;
+}
+</style>
+</head>
+<body>
+<div class="pitch" aria-hidden="true"></div>
+
+<main id="app">
+
+  <!-- ══════════════ INICIO ══════════════ -->
+  <section class="screen is-active" id="screen-start" aria-labelledby="title-main">
+    <div class="crest" aria-hidden="true">🦁</div>
+    <p class="kicker">Estudiantes de La Plata · Trivia Pincharrata</p>
+    <h1 class="title-main" id="title-main">¿Qué tan<br><em>Pincha</em> sos?</h1>
+    <div class="stripe-rule" aria-hidden="true"></div>
+    <p class="lead">
+      <b>22 preguntas</b> de dificultad alta sobre 120 años de historia:
+      la zapatería del 905, el tricampeonato de Zubeldía, la noche de Mineirão
+      y las vueltas olímpicas de 2023 y 2024.
+    </p>
+
+    <div class="rules">
+      <div class="rules-head">📋 Reglamento del partido</div>
+      <ul>
+        <li><b>15 segundos</b> por pregunta. Si se acaba el reloj, va como error.</li>
+        <li>Preguntas y opciones <b>salen mezcladas</b> en cada partida.</li>
+        <li>Después de cada respuesta aparece el <b>dato verificado</b> detrás de la pregunta.</li>
+        <li>Podés responder con el mouse, con el dedo o con las teclas <b>1-4</b> / <b>A-D</b>.</li>
+        <li>Al final te entregamos tu <b>carnet de socio</b> con el rango que te ganaste.</li>
+      </ul>
+    </div>
+
+    <p class="record" id="record-box" hidden>
+      Tu mejor marca hasta ahora: <b id="record-val"></b>
+    </p>
+
+    <div class="start-foot">
+      <button class="btn btn-primary" id="btn-start" type="button">Salir a la cancha</button>
+    </div>
+  </section>
+
+  <!-- ══════════════ JUEGO ══════════════ -->
+  <section class="screen" id="screen-quiz" aria-labelledby="q-text">
+
+    <div class="scoreboard">
+      <div class="sb-top">
+        <div class="sb-slot">
+          <span class="sb-label">Aciertos</span>
+          <span class="sb-digits good" id="sb-correct">00</span>
+        </div>
+        <div class="sb-clockbox">
+          <span class="sb-clock" id="sb-clock">15</span>
+          <span class="sb-clock-label">Seg</span>
+        </div>
+        <div class="sb-slot right">
+          <span class="sb-label">Errores</span>
+          <span class="sb-digits bad" id="sb-wrong">00</span>
+        </div>
+      </div>
+      <div class="sb-bottom">
+        <span class="sb-cat" id="sb-cat">—</span>
+        <span class="sb-count" id="sb-count">01/22</span>
+        <span class="sb-streak" id="sb-streak">Racha 0</span>
+      </div>
+      <div class="timer-track"><div class="timer-fill" id="timer-fill"></div></div>
+    </div>
+
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+
+    <div class="qcard">
+      <h2 class="q-text" id="q-text"></h2>
+      <div class="options" id="options" role="group" aria-label="Opciones de respuesta"></div>
+
+      <div class="feedback" id="feedback" hidden>
+        <p class="fb-verdict" id="fb-verdict"></p>
+        <p class="fb-dato" id="fb-dato"></p>
+        <button class="btn-next" id="btn-next" type="button">
+          Siguiente <span class="auto" id="auto-bar"></span>
+        </button>
+      </div>
+    </div>
+
+    <p class="sr-only" role="status" aria-live="polite" id="live"></p>
+  </section>
+
+  <!-- ══════════════ CARNET FINAL ══════════════ -->
+  <section class="screen" id="screen-end" aria-labelledby="rank-title">
+    <p class="kicker" style="margin-top:14px;">Fin del partido · Retiro del carnet</p>
+
+    <div class="carnet">
+      <div class="carnet-inner">
+        <div class="carnet-top">
+          <div class="carnet-club">
+            Club Estudiantes<br>de La Plata
+            <span>Socio · Fundado 1905</span>
+          </div>
+          <div class="carnet-nro">
+            N.º <span id="carnet-nro">00000</span><br>
+            <span id="carnet-fecha"></span>
+          </div>
+        </div>
+        <div class="carnet-body">
+          <div class="carnet-photo" aria-hidden="true" id="carnet-emoji">🦁</div>
+          <div>
+            <h2 class="carnet-rank" id="rank-title"></h2>
+            <p class="carnet-desc" id="rank-desc"></p>
+          </div>
+        </div>
+        <div class="carnet-stats">
+          <div class="stat"><span class="n" id="stat-score">0</span><span class="l">Aciertos</span></div>
+          <div class="stat"><span class="n" id="stat-pct">0%</span><span class="l">Efectividad</span></div>
+          <div class="stat"><span class="n" id="stat-streak">0</span><span class="l">Mejor racha</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="breakdown">
+      <h3>Rendimiento por eje</h3>
+      <div id="bd-list"></div>
+    </div>
+
+    <p class="share-note" id="share-note"></p>
+
+    <button class="btn btn-primary" id="btn-restart" type="button">Jugar de nuevo</button>
+    <button class="btn btn-ghost" id="btn-share" type="button">Copiar mi resultado</button>
+  </section>
+
+</main>
+
+<script>
+(function(){
+"use strict";
+
+/* ============================================================
+   BANCO DE PREGUNTAS
+   Todos los datos están tomados de fuentes públicas verificables
+   (historia oficial del club, Wikipedia, AFA, El Gráfico, ESPN,
+   El Día de La Plata, Infobae). Nada inventado.
+   `a` = índice de la opción correcta en el array original.
+   ============================================================ */
+
+var CATS = {
+  origenes: "Fundación e historia temprana",
+  zubeldia: "La era Zubeldía",
+  gloria09: "La vuelta a la gloria · 2009",
+  moderna:  "Títulos recientes",
+  hinchada: "Mística e hinchada",
+  casa:     "El UNO y el clásico"
+};
+
+var POOL = [
+  /* ─────────── FUNDACIÓN E HISTORIA TEMPRANA ─────────── */
+  {
+    c:"origenes",
+    q:"¿Qué día exacto se fundó el Club Estudiantes de La Plata?",
+    o:["4 de agosto de 1905","5 de agosto de 1906","25 de diciembre de 1907","7 de noviembre de 1905"],
+    a:0,
+    d:"El 4 de agosto de 1905 un grupo de jóvenes firmó el acta fundacional. Por eso cada 4 de agosto es el cumpleaños del Pincha."
+  },
+  {
+    c:"origenes",
+    q:"El grupo fundador se desprendió en 1905 de otra institución platense. ¿De cuál?",
+    o:["Club de Regatas La Plata","Gimnasia y Esgrima La Plata","Universitario de La Plata","Villa San Carlos"],
+    a:1,
+    d:"Eran socios de Gimnasia y Esgrima que querían practicar fútbol, algo que el club no priorizaba. De esa ruptura nace el clásico platense."
+  },
+  {
+    c:"origenes",
+    q:"¿En qué lugar de La Plata se firmó el acta fundacional?",
+    o:["En la sede de Gimnasia y Esgrima","En el Rectorado de la UNLP","En la zapatería 'Nueva York'","En un vagón del ferrocarril"],
+    a:2,
+    d:"En la zapatería 'Nueva York' de Félix Díaz, en la calle 7 entre 57 y 58. Hoy hay una placa que recuerda el lugar."
+  },
+  {
+    c:"origenes",
+    q:"¿Quién fue elegido primer presidente del club, la misma noche de la fundación?",
+    o:["Alfredo Lartigue","Jorge Luis Hirschi","Felipe Montedónica","Miguel Gutiérrez"],
+    a:3,
+    d:"Miguel Gutiérrez, también ex socio de Gimnasia, fue el primer presidente. Alfredo Lartigue, el socio N.º 1, redactó el acta."
+  },
+  {
+    c:"origenes",
+    q:"¿Quién figura como socio N.º 1 de Estudiantes y redactó el acta fundacional?",
+    o:["Alfredo Lartigue","Miguel Gutiérrez","Félix Díaz","Juan Ramón Verón"],
+    a:0,
+    d:"Alfredo Lartigue redactó el acta y quedó registrado como el primer socio de la historia del club."
+  },
+  {
+    c:"origenes",
+    q:"En 1967 Estudiantes rompió una hegemonía histórica del fútbol argentino. ¿Cuál fue el hito?",
+    o:["Fue el primer campeón invicto de la era profesional","Fue el primer equipo fuera de 'los cinco grandes' en salir campeón profesional","Fue el primer club en ganar tres torneos en un año","Fue el primer campeón con un equipo de juveniles puros"],
+    a:1,
+    d:"Con el Metropolitano 1967 se convirtió en el primer campeón profesional ajeno a los cinco grandes. La final fue 3-0 a Racing, el 19 de diciembre de 1967."
+  },
+
+  /* ─────────── LA ERA ZUBELDÍA ─────────── */
+  {
+    c:"zubeldia",
+    q:"¿Quién dirigió el ciclo del tricampeonato de América de fines de los años 60?",
+    o:["Carlos Bilardo","César Luis Menotti","Osvaldo Zubeldía","Alejandro Sabella"],
+    a:2,
+    d:"Osvaldo Zubeldía revolucionó la preparación del fútbol argentino: pelota parada estudiada, concentración, videos y trabajo táctico obsesivo."
+  },
+  {
+    c:"zubeldia",
+    q:"¿Cuántas Copas Libertadores tiene Estudiantes en toda su historia?",
+    o:["3","5","4","2"],
+    a:2,
+    d:"Cuatro: 1968, 1969, 1970 y 2009. El tricampeonato del 68-69-70 fue el primero conseguido por un club argentino."
+  },
+  {
+    c:"zubeldia",
+    q:"¿A quién le ganó Estudiantes la final de la Copa Libertadores 1968?",
+    o:["Peñarol","Palmeiras","Nacional de Montevideo","Cruzeiro"],
+    a:1,
+    d:"A Palmeiras, en una serie que se definió en un tercer partido desempate. Fue la primera Libertadores del club."
+  },
+  {
+    c:"zubeldia",
+    q:"¿Y a quién venció en la final de la Libertadores 1969?",
+    o:["Nacional de Montevideo","Palmeiras","Peñarol","River Plate"],
+    a:0,
+    d:"A Nacional de Montevideo: 1-0 en el Centenario y 2-0 en La Plata, 3-0 global."
+  },
+  {
+    c:"zubeldia",
+    q:"¿Y en 1970, para cerrar el tricampeonato?",
+    o:["Independiente","Nacional de Montevideo","Peñarol","Santos"],
+    a:2,
+    d:"A Peñarol de Montevideo. Tres Libertadores seguidas, algo que solo un puñado de clubes logró en la historia."
+  },
+  {
+    c:"zubeldia",
+    q:"En la Copa Intercontinental 1968, Estudiantes se consagró campeón del mundo ante...",
+    o:["Real Madrid","Ajax","Benfica","Manchester United"],
+    a:3,
+    d:"Ante el Manchester United de Bobby Charlton y George Best: 1-0 en La Bombonera y 1-1 en Old Trafford, 2-1 global."
+  },
+  {
+    c:"zubeldia",
+    q:"En Old Trafford, en la revancha de la Intercontinental 1968, ¿quién marcó el gol de Estudiantes?",
+    o:["Carlos Bilardo","Juan Ramón Verón","Marcos Conigliaro","Oscar Malbernat"],
+    a:1,
+    d:"Juan Ramón Verón lo hizo a los 6 minutos. Morgan empató sobre el final: el 1-1 alcanzó para dar la vuelta en Inglaterra."
+  },
+  {
+    c:"zubeldia",
+    q:"Un jugador de aquel plantel campeón fue después DT campeón del mundo con la Selección en 1986. ¿Quién?",
+    o:["José Sanfilippo","Carlos Bilardo","Juan Ramón Verón","Oscar Malbernat"],
+    a:1,
+    d:"Carlos Salvador Bilardo, mediocampista del Estudiantes de Zubeldía y campeón mundial como entrenador en México 1986."
+  },
+  {
+    c:"zubeldia",
+    q:"¿Cómo apodaban a Juan Ramón Verón, figura de aquel equipo y padre de Juan Sebastián?",
+    o:["El Loco","El Puma","La Bruja","El Flaco"],
+    a:2,
+    d:"'La Bruja' Verón. Por eso a su hijo Juan Sebastián le quedó, naturalmente, 'la Brujita'."
+  },
+  {
+    c:"zubeldia",
+    q:"La frase 'La gloria o Devoto' quedó ligada a la final de la Intercontinental 1969. ¿Contra qué equipo europeo se jugó?",
+    o:["Milan","Inter","Ajax","Feyenoord"],
+    a:0,
+    d:"Contra el Milan. Tras la áspera revancha en La Bombonera, tres jugadores de Estudiantes terminaron detenidos: la frase de Bilardo quedó en la historia grande del fútbol argentino."
+  },
+
+  /* ─────────── LA VUELTA A LA GLORIA · 2009 ─────────── */
+  {
+    c:"gloria09",
+    q:"Tras casi cuatro décadas sin títulos internacionales, ¿en qué año volvió Estudiantes a ganar la Libertadores?",
+    o:["2006","2011","2010","2009"],
+    a:3,
+    d:"En 2009, 39 años después del tricampeonato. La cuarta Libertadores del club."
+  },
+  {
+    c:"gloria09",
+    q:"¿A qué equipo le ganó Estudiantes la final de la Libertadores 2009?",
+    o:["São Paulo","Cruzeiro","LDU Quito","Internacional"],
+    a:1,
+    d:"A Cruzeiro: 0-0 en La Plata y 2-1 en el Mineirão, en Belo Horizonte."
+  },
+  {
+    c:"gloria09",
+    q:"¿Quién era el entrenador de Estudiantes en la Libertadores 2009?",
+    o:["Diego Simeone","Eduardo Domínguez","Alejandro Sabella","Leonardo Astrada"],
+    a:2,
+    d:"Alejandro Sabella, en su primer gran ciclo como DT. Años después llevaría a la Selección a la final del Mundial 2014."
+  },
+  {
+    c:"gloria09",
+    q:"¿Quiénes hicieron los goles de la final de vuelta en el Mineirão (2-1)?",
+    o:["Verón y Boselli","Gastón Fernández y Mauro Boselli","Benítez y Verón","Pavone y Gastón Fernández"],
+    a:1,
+    d:"Gastón 'la Gata' Fernández a los 57' y Mauro Boselli a los 73', el 15 de julio de 2009, para dar vuelta el partido en Brasil."
+  },
+  {
+    c:"gloria09",
+    q:"En la final del Mundial de Clubes 2009 ante Barcelona, ¿quién marcó el gol de Estudiantes?",
+    o:["Juan Sebastián Verón","Mauro Boselli","Gastón Fernández","Rodrigo Braña"],
+    a:1,
+    d:"Mauro Boselli, de cabeza, a los 37 minutos en Abu Dhabi. Estudiantes se fue al descanso ganándole al Barcelona de Guardiola."
+  },
+  {
+    c:"gloria09",
+    q:"Esa final terminó 2-1 para Barcelona. ¿Cómo se definió?",
+    o:["Con un gol de Xavi en el minuto 90","Con un penal convertido por Henry","Con empate de Pedro sobre el final y gol de Messi en el alargue","Por definición desde el punto del penal"],
+    a:2,
+    d:"Pedro empató a los 89' y Messi, con el pecho, lo dio vuelta a los 110' del alargue. La final más cerca que estuvo el Pincha de ser campeón del mundo por segunda vez."
+  },
+  {
+    c:"gloria09",
+    q:"¿Quién era el capitán y símbolo de aquel Estudiantes campeón de América 2009?",
+    o:["Mariano Andújar","Juan Sebastián Verón","Rodrigo Braña","Leandro Desábato"],
+    a:1,
+    d:"Juan Sebastián 'la Brujita' Verón, que había vuelto al club en 2006 y levantó la copa que su padre había ganado tres veces."
+  },
+
+  /* ─────────── TÍTULOS RECIENTES ─────────── */
+  {
+    c:"moderna",
+    q:"En 2023, Estudiantes ganó por primera vez en su historia un título que nunca había conseguido. ¿Cuál?",
+    o:["La Copa Sudamericana","La Recopa Sudamericana","El Trofeo de Campeones","La Copa Argentina"],
+    a:3,
+    d:"La Copa Argentina 2023, ganada el 13 de diciembre en Lanús. Ese título le dio además el pasaje a la Libertadores 2024."
+  },
+  {
+    c:"moderna",
+    q:"¿Quién marcó el gol de la final de la Copa Argentina 2023 ante Defensa y Justicia?",
+    o:["Mauro Boselli","Guido Carrillo","Mariano Andújar","Pablo Piatti"],
+    a:1,
+    d:"Guido Carrillo, a los 54 minutos, para el 1-0 definitivo. El partido terminó con los dos equipos con diez jugadores."
+  },
+  {
+    c:"moderna",
+    q:"En 2024 Estudiantes ganó la Copa de la Liga y el Trofeo de Campeones. ¿A qué equipo venció en ambas finales?",
+    o:["Racing Club","Platense","Vélez Sarsfield","Talleres"],
+    a:2,
+    d:"A Vélez Sarsfield, y en la misma cancha: el Estadio Único Madre de Ciudades de Santiago del Estero."
+  },
+  {
+    c:"moderna",
+    q:"¿Cómo se definió la final de la Copa de la Liga 2024 ante Vélez?",
+    o:["1-1 y penales 4-3 para Estudiantes","2-0 para Estudiantes","3-1 para Estudiantes en el alargue","0-0 y penales 5-4 para Estudiantes"],
+    a:0,
+    d:"Empataron 1-1 el 5 de mayo de 2024 y el Pincha ganó 4-3 desde el punto del penal, con tres atajadas del arquero Matías Mansilla."
+  },
+  {
+    c:"moderna",
+    q:"¿Con qué resultado ganó Estudiantes el Trofeo de Campeones 2024?",
+    o:["1-0","2-1","3-0","4-2"],
+    a:2,
+    d:"3-0 a Vélez, el 21 de diciembre de 2024 en Santiago del Estero. Primer Trofeo de Campeones en la historia del club."
+  },
+  {
+    c:"moderna",
+    q:"¿Quién preside el club en la actualidad, siendo además ídolo dentro de la cancha?",
+    o:["Carlos Bilardo","Alejandro Sabella","Mauricio Macri","Juan Sebastián Verón"],
+    a:3,
+    d:"Juan Sebastián Verón, que pasó de capitán campeón de América a presidente de Estudiantes."
+  },
+
+  /* ─────────── MÍSTICA E HINCHADA ─────────── */
+  {
+    c:"hinchada",
+    q:"Según la versión más difundida, el apodo 'Pincharratas' viene de...",
+    o:["Felipe Montedónica, hincha que pinchaba ratas con un tridente en el Mercado Regional","Un delantero que 'pinchaba' la pelota al rematar","Una plaga de roedores en el estadio viejo","Un cántico inventado por la hinchada en 1968"],
+    a:0,
+    d:"Felipe Montedónica trabajaba en el Mercado Regional de La Plata y, junto a su hermano, espantaba y pinchaba ratas con un tridente. Como iba siempre a la cancha, el mote pasó al resto de los hinchas."
+  },
+  {
+    c:"hinchada",
+    q:"Hay una segunda versión, muy repetida, sobre el origen de 'Pincharratas'. ¿Cuál es?",
+    o:["Que el primer arquero trabajaba de fumigador","Que muchos socios eran estudiantes de Medicina que pinchaban ratas en sus prácticas","Que el escudo original tenía una rata","Que el primer campo de juego estaba al lado de un basural"],
+    a:1,
+    d:"Buena parte de los primeros simpatizantes eran estudiantes de Medicina de la UNLP, que inyectaban y diseccionaban ratas en sus prácticas."
+  },
+  {
+    c:"hinchada",
+    q:"Antes de la final de la Libertadores 1969 ante Nacional, los jugadores de Estudiantes salieron al campo con...",
+    o:["Capas de torero","Sombreros mexicanos","Boinas vascas","Sacos de gala"],
+    a:1,
+    d:"Salieron con sombreros mexicanos, una puesta en escena pensada para descolocar al rival. Ganaron 2-0 y dieron la vuelta olímpica."
+  },
+  {
+    c:"hinchada",
+    q:"Además de 'Pincha', ¿cuál es el otro apodo clásico de Estudiantes?",
+    o:["El Lobo","El León","El Tiburón","El Halcón"],
+    a:1,
+    d:"'El León', mientras que 'el Lobo' es el apodo del clásico rival, Gimnasia y Esgrima La Plata."
+  },
+
+  /* ─────────── EL UNO Y EL CLÁSICO ─────────── */
+  {
+    c:"casa",
+    q:"¿Cuál es el nombre oficial del estadio de Estudiantes, conocido como 'el UNO'?",
+    o:["Ciudad de La Plata","Jorge Luis Hirschi","José Amalfitani","Diego Armando Maradona"],
+    a:1,
+    d:"Estadio Jorge Luis Hirschi, en homenaje al dirigente que impulsó la construcción de la cancha propia del club."
+  },
+  {
+    c:"casa",
+    q:"El estadio del Pincha se conoce como 'el UNO' porque está ubicado en...",
+    o:["La esquina de 1 y 57","El kilómetro 1 del camino a Buenos Aires","La platea 1 del Bosque","La manzana 1 del casco urbano"],
+    a:0,
+    d:"Está en la esquina de calle 1 y 57, en pleno casco urbano platense. De esa dirección viene el apodo del estadio."
+  },
+  {
+    c:"casa",
+    q:"¿Cómo se llama el clásico entre Estudiantes y Gimnasia y Esgrima?",
+    o:["Clásico del Bosque","Superclásico del Sur","Clásico Platense","Clásico Fundacional"],
+    a:2,
+    d:"El Clásico Platense, uno de los más antiguos y calientes del país, nacido de aquella ruptura de 1905."
+  },
+  {
+    c:"casa",
+    q:"¿Cuál es el apodo tradicional de la hinchada de Gimnasia, el clásico rival?",
+    o:["Cuervos","Triperos","Canallas","Quemeros"],
+    a:1,
+    d:"'Triperos', por los trabajadores del frigorífico Swift de Berisso que seguían a Gimnasia. La contracara del 'Pincharrata'."
+  }
+];
+
+/* Cuántas preguntas de cada eje entran en una partida (total: 22) */
+var QUOTA = { origenes:4, zubeldia:5, gloria09:4, moderna:4, hinchada:3, casa:2 };
+
+var TIME_PER_Q  = 15;     // segundos por pregunta
+var AUTO_NEXT   = 6000;   // ms hasta pasar solo a la siguiente
+var LETTERS     = ["A","B","C","D"];
+var STORE_KEY   = "pincha_quiz_record_v1";
+
+var RANKS = [
+  { min:0.95, emoji:"🏆", title:"Tricampeón de memoria",
+    desc:"Sabés más que la platea entera del UNO. Zubeldía te pondría de titular sin probarte." },
+  { min:0.80, emoji:"🦁", title:"Pincharrata de ley",
+    desc:"Historia, finales y anécdotas: te falta muy poco para el podio. Repasá los primeros años y listo." },
+  { min:0.65, emoji:"🎖️", title:"Socio con la cuota al día",
+    desc:"Fanatismo real y bien documentado. Todavía se te escapan un par de datos finos de la era Zubeldía." },
+  { min:0.50, emoji:"🚩", title:"Hincha de bandera",
+    desc:"La camiseta la defendés sin dudar, pero de historia te queda cancha por recorrer." },
+  { min:0.30, emoji:"🥩", title:"Simpatizante de asado",
+    desc:"Alentás fuerte los domingos, aunque las fechas y los nombres se te mezclan un poco." },
+  { min:0,    emoji:"🎟️", title:"Turista del Estadio UNO",
+    desc:"Che, ¿seguro que sos del Pincha? Arrancá por el tricampeonato del 68 y volvé a intentarlo." }
+];
+
+/* ============================================================
+   ESTADO
+   ============================================================ */
+var round = [];        // preguntas de la partida (ya barajadas)
+var idx = 0;
+var correct = 0, wrong = 0;
+var streak = 0, bestStreak = 0;
+var perCat = {};       // { cat: {ok, total} }
+var marks = [];        // "🟨" acierto / "🟥" error, para compartir
+var locked = true;
+var currentCorrect = -1;
+
+var tickId = null, autoId = null, rafId = null;
+var deadline = 0;
+
+/* ============================================================
+   UTILIDADES
+   ============================================================ */
+function $(id){ return document.getElementById(id); }
+
+function shuffle(arr){
+  var a = arr.slice(), i, j, t;
+  for(i = a.length - 1; i > 0; i--){
+    j = Math.floor(Math.random() * (i + 1));
+    t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+function pad2(n){ return n < 10 ? "0" + n : String(n); }
+
+function readRecord(){
+  try{
+    var raw = window.localStorage.getItem(STORE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  }catch(e){ return null; }
+}
+
+function writeRecord(obj){
+  try{ window.localStorage.setItem(STORE_KEY, JSON.stringify(obj)); }
+  catch(e){ /* modo privado: seguimos sin guardar */ }
+}
+
+function showScreen(name){
+  ["start","quiz","end"].forEach(function(n){
+    $("screen-" + n).classList.toggle("is-active", n === name);
+  });
+  window.scrollTo(0, 0);
+}
+
+function clearTimers(){
+  if(tickId){ clearInterval(tickId); tickId = null; }
+  if(autoId){ clearTimeout(autoId); autoId = null; }
+  if(rafId){ cancelAnimationFrame(rafId); rafId = null; }
+}
+
+/* ============================================================
+   ARMADO DE LA PARTIDA
+   Se toma una cuota fija de cada eje, así toda partida cubre
+   fundación, Zubeldía, 2009, títulos recientes, mística y el UNO.
+   ============================================================ */
+function buildRound(){
+  var byCat = {}, out = [];
+  POOL.forEach(function(q){
+    (byCat[q.c] = byCat[q.c] || []).push(q);
+  });
+  Object.keys(QUOTA).forEach(function(cat){
+    var take = Math.min(QUOTA[cat], (byCat[cat] || []).length);
+    out = out.concat(shuffle(byCat[cat] || []).slice(0, take));
+  });
+  return shuffle(out);
+}
+
+/* ============================================================
+   FLUJO DEL JUEGO
+   ============================================================ */
+function startQuiz(){
+  clearTimers();
+  round = buildRound();
+  idx = 0; correct = 0; wrong = 0;
+  streak = 0; bestStreak = 0;
+  marks = [];
+  perCat = {};
+  Object.keys(CATS).forEach(function(c){ perCat[c] = { ok:0, total:0 }; });
+
+  paintScoreboard();
+  showScreen("quiz");
+  renderQuestion();
+}
+
+function paintScoreboard(){
+  $("sb-correct").textContent = pad2(correct);
+  $("sb-wrong").textContent   = pad2(wrong);
+  $("sb-count").textContent   = pad2(Math.min(idx + 1, round.length)) + "/" + pad2(round.length);
+  var st = $("sb-streak");
+  st.textContent = "Racha " + streak;
+  st.classList.toggle("hot", streak >= 3);
+  $("progress-fill").style.width = (idx / round.length * 100) + "%";
+}
+
+function bump(el){
+  el.classList.remove("bump");
+  void el.offsetWidth;            // reinicia la animación
+  el.classList.add("bump");
+}
+
+function renderQuestion(){
+  var item = round[idx];
+  locked = false;
+
+  $("sb-cat").textContent = CATS[item.c];
+  $("q-text").textContent = item.q;
+  $("feedback").hidden = true;
+
+  var order = shuffle(item.o.map(function(_, i){ return i; }));
+  currentCorrect = order.indexOf(item.a);
+
+  var wrap = $("options");
+  wrap.innerHTML = "";
+  order.forEach(function(origIdx, pos){
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "option";
+    btn.setAttribute("data-pos", String(pos));
+
+    var key = document.createElement("span");
+    key.className = "key";
+    key.setAttribute("aria-hidden", "true");
+    key.textContent = LETTERS[pos];
+
+    var txt = document.createElement("span");
+    txt.className = "txt";
+    txt.textContent = item.o[origIdx];
+
+    btn.appendChild(key);
+    btn.appendChild(txt);
+    btn.addEventListener("click", function(){ answer(pos); });
+    wrap.appendChild(btn);
+  });
+
+  paintScoreboard();
+  startTimer();
+}
+
+function startTimer(){
+  var fill  = $("timer-fill");
+  var clock = $("sb-clock");
+
+  deadline = Date.now() + TIME_PER_Q * 1000;
+  fill.classList.remove("warn");
+  clock.classList.remove("warn");
+  fill.style.transform = "scaleX(1)";
+  clock.textContent = pad2(TIME_PER_Q);
+  runClock();
+}
+
+/* Corre el reloj hasta `deadline`. La barra se anima con rAF
+   (queda fluida) y los segundos se refrescan con un interval corto,
+   así el número nunca se desfasa del tiempo real. */
+function runClock(){
+  clearTimers();
+  var fill  = $("timer-fill");
+  var clock = $("sb-clock");
+
+  function frame(){
+    if(locked) return;
+    var left = Math.max(0, deadline - Date.now());
+    fill.style.transform = "scaleX(" + (left / (TIME_PER_Q * 1000)) + ")";
+    if(left > 0) rafId = requestAnimationFrame(frame);
+  }
+  rafId = requestAnimationFrame(frame);
+
+  tickId = setInterval(function(){
+    var secs = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+    clock.textContent = pad2(secs);
+    if(secs <= 5){
+      clock.classList.add("warn");
+      fill.classList.add("warn");
+    }
+    if(secs <= 0 && !locked) timeUp();
+  }, 200);
+}
+
+function stopTimer(){
+  clearTimers();
+  $("sb-clock").classList.remove("warn");
+}
+
+function lockOptions(chosenPos){
+  var opts = $("options").querySelectorAll(".option");
+  Array.prototype.forEach.call(opts, function(o, i){
+    o.classList.add("is-locked");
+    o.disabled = true;
+    if(i === currentCorrect){
+      o.classList.add("is-correct");
+    }else if(i === chosenPos){
+      o.classList.add("is-wrong");
+    }else{
+      o.classList.add("is-dim");
+    }
+  });
+}
+
+function register(ok){
+  var cat = round[idx].c;
+  perCat[cat].total++;
+  if(ok){
+    correct++; streak++;
+    if(streak > bestStreak) bestStreak = streak;
+    perCat[cat].ok++;
+    marks.push("🟨");
+    bump($("sb-correct"));
+  }else{
+    wrong++; streak = 0;
+    marks.push("🟥");
+    bump($("sb-wrong"));
+  }
+  paintScoreboard();
+}
+
+function answer(pos){
+  if(locked) return;
+  locked = true;
+  stopTimer();
+  lockOptions(pos);
+  register(pos === currentCorrect);
+  showFeedback(pos === currentCorrect ? "ok" : "no");
+}
+
+function timeUp(){
+  if(locked) return;
+  locked = true;
+  stopTimer();
+  $("timer-fill").style.transform = "scaleX(0)";
+  $("sb-clock").textContent = "00";
+  lockOptions(-1);
+  register(false);
+  showFeedback("time");
+}
+
+function showFeedback(kind){
+  var v = $("fb-verdict");
+  var texts = {
+    ok:   ["ok", "¡Gol del Pincha!"],
+    no:   ["no", "Erró el arquero…"],
+    time: ["no", "¡Se acabó el tiempo!"]
+  };
+  v.className = "fb-verdict " + texts[kind][0];
+  v.textContent = texts[kind][1];
+  $("fb-dato").textContent = round[idx].d;
+  $("feedback").hidden = false;
+  $("live").textContent = texts[kind][1] + " " + round[idx].d;
+
+  var bar = $("auto-bar");
+  bar.style.transition = "none";
+  bar.style.transform = "scaleX(1)";
+  requestAnimationFrame(function(){
+    bar.style.transition = "transform " + AUTO_NEXT + "ms linear";
+    bar.style.transform = "scaleX(0)";
+  });
+
+  autoId = setTimeout(next, AUTO_NEXT);
+  $("btn-next").focus({ preventScroll:true });
+}
+
+function next(){
+  clearTimers();
+  idx++;
+  if(idx >= round.length) finish();
+  else renderQuestion();
+}
+
+/* ============================================================
+   CARNET FINAL
+   ============================================================ */
+function finish(){
+  clearTimers();
+  $("progress-fill").style.width = "100%";
+
+  var total = round.length;
+  var pct = total ? correct / total : 0;
+  var rank = RANKS.filter(function(r){ return pct >= r.min; })[0];
+
+  $("rank-title").textContent  = rank.title;
+  $("rank-desc").textContent   = rank.desc;
+  $("carnet-emoji").textContent = rank.emoji;
+  $("stat-score").textContent  = correct + "/" + total;
+  $("stat-pct").textContent    = Math.round(pct * 100) + "%";
+  $("stat-streak").textContent = bestStreak;
+
+  /* Número de socio: estable dentro de la partida, distinto en cada una */
+  var nro = 10000 + Math.floor(Math.random() * 89999);
+  $("carnet-nro").textContent = String(nro);
+  $("carnet-fecha").textContent = new Date().toLocaleDateString("es-AR", {
+    day:"2-digit", month:"2-digit", year:"numeric"
+  });
+
+  /* Desglose por eje */
+  var list = $("bd-list");
+  list.innerHTML = "";
+  Object.keys(CATS).forEach(function(cat){
+    var s = perCat[cat];
+    if(!s || !s.total) return;
+    var p = Math.round(s.ok / s.total * 100);
+
+    var row = document.createElement("div");
+    row.className = "bd-row";
+
+    var head = document.createElement("div");
+    head.className = "bd-head";
+    var name = document.createElement("span");
+    name.className = "name"; name.textContent = CATS[cat];
+    var val = document.createElement("span");
+    val.className = "val"; val.textContent = s.ok + "/" + s.total;
+    head.appendChild(name); head.appendChild(val);
+
+    var track = document.createElement("div");
+    track.className = "bd-track";
+    var fill = document.createElement("div");
+    fill.className = "bd-fill";
+    fill.style.width = "0%";
+    track.appendChild(fill);
+
+    row.appendChild(head); row.appendChild(track);
+    list.appendChild(row);
+    requestAnimationFrame(function(){ fill.style.width = p + "%"; });
+  });
+
+  /* Récord personal */
+  var rec = readRecord();
+  var note = $("share-note");
+  if(!rec || correct > rec.correct || (correct === rec.correct && pct > rec.pct)){
+    writeRecord({ correct:correct, total:total, pct:pct, rank:rank.title });
+    note.textContent = rec ? "🏅 ¡Nuevo récord personal!" : "";
+  }else{
+    note.textContent = "Tu récord sigue siendo " + rec.correct + "/" + rec.total + ".";
+  }
+
+  paintRecordBox();
+  showScreen("end");
+}
+
+function paintRecordBox(){
+  var rec = readRecord();
+  var box = $("record-box");
+  if(rec){
+    $("record-val").textContent = rec.correct + "/" + rec.total + " · " + rec.rank;
+    box.hidden = false;
+  }else{
+    box.hidden = true;
+  }
+}
+
+/* ============================================================
+   COMPARTIR RESULTADO
+   ============================================================ */
+function buildShareText(){
+  var total = round.length;
+  var pct = Math.round(correct / total * 100);
+  var grid = "";
+  marks.forEach(function(m, i){
+    grid += m;
+    if((i + 1) % 11 === 0 && i + 1 < marks.length) grid += "\n";
+  });
+  return "¿Qué tan Pincha sos? 🦁\n" +
+         correct + "/" + total + " (" + pct + "%) · " + $("rank-title").textContent + "\n" +
+         grid + "\n" +
+         "Mejor racha: " + bestStreak;
+}
+
+function copyResult(){
+  var text = buildShareText();
+  var note = $("share-note");
+
+  function ok(){ note.textContent = "✅ Resultado copiado. Pegalo en el grupo del Pincha."; }
+  function fail(){ note.textContent = "No se pudo copiar automáticamente."; }
+
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(ok, function(){ legacyCopy(text, ok, fail); });
+  }else{
+    legacyCopy(text, ok, fail);
+  }
+}
+
+function legacyCopy(text, ok, fail){
+  try{
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    var done = document.execCommand("copy");
+    document.body.removeChild(ta);
+    done ? ok() : fail();
+  }catch(e){ fail(); }
+}
+
+/* ============================================================
+   TECLADO
+   ============================================================ */
+document.addEventListener("keydown", function(e){
+  if(e.metaKey || e.ctrlKey || e.altKey) return;
+
+  var quizOn = $("screen-quiz").classList.contains("is-active");
+  var startOn = $("screen-start").classList.contains("is-active");
+
+  if(startOn && (e.key === "Enter" || e.key === " ")){
+    if(document.activeElement === $("btn-start")) return; // el botón ya lo maneja
+    e.preventDefault();
+    startQuiz();
+    return;
+  }
+
+  if(!quizOn) return;
+
+  if(!locked){
+    var k = e.key.toUpperCase();
+    var pos = -1;
+    if(k >= "1" && k <= "4") pos = parseInt(k, 10) - 1;
+    else if(LETTERS.indexOf(k) !== -1) pos = LETTERS.indexOf(k);
+    if(pos >= 0){
+      var btn = $("options").querySelector('.option[data-pos="' + pos + '"]');
+      if(btn){ e.preventDefault(); answer(pos); }
+    }
+  }else if(e.key === "Enter" || e.key === " "){
+    if(!$("feedback").hidden){
+      e.preventDefault();
+      next();
+    }
+  }
+});
+
+/* Si el usuario se va de la pestaña, congelamos el reloj para no
+   "comerle" segundos de una pregunta que no está viendo. */
+var pausedLeft = null;
+
+document.addEventListener("visibilitychange", function(){
+  if(!$("screen-quiz").classList.contains("is-active") || locked) return;
+  if(document.hidden){
+    pausedLeft = Math.max(0, deadline - Date.now());
+    clearTimers();
+  }else if(pausedLeft !== null){
+    deadline = Date.now() + pausedLeft;
+    pausedLeft = null;
+    runClock();
+  }
+});
+
+/* ============================================================
+   ARRANQUE
+   ============================================================ */
+$("btn-start").addEventListener("click", startQuiz);
+$("btn-restart").addEventListener("click", startQuiz);
+$("btn-next").addEventListener("click", next);
+$("btn-share").addEventListener("click", copyResult);
+
+paintRecordBox();
+
+})();
+</script>
+</body>
+</html>
