@@ -11,7 +11,10 @@
 '    3. Crea las 3 relaciones 1:N (dimension -> hechos).
 '    4. Crea las 8 medidas DAX en la tabla Hechos_Ventas (4 con VAR/RETURN).
 '    5. Crea la tabla dinamica de verificacion [Total Ventas] x Dim_Calendario[Anio].
-'    6. Deja el codigo M generado y un log de verificacion en hojas del libro.
+'    6. Genera la Estadistica descriptiva (mismo formato de salida que el ToolPak).
+'    7. Arma la simulacion financiera: Buscar objetivo + los tres escenarios
+'       (Pesimista / Base / Optimista) y el Resumen de escenarios en hoja aparte.
+'    8. Deja el codigo M generado y un log de verificacion en hojas del libro.
 '
 '  NOTA DE LECTURA: dentro de este modulo el caracter "^" se reemplaza por comillas
 '  dobles al construir el codigo M (funcion Q). Se hace asi para que el script M
@@ -33,8 +36,21 @@ Private Const ANIO_INI As Long = 2023
 Private Const ANIO_FIN As Long = 2025
 Private Const FILAS_VENTAS As Long = 5000
 
+Private Const HOJA_DATOS_EST As String = "Datos_Estadistica"
+Private Const HOJA_EST As String = "Estadistica_Descriptiva"
+Private Const HOJA_SIM As String = "Simulacion"
+Private Const HOJA_RESUMEN As String = "Resumen de escenarios"
+
 Private gLog As Collection
 Private gRutaFuentes As String
+
+' Valores de las filas que sobreviven al filtrado del ETL. Se guardan al generar
+' el .csv para alimentar la estadistica descriptiva y la linea base de la simulacion.
+Private gVentaNeta() As Double
+Private gMargenBruto() As Double
+Private gFilasValidas As Long
+Private gSumaVentas As Double
+Private gSumaCostos As Double
 
 ' -------------------------------------------------------------------------------------
 ' PUNTO DE ENTRADA
@@ -78,6 +94,8 @@ Public Sub MaterializarModelo()
     CrearRelaciones wb
     CrearMedidas wb
     CrearTablaDinamica wb
+    CrearEstadistica wb
+    CrearSimulacion wb
     VolcarCodigoM wb
     EscribirLog wb
 
@@ -123,6 +141,12 @@ Private Sub GenerarCsvVentas()
     ruta = gRutaFuentes & Application.PathSeparator & "Ventas_Historico.csv"
     ff = FreeFile
 
+    ReDim gVentaNeta(1 To FILAS_VENTAS)
+    ReDim gMargenBruto(1 To FILAS_VENTAS)
+    gFilasValidas = 0
+    gSumaVentas = 0
+    gSumaCostos = 0
+
     Rnd -1
     Randomize 42                      ' semilla fija -> dataset reproducible
 
@@ -154,6 +178,16 @@ Private Sub GenerarCsvVentas()
         If r Mod 37 = 0 Then sCli = "": descartadas = descartadas + 1
         If r Mod 53 = 0 Then sCant = "": descartadas = descartadas + 1
         If r Mod 71 = 0 Then sCant = "0": descartadas = descartadas + 1
+
+        ' Misma condicion que el paso VentasFiltradas del codigo M: se guardan solo
+        ' las filas que van a quedar en la tabla de hechos despues del ETL.
+        If sCli <> "" And sCant <> "" And sCant <> "0" Then
+            gFilasValidas = gFilasValidas + 1
+            gVentaNeta(gFilasValidas) = cant * precio * (1 - desc)
+            gMargenBruto(gFilasValidas) = gVentaNeta(gFilasValidas) - cant * costo
+            gSumaVentas = gSumaVentas + gVentaNeta(gFilasValidas)
+            gSumaCostos = gSumaCostos + cant * costo
+        End If
 
         Print #ff, "V" & Format$(r, "00000") & "," & _
                    Format$(fec, "yyyy-mm-dd") & "," & _
@@ -231,6 +265,7 @@ Private Sub LimpiarModeloPrevio(wb As Workbook)
     Next i
     ' tabla dinamica y hojas de salida
     wb.Worksheets(HOJA_TD).Delete
+    wb.Worksheets(HOJA_RESUMEN).Delete
     ' conexiones de las consultas
     For i = wb.Connections.Count To 1 Step -1
         For Each n In nombres
@@ -584,7 +619,275 @@ Fallo:
 End Sub
 
 ' -------------------------------------------------------------------------------------
-' 8. SALIDAS DE DOCUMENTACION
+' 8. ESTADISTICA DESCRIPTIVA (mismo formato de salida que el Analysis ToolPak)
+' -------------------------------------------------------------------------------------
+Private Sub CrearEstadistica(wb As Workbook)
+    Dim wsD As Worksheet, wsE As Worksheet
+    Dim datos() As Double, i As Long, f As Long
+    Dim rngV As Range, rngM As Range
+    Dim sesgo As Double, curtosis As Double
+
+    If gFilasValidas = 0 Then
+        Registrar "  FALLO estadistica: no hay filas validas cargadas"
+        Exit Sub
+    End If
+
+    ' --- datos crudos, para que tambien se pueda correr el ToolPak a mano ---
+    Set wsD = HojaLimpia(wb, HOJA_DATOS_EST)
+    wsD.Range("A1").Value = "Venta_Neta"
+    wsD.Range("B1").Value = "Margen_Bruto"
+    wsD.Range("A1:B1").Font.Bold = True
+
+    ReDim datos(1 To gFilasValidas, 1 To 2)
+    For i = 1 To gFilasValidas
+        datos(i, 1) = gVentaNeta(i)
+        datos(i, 2) = gMargenBruto(i)
+    Next i
+    wsD.Range("A2").Resize(gFilasValidas, 2).Value = datos
+    wsD.Range("A2").Resize(gFilasValidas, 2).NumberFormat = "#,##0.00"
+    wsD.Columns("A:B").AutoFit
+
+    Set rngV = wsD.Range(wsD.Cells(2, 1), wsD.Cells(gFilasValidas + 1, 1))
+    Set rngM = wsD.Range(wsD.Cells(2, 2), wsD.Cells(gFilasValidas + 1, 2))
+
+    ' --- reporte con la misma estructura que devuelve Datos > Analisis de datos ---
+    Set wsE = HojaLimpia(wb, HOJA_EST)
+    wsE.Range("A1").Value = "ESTADISTICA DESCRIPTIVA - variables principales de la tabla de hechos"
+    wsE.Range("A1").Font.Bold = True
+
+    BloqueEstadistica wsE, 3, 1, "Venta_Neta", rngV
+    BloqueEstadistica wsE, 3, 4, "Margen_Bruto", rngM
+
+    f = 20
+    wsE.Cells(f, 1).Value = "Lectura de los resultados"
+    wsE.Cells(f, 1).Font.Bold = True
+    f = f + 1
+
+    On Error Resume Next
+    sesgo = Application.WorksheetFunction.Skew(rngV)
+    curtosis = Application.WorksheetFunction.Kurt(rngV)
+    On Error GoTo 0
+
+    wsE.Cells(f, 1).Value = "Media " & Format$(Application.WorksheetFunction.Average(rngV), "#,##0") & _
+        " contra mediana " & Format$(Application.WorksheetFunction.Median(rngV), "#,##0") & _
+        ": la media queda por encima de la mediana, senal tipica de una distribucion con cola a la derecha."
+    f = f + 1
+    wsE.Cells(f, 1).Value = "Coeficiente de asimetria = " & Format$(sesgo, "0.00") & _
+        ". Positivo, o sea sesgo a la derecha: la mayoria de las operaciones son chicas y unas pocas ordenes mayoristas estiran la cola."
+    f = f + 1
+    wsE.Cells(f, 1).Value = "Curtosis = " & Format$(curtosis, "0.00") & _
+        ". Distribucion leptocurtica: mas concentracion cerca de la media y colas mas pesadas que una normal."
+    f = f + 1
+    wsE.Cells(f, 1).Value = "Consecuencia para el negocio: el promedio solo no describe bien el ticket. Conviene mirarlo junto con la mediana y el rango."
+    f = f + 2
+    wsE.Cells(f, 1).Value = "Los mismos numeros se pueden reproducir con Datos > Analisis de datos > Estadistica descriptiva, " & _
+        "tomando el rango de la hoja " & HOJA_DATOS_EST & " y tildando 'Resumen de estadisticas'."
+    wsE.Cells(f, 1).Font.Italic = True
+
+    wsE.Columns("A").ColumnWidth = 26
+    wsE.Columns("B").ColumnWidth = 18
+    wsE.Columns("C").ColumnWidth = 4
+    wsE.Columns("D").ColumnWidth = 26
+    wsE.Columns("E").ColumnWidth = 18
+
+    Registrar "Estadistica descriptiva generada sobre " & gFilasValidas & " filas (Venta_Neta y Margen_Bruto)"
+End Sub
+
+Private Sub BloqueEstadistica(wsE As Worksheet, ByVal fila As Long, ByVal col As Long, _
+                              ByVal titulo As String, rng As Range)
+    Dim wf As WorksheetFunction, n As Long, sd As Double, med As Double
+    Dim etiquetas As Variant, i As Long, v As Variant
+
+    Set wf = Application.WorksheetFunction
+    n = rng.Rows.Count
+    sd = wf.StDev_S(rng)
+    med = wf.Average(rng)
+
+    wsE.Cells(fila, col).Value = titulo
+    wsE.Cells(fila, col).Font.Bold = True
+    wsE.Cells(fila, col).Interior.Color = RGB(217, 226, 243)
+    wsE.Cells(fila, col + 1).Interior.Color = RGB(217, 226, 243)
+    fila = fila + 1
+
+    etiquetas = Array("Media", "Error tipico", "Mediana", "Moda", "Desviacion estandar", _
+                      "Varianza de la muestra", "Curtosis", "Coeficiente de asimetria", _
+                      "Rango", "Minimo", "Maximo", "Suma", "Cuenta", "Nivel de confianza(95,0%)")
+
+    For i = LBound(etiquetas) To UBound(etiquetas)
+        wsE.Cells(fila + i, col).Value = etiquetas(i)
+    Next i
+
+    wsE.Cells(fila + 0, col + 1).Value = med
+    wsE.Cells(fila + 1, col + 1).Value = sd / Sqr(n)
+
+    wsE.Cells(fila + 2, col + 1).Value = wf.Median(rng)
+
+    v = Empty
+    On Error Resume Next
+    v = Application.Mode_Sngl(rng)          ' sin WorksheetFunction: devuelve error en vez de cortar
+    On Error GoTo 0
+    If IsEmpty(v) Or IsError(v) Then
+        wsE.Cells(fila + 3, col + 1).Value = "#N/D"
+    Else
+        wsE.Cells(fila + 3, col + 1).Value = v
+    End If
+
+    wsE.Cells(fila + 4, col + 1).Value = sd
+    wsE.Cells(fila + 5, col + 1).Value = wf.Var_S(rng)
+    wsE.Cells(fila + 6, col + 1).Value = wf.Kurt(rng)
+    wsE.Cells(fila + 7, col + 1).Value = wf.Skew(rng)
+    wsE.Cells(fila + 8, col + 1).Value = wf.Max(rng) - wf.Min(rng)
+    wsE.Cells(fila + 9, col + 1).Value = wf.Min(rng)
+    wsE.Cells(fila + 10, col + 1).Value = wf.Max(rng)
+    wsE.Cells(fila + 11, col + 1).Value = wf.Sum(rng)
+    wsE.Cells(fila + 12, col + 1).Value = n
+
+    On Error Resume Next
+    wsE.Cells(fila + 13, col + 1).Value = wf.Confidence_T(0.05, sd, n)
+    On Error GoTo 0
+
+    wsE.Range(wsE.Cells(fila, col + 1), wsE.Cells(fila + 12, col + 1)).NumberFormat = "#,##0.00"
+    wsE.Cells(fila + 12, col + 1).NumberFormat = "#,##0"
+    wsE.Cells(fila + 13, col + 1).NumberFormat = "#,##0.00"
+End Sub
+
+' -------------------------------------------------------------------------------------
+' 9. ANALISIS DE HIPOTESIS: Buscar objetivo + Administrador de escenarios
+' -------------------------------------------------------------------------------------
+Private Sub CrearSimulacion(wb As Workbook)
+    Dim ws As Worksheet, wsR As Worksheet
+    Dim i As Long, objetivo As Double, crecimientoNecesario As Double, beneficioBase As Double
+
+    Application.Calculation = xlCalculationAutomatic
+
+    Set ws = HojaLimpia(wb, HOJA_SIM)
+    For i = ws.Scenarios.Count To 1 Step -1
+        ws.Scenarios(i).Delete
+    Next i
+
+    ws.Range("A1").Value = "SIMULACION FINANCIERA - ANALISIS DE HIPOTESIS"
+    ws.Range("A1").Font.Bold = True
+
+    ws.Range("A3").Value = "Variables de entrada (celdas cambiantes)"
+    ws.Range("A3").Font.Bold = True
+    ws.Range("A4").Value = "Variacion de la demanda"
+    ws.Range("A5").Value = "Tasa de costo logistico"
+    ws.Range("A6").Value = "Tasa de costo financiero"
+    ws.Range("B4").Value = 0
+    ws.Range("B5").Value = 0.06
+    ws.Range("B6").Value = 0.03
+    ws.Range("B4:B6").NumberFormat = "0.0%"
+    ws.Range("B4:B6").Interior.Color = RGB(255, 242, 204)
+
+    ws.Range("A8").Value = "Linea base (historico cargado en el modelo)"
+    ws.Range("A8").Font.Bold = True
+    ws.Range("A9").Value = "Ventas netas"
+    ws.Range("A10").Value = "Costo de mercaderia"
+    ws.Range("B9").Value = gSumaVentas
+    ws.Range("B10").Value = gSumaCostos
+    ws.Range("B9:B10").NumberFormat = "#,##0"
+
+    ws.Range("A12").Value = "Resultados proyectados (celdas de resultado)"
+    ws.Range("A12").Font.Bold = True
+    ws.Range("A13").Value = "Ventas proyectadas"
+    ws.Range("A14").Value = "Costo de mercaderia proyectado"
+    ws.Range("A15").Value = "Margen bruto"
+    ws.Range("A16").Value = "Costo logistico"
+    ws.Range("A17").Value = "Costo financiero"
+    ws.Range("A18").Value = "Beneficio neto"
+    ws.Range("A19").Value = "% Margen neto"
+
+    ws.Range("B13").Formula = "=B9*(1+B4)"
+    ws.Range("B14").Formula = "=B10*(1+B4)"
+    ws.Range("B15").Formula = "=B13-B14"
+    ws.Range("B16").Formula = "=B13*B5"
+    ws.Range("B17").Formula = "=B13*B6"
+    ws.Range("B18").Formula = "=B15-B16-B17"
+    ws.Range("B19").Formula = "=IFERROR(B18/B13,0)"
+    ws.Range("B13:B18").NumberFormat = "#,##0"
+    ws.Range("B19").NumberFormat = "0.0%"
+    ws.Range("B18").Font.Bold = True
+
+    NombrarCelda wb, "Var_Demanda", HOJA_SIM, "$B$4"
+    NombrarCelda wb, "Tasa_Logistica", HOJA_SIM, "$B$5"
+    NombrarCelda wb, "Tasa_Financiera", HOJA_SIM, "$B$6"
+    NombrarCelda wb, "Ventas_Proyectadas", HOJA_SIM, "$B$13"
+    NombrarCelda wb, "Margen_Bruto_Sim", HOJA_SIM, "$B$15"
+    NombrarCelda wb, "Beneficio_Neto", HOJA_SIM, "$B$18"
+    NombrarCelda wb, "Margen_Neto_Pct", HOJA_SIM, "$B$19"
+
+    ' --- BUSCAR OBJETIVO ---
+    beneficioBase = ws.Range("B18").Value
+    objetivo = beneficioBase * 1.25
+    On Error Resume Next
+    objetivo = Application.WorksheetFunction.Ceiling_Math(beneficioBase * 1.25, 500000)
+    On Error GoTo 0
+
+    On Error Resume Next
+    ws.Range("B18").GoalSeek Goal:=objetivo, ChangingCell:=ws.Range("B4")
+    On Error GoTo 0
+    crecimientoNecesario = ws.Range("B4").Value
+    ws.Range("B4").Value = 0                 ' se restaura la base despues de la busqueda
+
+    ws.Range("A21").Value = "Buscar objetivo (Datos > Analisis de hipotesis > Buscar objetivo)"
+    ws.Range("A21").Font.Bold = True
+    ws.Range("A22").Value = "Celda a definir"
+    ws.Range("B22").Value = "B18 - Beneficio neto"
+    ws.Range("A23").Value = "Valor objetivo"
+    ws.Range("B23").Value = objetivo
+    ws.Range("B23").NumberFormat = "#,##0"
+    ws.Range("A24").Value = "Celda cambiante"
+    ws.Range("B24").Value = "B4 - Variacion de la demanda"
+    ws.Range("A25").Value = "Resultado: crecimiento de demanda necesario"
+    ws.Range("B25").Value = crecimientoNecesario
+    ws.Range("B25").NumberFormat = "0.0%"
+    ws.Range("A26").Value = "Lectura: para pasar de " & Format$(beneficioBase, "#,##0") & _
+        " a " & Format$(objetivo, "#,##0") & " de beneficio neto, manteniendo las dos tasas de costo, " & _
+        "la demanda tiene que crecer " & Format$(crecimientoNecesario, "0.0%") & "."
+
+    ' --- ADMINISTRADOR DE ESCENARIOS ---
+    ws.Scenarios.Add Name:="Pesimista", ChangingCells:=ws.Range("B4:B6"), _
+        Values:=Array(-0.15, 0.08, 0.05), _
+        Comment:="Caida de demanda del 15%, con encarecimiento de logistica y financiacion."
+    ws.Scenarios.Add Name:="Base", ChangingCells:=ws.Range("B4:B6"), _
+        Values:=Array(0#, 0.06, 0.03), _
+        Comment:="Situacion actual: demanda estable y tasas vigentes."
+    ws.Scenarios.Add Name:="Optimista", ChangingCells:=ws.Range("B4:B6"), _
+        Values:=Array(0.2, 0.05, 0.025), _
+        Comment:="Crecimiento del 20% con mejora de tasas por mayor volumen negociado."
+
+    ws.Scenarios("Base").Show
+    Registrar "Escenarios creados: Pesimista, Base, Optimista (3 celdas cambiantes)"
+
+    ' --- RESUMEN EN HOJA APARTE ---
+    On Error GoTo SinResumen
+    ws.Activate
+    ws.Scenarios.CreateSummary ReportType:=xlStandardSummary, _
+        ResultCells:=ws.Range("B13,B15,B18,B19")
+    Set wsR = wb.ActiveSheet
+    If wsR.Name <> HOJA_RESUMEN Then wsR.Name = HOJA_RESUMEN
+    Registrar "Resumen de escenarios generado en la hoja '" & HOJA_RESUMEN & "'"
+
+    ws.Columns("A").ColumnWidth = 38
+    ws.Columns("B").ColumnWidth = 24
+    Exit Sub
+
+SinResumen:
+    Registrar "  FALLO resumen de escenarios: " & Err.Description & _
+        " (se genera a mano: Datos > Analisis de hipotesis > Administrador de escenarios > Resumen)"
+    ws.Columns("A").ColumnWidth = 38
+    ws.Columns("B").ColumnWidth = 24
+End Sub
+
+Private Sub NombrarCelda(wb As Workbook, ByVal nombre As String, ByVal hoja As String, ByVal celda As String)
+    On Error Resume Next
+    wb.Names(nombre).Delete
+    wb.Names.Add Name:=nombre, RefersTo:="='" & hoja & "'!" & celda
+    On Error GoTo 0
+End Sub
+
+' -------------------------------------------------------------------------------------
+' 10. SALIDAS DE DOCUMENTACION
 ' -------------------------------------------------------------------------------------
 Private Sub VolcarCodigoM(wb As Workbook)
     Dim ws As Worksheet, f As Long
@@ -633,7 +936,7 @@ Private Sub EscribirLog(wb As Workbook)
     i = i + 3
     ws.Cells(i, 1).Value = "PENDIENTE MANUAL: Power Pivot > Administrar > Dim_Calendario > Diseniar > Marcar como tabla de fechas (columna Fecha)."
     ws.Cells(i, 1).Font.Bold = True
-    ws.Cells(i + 1, 1).Value = "Donde se comprueba cada punto: Datos > Consultas y conexiones (las 4 consultas) | Power Pivot > Administrar > Vista de diagrama (estrella + 3 relaciones) | area de calculo de Hechos_Ventas (8 medidas) | hoja " & HOJA_TD & " (tabla dinamica)."
+    ws.Cells(i + 1, 1).Value = "Donde se comprueba cada punto: Datos > Consultas y conexiones (las 4 consultas) | Power Pivot > Administrar > Vista de diagrama (estrella + 3 relaciones) | area de calculo de Hechos_Ventas (8 medidas) | hoja " & HOJA_TD & " (tabla dinamica) | hoja " & HOJA_EST & " (ToolPak) | hoja " & HOJA_RESUMEN & " (escenarios)."
 
     ws.Columns(1).ColumnWidth = 130
     ws.Activate
