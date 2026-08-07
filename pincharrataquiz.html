@@ -180,6 +180,20 @@ h1,h2,h3,.display{
 .rules li:last-child{margin-bottom:0;}
 .rules b{color:var(--white);}
 
+/* Aviso de "sin JavaScript". Se muestra por defecto y el script lo borra
+   apenas corre. Si el visor no ejecuta scripts (vista previa de un chat,
+   visor de archivos del celular), el aviso queda y explica por qué el
+   botón no responde, en lugar de dejarlo mudo. */
+.js-warn{
+  margin-top:14px; padding:12px 14px;
+  border:1px solid var(--red);
+  border-left:4px solid var(--red);
+  border-radius:var(--r-sm);
+  background:rgba(193,39,45,.13);
+  font-size:13.5px; line-height:1.5; color:var(--white);
+}
+.js-warn b{color:var(--red-light);}
+
 .record{
   margin-top:12px; padding:9px 14px;
   border:1px dashed var(--gold-dark);
@@ -580,6 +594,13 @@ h1,h2,h3,.display{
       y las vueltas olímpicas de 2023 y 2024.
     </p>
 
+    <div class="js-warn" id="js-warn">
+      <b>Acá no se está ejecutando JavaScript</b>, así que el botón no va a
+      responder por más que lo toques. Abrí el archivo directamente con
+      <b>Chrome</b> o <b>Safari</b>: desde la vista previa de un chat o desde
+      el visor de archivos del celular, el juego no puede funcionar.
+    </div>
+
     <div class="rules">
       <div class="rules-head">📋 Reglamento del partido</div>
       <ul>
@@ -691,6 +712,10 @@ h1,h2,h3,.display{
 <script>
 (function(){
 "use strict";
+
+/* Si llegamos hasta acá, hay JavaScript: el aviso ya no hace falta. */
+var warn = document.getElementById("js-warn");
+if(warn && warn.parentNode) warn.parentNode.removeChild(warn);
 
 /* ============================================================
    BANCO DE PREGUNTAS
