@@ -589,9 +589,9 @@ h1,h2,h3,.display{
     <h1 class="title-main" id="title-main">¿Qué tan<br><em>Pincha</em> sos?</h1>
     <div class="stripe-rule" aria-hidden="true"></div>
     <p class="lead">
-      <b>22 preguntas</b> de dificultad alta sobre 120 años de historia:
-      la zapatería del 905, el tricampeonato de Zubeldía, la noche de Mineirão
-      y las vueltas olímpicas de 2023 y 2024.
+      <b>22 preguntas de dificultad muy alta</b> sobre 120 años de historia:
+      los desempates de Zubeldía, los goleadores de otra época, la noche de
+      Mineirão y las vueltas olímpicas de 2023 y 2024. El podio pide casi el pleno.
     </p>
 
     <div class="js-warn" id="js-warn">
@@ -773,6 +773,20 @@ var POOL = [
   },
   {
     c:"origenes",
+    q:"¿Quién es el máximo goleador de toda la historia de Estudiantes, con 241 goles?",
+    o:["Manuel Pelegrina","Mauro Boselli","Juan Sebastián Verón","Guillermo Sanguinetti"],
+    a:0,
+    d:"Manuel Pelegrina, con 241 goles, es el máximo artillero histórico del club y también el mayor goleador del clásico platense."
+  },
+  {
+    c:"origenes",
+    q:"¿Cuál de estos grandes goleadores del fútbol argentino se formó en las inferiores de Estudiantes y debutó en el club?",
+    o:["Gabriel Batistuta","Martín Palermo","Hernán Crespo","Ariel Ortega"],
+    a:1,
+    d:"Martín Palermo se formó en las inferiores del Pincha y debutó en Primera con Estudiantes en 1992, antes de convertirse en ídolo goleador de Boca."
+  },
+  {
+    c:"origenes",
     q:"En 1967 Estudiantes rompió una hegemonía histórica del fútbol argentino. ¿Cuál fue el hito?",
     o:["Fue el primer campeón invicto de la era profesional","Fue el primer equipo fuera de 'los cinco grandes' en salir campeón profesional","Fue el primer club en ganar tres torneos en un año","Fue el primer campeón con un equipo de juveniles puros"],
     a:1,
@@ -845,6 +859,27 @@ var POOL = [
   },
   {
     c:"zubeldia",
+    q:"La final de la Libertadores 1968 ante Palmeiras quedó igualada en puntos y hubo que jugar un tercer partido. ¿Dónde se disputó ese desempate?",
+    o:["En la Bombonera","En el Monumental de River","En el Centenario de Montevideo","En el estadio de Estudiantes"],
+    a:2,
+    d:"En cancha neutral: el Centenario de Montevideo, el 16 de mayo de 1968. Estudiantes ganó 2-0 con goles de Felipe Ribaudo y Juan Ramón Verón, y levantó su primera Libertadores."
+  },
+  {
+    c:"zubeldia",
+    q:"El tricampeonato se cerró en 1970 ante Peñarol con un global de apenas 1-0. ¿Quién hizo el único gol de toda la serie?",
+    o:["Juan Ramón Verón","Marcos Conigliaro","Carlos Bilardo","Néstor Togneri"],
+    a:3,
+    d:"El defensor central Néstor Togneri, en el 1-0 de La Plata. La vuelta en el Centenario terminó 0-0 y alcanzó para el tricampeonato."
+  },
+  {
+    c:"zubeldia",
+    q:"Por ganar tres Libertadores al hilo (1968-69-70), Estudiantes obtuvo un premio hoy imposible de repetir. ¿Cuál?",
+    o:["Se quedó en propiedad con el trofeo original","Clasificó de por vida al torneo","Le pusieron su nombre a la copa","Sumó una estrella dorada permanente"],
+    a:0,
+    d:"Como primer tricampeón, se quedó en propiedad con el trofeo original de la Copa Libertadores. Fue el primer club en ganarla tres veces seguidas."
+  },
+  {
+    c:"zubeldia",
     q:"En febrero de 1969 Estudiantes se consagró primer campeón de la Copa Interamericana. ¿A qué equipo venció?",
     o:["Toluca de México","Cruz Azul","Alianza Lima","Deportivo Cali"],
     a:0,
@@ -900,6 +935,13 @@ var POOL = [
     o:["Con un gol de Xavi en el minuto 90","Con un penal convertido por Henry","Con empate de Pedro sobre el final y gol de Messi en el alargue","Por definición desde el punto del penal"],
     a:2,
     d:"Pedro empató a los 89' y Messi, con el pecho, lo dio vuelta a los 110' del alargue. La final más cerca que estuvo el Pincha de ser campeón del mundo por segunda vez."
+  },
+  {
+    c:"gloria09",
+    q:"Para llegar a la final del Mundial de Clubes 2009 ante Barcelona, Estudiantes ganó primero una semifinal ajustada. ¿A qué equipo eliminó?",
+    o:["Atlante de México","Auckland City","Pohang Steelers de Corea del Sur","TP Mazembe"],
+    a:2,
+    d:"Al Pohang Steelers surcoreano, 2-1, con el gol decisivo de Leandro Benítez tras un contragolpe conducido por Verón."
   },
   {
     c:"gloria09",
@@ -1014,25 +1056,28 @@ var POOL = [
   }
 ];
 
-/* Cuántas preguntas de cada eje entran en una partida (total: 22) */
-var QUOTA = { origenes:4, zubeldia:5, gloria09:4, moderna:4, hinchada:3, casa:2 };
+/* Cuántas preguntas de cada eje entran en una partida (total: 22).
+   La era Zubeldía pesa más porque es la más rica en datos finos. */
+var QUOTA = { origenes:4, zubeldia:6, gloria09:4, moderna:3, hinchada:3, casa:2 };
 
 var TIME_PER_Q  = 15;     // segundos por pregunta
 var AUTO_NEXT   = 6000;   // ms hasta pasar solo a la siguiente
 var LETTERS     = ["A","B","C","D"];
 var STORE_KEY   = "pincha_quiz_record_v1";
 
+/* Umbrales exigentes: el podio pide casi el pleno. Con 22 preguntas,
+   'Tricampeón' recién sale con 21 o 22 aciertos. */
 var RANKS = [
   { min:0.95, emoji:"🏆", title:"Tricampeón de memoria",
-    desc:"Sabés más que la platea entera del UNO. Zubeldía te pondría de titular sin probarte." },
-  { min:0.80, emoji:"🦁", title:"Pincharrata de ley",
-    desc:"Historia, finales y anécdotas: te falta muy poco para el podio. Repasá los primeros años y listo." },
-  { min:0.65, emoji:"🎖️", title:"Socio con la cuota al día",
-    desc:"Fanatismo real y bien documentado. Todavía se te escapan un par de datos finos de la era Zubeldía." },
+    desc:"21 o 22 sobre 22. Sabés más que la platea entera del UNO: Zubeldía te pondría de titular sin probarte." },
+  { min:0.86, emoji:"🦁", title:"Pincharrata de ley",
+    desc:"Fanatismo de archivo, pero el pleno se te escapó por poco. Un par de datos finos más y estás en el podio." },
+  { min:0.68, emoji:"🎖️", title:"Socio con la cuota al día",
+    desc:"Historia, finales y anécdotas bien sabidas. Todavía se te escapan detalles de la era Zubeldía." },
   { min:0.50, emoji:"🚩", title:"Hincha de bandera",
-    desc:"La camiseta la defendés sin dudar, pero de historia te queda cancha por recorrer." },
+    desc:"La camiseta la defendés sin dudar, pero de historia fina te queda cancha por recorrer." },
   { min:0.30, emoji:"🥩", title:"Simpatizante de asado",
-    desc:"Alentás fuerte los domingos, aunque las fechas y los nombres se te mezclan un poco." },
+    desc:"Alentás fuerte los domingos, aunque las fechas y los nombres se te mezclan bastante." },
   { min:0,    emoji:"🎟️", title:"Turista del Estadio UNO",
     desc:"Che, ¿seguro que sos del Pincha? Arrancá por el tricampeonato del 68 y volvé a intentarlo." }
 ];
