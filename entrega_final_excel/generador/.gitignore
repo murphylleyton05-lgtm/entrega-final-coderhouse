@@ -1,0 +1,4 @@
+# artefactos intermedios del pipeline: el entregable es el .xlsx de la carpeta padre
+libro.xlsx
+post_recalc.xlsx
+__pycache__/

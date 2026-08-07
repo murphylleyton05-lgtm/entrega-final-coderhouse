@@ -98,6 +98,11 @@ repositorio guarda los checkpoints de **Coderhouse — Data Analyst**:
 |---------|---------|
 | [`checkpoint_sql_ventas_tech/`](./checkpoint_sql_ventas_tech) | Script SQL de la base `Ventas_Tech_DB`: DDL, restricciones de integridad y carga de datos |
 | [`modulo9_dashboard_final/`](./modulo9_dashboard_final) | Modulo 9 — capa de visualizacion: dashboard en Excel con segmentadores, cascada, dispersion y narrativa, mas el registro de prompts de IA |
+| [`entrega_final_excel/`](./entrega_final_excel) | **Practica Integradora Final** — libro unico en Excel: export crudo, ETL con formulas, control de calidad, tablas dinamicas y dashboard ejecutivo con segmentadores |
+
+Las tres entregas comparten el mismo dataset: el modelo `Ventas_Tech_DB` del
+checkpoint de SQL, que la practica final extiende a 24 meses, 5 regiones y
+2 canales.
 
 ---
 
