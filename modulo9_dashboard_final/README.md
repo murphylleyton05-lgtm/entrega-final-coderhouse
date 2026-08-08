@@ -71,7 +71,7 @@ eso el layout no se rompe cuando un filtro deja menos filas.
 ## Sobre los datos
 
 El dataset es **simulado y determinista** (semilla fija). Extiende el modelo
-`Ventas_Tech_DB` del [checkpoint de SQL](../checkpoint_sql_ventas_tech) —mismas
+`Ventas_Tech_DB` del [proyecto RetailPro](../RetailPro) —mismas
 categorias, productos y ciudades— a 24 meses, 5 regiones y 2 canales, para
 poder analizar margen, estacionalidad y evolucion interanual. Todos los
 supuestos estan documentados en la hoja `Parametros`.

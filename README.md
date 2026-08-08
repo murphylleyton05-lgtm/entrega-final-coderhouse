@@ -96,7 +96,7 @@ repositorio guarda los checkpoints de **Coderhouse — Data Analyst**:
 
 | Carpeta | Entrega |
 |---------|---------|
-| [`checkpoint_sql_ventas_tech/`](./checkpoint_sql_ventas_tech) | Script SQL de la base `Ventas_Tech_DB`: DDL, restricciones de integridad y carga de datos |
+| [`RetailPro/`](./RetailPro) | Proyecto RetailPro — M3: script SQL de la base `Ventas_Tech_DB` (DDL, restricciones de integridad y carga de datos). M4: consultas de negocio con funciones de agregacion |
 | [`modulo9_dashboard_final/`](./modulo9_dashboard_final) | Modulo 9 — capa de visualizacion: dashboard en Excel con segmentadores, cascada, dispersion y narrativa, mas el registro de prompts de IA |
 
 ---

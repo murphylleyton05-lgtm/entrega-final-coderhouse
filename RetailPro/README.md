@@ -1,8 +1,9 @@
-# Checkpoint — Script SQL de Ingenieria de Datos (`Ventas_Tech_DB`)
+# Proyecto RetailPro — Base de datos `Ventas_Tech_DB` y consultas de negocio
 
-Back-End del proyecto final de **Data Analyst (Coderhouse)**: el script SQL que
-crea la base de datos relacional, limpia y normalizada (3NF) donde reside toda
-la informacion de ventas de la cadena de tecnologia **TechStore**.
+Back-End del proyecto final de **Data Analyst (Coderhouse)**: la base de datos
+relacional, limpia y normalizada (3NF) donde reside toda la informacion de
+ventas de la cadena de tecnologia **TechStore**, y las consultas SQL que
+extraen de ella las metricas del brief.
 
 ## Archivos
 
