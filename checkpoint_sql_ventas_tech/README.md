@@ -4,14 +4,16 @@ Back-End del proyecto final de **Data Analyst (Coderhouse)**: el script SQL que
 crea la base de datos relacional, limpia y normalizada (3NF) donde reside toda
 la informacion de ventas de la cadena de tecnologia **TechStore**.
 
-## Archivo
+## Archivos
 
-- [`ventas_tech_db.sql`](./ventas_tech_db.sql) — script completo con las 3 secciones:
+- [`ventas_tech_db.sql`](./ventas_tech_db.sql) — **M3**: script completo con las 3 secciones:
   1. **DDL** — `DROP TABLE` (orden inverso de dependencias) + `CREATE TABLE`
      (dimensiones primero, tabla de hechos al final).
   2. **Restricciones de integridad** — `PRIMARY KEY`, `FOREIGN KEY`,
      `NOT NULL`, `UNIQUE` y `DEFAULT`.
   3. **DML** — carga inicial de datos.
+- [`m4_consultas_negocio.sql`](./m4_consultas_negocio.sql) — **M4**: consultas de
+  agregacion que responden las preguntas de negocio del brief (ver mas abajo).
 
 ## Modelo de datos
 
@@ -40,7 +42,30 @@ psql -U postgres -c "CREATE DATABASE ventas_tech_db;"
 
 # 2) ejecutar el script (es repetible: se puede correr cuantas veces quieras)
 psql -U postgres -d ventas_tech_db -f ventas_tech_db.sql
+
+# 3) M4 — consultas de negocio sobre la base ya cargada
+psql -U postgres -d ventas_tech_db -f m4_consultas_negocio.sql
 ```
+
+## M4 — Consultas de negocio (`m4_consultas_negocio.sql`)
+
+Consultas de agregacion sobre la tabla de hechos `ventas`
+(`COUNT`, `SUM`, `AVG`, `MIN`, `MAX` + `GROUP BY`, `HAVING`, `ORDER BY`, `CASE WHEN`).
+Los nombres de clientes y productos se resuelven con `JOIN` en M5: aca se trabaja con IDs.
+
+| # | Consulta | Pregunta de negocio | Resultado sobre los datos cargados |
+|---|----------|---------------------|------------------------------------|
+| 1 | Resumen ejecutivo mensual | ¿Cuanto facturamos, cuantos pedidos y ticket promedio por mes? | Marzo 2024: 10 pedidos · USD 6.444,00 · ticket USD 644,40 |
+| 2 | Ranking Top 5 de productos | ¿Que productos generan mas dinero? | Producto 1 (USD 3.600) · 3 (1.350) · 5 (390) · 6 (380) · 2 (364) |
+| 3 | Clientes recurrentes (`HAVING COUNT(*) > 1`) | ¿Quienes compraron mas de una vez y cuanto gastaron? | Los 5 clientes, 2 pedidos c/u; del cliente 1 (USD 2.640) al 4 (USD 510) |
+| 4 | Meses vs. promedio (`CASE WHEN`) | ¿Que meses rindieron mejor que un mes tipico? | Unico mes cargado (marzo) → `En el promedio` |
+| + | Metricas generales | KPI cards para el dashboard de M6 | 29 unidades · ticket min USD 120 / max USD 2.400 |
+
+Al final del archivo hay un bloque de comentarios con los **3 hallazgos** del analisis
+(concentracion de la facturacion, volumen vs. ingreso, y recurrencia vs. valor del ticket).
+
+El script fue ejecutado en **PostgreSQL 16** con `ON_ERROR_STOP=1`: las 5 consultas
+devuelven resultados sin errores.
 
 ## Verificacion realizada
 
