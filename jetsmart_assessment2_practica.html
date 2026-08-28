@@ -7,48 +7,37 @@
 <title>JetSmart · Simulación de Entrevista</title>
 <style>
   :root{
-    --bg:#0b1220; --bg2:#111a2e; --panel:#16223c; --panel2:#1d2c4d;
-    --line:#26365c; --txt:#eaf0fb; --dim:#93a3c4; --dim2:#6a7ba0;
+    --bg:#0b1220; --panel:#16223c; --line:#26365c; --txt:#eaf0fb; --dim:#93a3c4; --dim2:#6a7ba0;
     --azul:#2f6bff; --azul2:#4d84ff; --cyan:#25c9d0;
     --rojo:#ff4d5e; --verde:#2fd47a; --amar:#ffcf4d; --naranja:#ff9a3c; --violeta:#9a6bff;
     --radio:16px;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html,body{margin:0;padding:0;height:100%;}
-  body{
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     background:radial-gradient(1200px 600px at 50% -10%, #16223c 0%, var(--bg) 55%);
-    color:var(--txt); line-height:1.45; font-size:16px; min-height:100%;
-    overflow-x:hidden;
-  }
+    color:var(--txt);line-height:1.45;font-size:16px;min-height:100%;overflow-x:hidden;}
   button{font-family:inherit;cursor:pointer;border:none;}
   .btn{background:var(--azul);color:#fff;font-weight:700;font-size:.9rem;padding:12px 18px;border-radius:12px;display:inline-flex;align-items:center;gap:8px;justify-content:center;transition:transform .08s,filter .15s;}
   .btn:active{transform:scale(.97);}
   .btn:disabled{opacity:.5;}
   .btn.big{padding:15px 22px;font-size:1rem;width:100%;}
   .btn.ghost{background:#22304f;color:var(--txt);}
-  .btn.danger{background:var(--rojo);}
   .btn.ok{background:var(--verde);color:#04240f;}
-  .btn.warn{background:var(--amar);color:#3a2c00;}
   .btn.ai{background:linear-gradient(135deg,#7b3ff2,#b13ff2);}
   .btn.sm{padding:9px 13px;font-size:.82rem;border-radius:10px;}
   .wrap{max-width:720px;margin:0 auto;padding:16px 14px calc(20px + env(safe-area-inset-bottom));}
-
-  /* countdown chip */
   .cd-chip{position:fixed;top:calc(8px + env(safe-area-inset-top));right:10px;z-index:40;background:rgba(15,23,42,.82);border:1px solid var(--line);border-radius:20px;padding:5px 11px;font-size:.68rem;color:var(--dim);backdrop-filter:blur(6px);display:flex;align-items:center;gap:6px;}
   .cd-chip b{color:var(--txt);font-variant-numeric:tabular-nums;}
   .gearbtn{position:fixed;top:calc(8px + env(safe-area-inset-top));left:10px;z-index:40;background:rgba(15,23,42,.82);border:1px solid var(--line);color:var(--txt);width:34px;height:34px;border-radius:11px;font-size:1rem;backdrop-filter:blur(6px);}
-
-  /* screens */
   .screen{display:none;}
   .screen.active{display:block;animation:fade .3s ease;}
   @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
-
   /* HOME */
-  .hero{text-align:center;padding:44px 6px 10px;}
+  .hero{text-align:center;padding:40px 6px 8px;}
   .hero .logo{font-size:2.6rem;}
   .hero h1{font-size:1.5rem;margin:8px 0 4px;letter-spacing:.3px;}
-  .hero .sub{color:var(--dim);font-size:.9rem;max-width:440px;margin:0 auto;}
+  .hero .sub{color:var(--dim);font-size:.9rem;max-width:460px;margin:0 auto;}
   .tag{display:inline-block;background:var(--rojo);color:#fff;font-size:.62rem;font-weight:800;letter-spacing:.6px;padding:3px 9px;border-radius:20px;vertical-align:middle;}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radio);padding:16px;margin:14px 0;}
   .card h3{margin:0 0 10px;font-size:1rem;}
@@ -56,12 +45,10 @@
   .steps li{position:relative;padding:8px 0 8px 34px;font-size:.88rem;color:var(--dim);border-bottom:1px solid rgba(255,255,255,.05);}
   .steps li:last-child{border-bottom:none;}
   .steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:7px;width:22px;height:22px;background:var(--azul);color:#fff;border-radius:50%;font-size:.72rem;font-weight:800;display:flex;align-items:center;justify-content:center;}
-  .opts{display:flex;flex-direction:column;gap:2px;}
   .opt-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 2px;border-bottom:1px solid rgba(255,255,255,.05);}
   .opt-row:last-child{border-bottom:none;}
   .opt-row .lbl{font-size:.9rem;}
   .opt-row .desc{font-size:.74rem;color:var(--dim2);}
-  /* toggle */
   .sw{position:relative;width:46px;height:26px;flex:0 0 auto;}
   .sw input{opacity:0;width:0;height:0;}
   .sw .track{position:absolute;inset:0;background:#33436b;border-radius:20px;transition:.2s;}
@@ -72,75 +59,73 @@
   .seg button{flex:1;background:none;color:var(--dim);font-weight:700;font-size:.82rem;padding:9px 6px;}
   .seg button.on{background:var(--azul);color:#fff;}
   .warnbox{background:rgba(255,154,60,.12);border:1px solid rgba(255,154,60,.35);color:#ffd7b0;border-radius:12px;padding:10px 12px;font-size:.8rem;margin-top:10px;}
-  .history{font-size:.82rem;}
-  .history .h-row{display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05);color:var(--dim);}
+  .history .h-row{display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05);color:var(--dim);font-size:.82rem;}
   .history .h-row b{color:var(--txt);}
-
-  /* SIM videocall */
-  #screen-sim{padding-top:calc(48px + env(safe-area-inset-top));}
-  .stage{position:relative;background:linear-gradient(160deg,#0e1830,#0a1120);border:1px solid var(--line);border-radius:20px;overflow:hidden;min-height:60vh;display:flex;flex-direction:column;}
-  .rec-tile{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:26px 16px 90px;position:relative;text-align:center;}
-  .avatar{position:relative;width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,var(--azul),#1a3a8c);display:flex;align-items:center;justify-content:center;font-size:2.4rem;font-weight:800;color:#fff;box-shadow:0 8px 30px rgba(47,107,255,.35);z-index:2;}
-  .avatar .plane{font-size:2.6rem;}
-  .rings{position:absolute;width:120px;height:120px;border-radius:50%;z-index:1;}
-  .stage.speaking .rings::before,.stage.speaking .rings::after{content:"";position:absolute;inset:0;border-radius:50%;border:2px solid var(--azul2);animation:ring 1.8s ease-out infinite;}
-  .stage.speaking .rings::after{animation-delay:.9s;}
-  @keyframes ring{0%{transform:scale(1);opacity:.7;}100%{transform:scale(1.9);opacity:0;}}
-  .rec-name{margin-top:16px;font-weight:700;font-size:1rem;}
-  .rec-name .role{display:block;font-size:.74rem;color:var(--dim);font-weight:500;margin-top:2px;}
-  /* audio bars */
-  .bars{height:26px;display:flex;align-items:flex-end;gap:3px;margin-top:14px;opacity:.25;transition:opacity .2s;}
-  .stage.speaking .bars{opacity:1;}
-  .bars span{width:4px;background:var(--azul2);border-radius:2px;height:6px;}
-  .stage.speaking .bars span{animation:bar .8s ease-in-out infinite;}
-  .bars span:nth-child(1){animation-delay:0s;}.bars span:nth-child(2){animation-delay:.1s;}.bars span:nth-child(3){animation-delay:.2s;}.bars span:nth-child(4){animation-delay:.3s;}.bars span:nth-child(5){animation-delay:.15s;}.bars span:nth-child(6){animation-delay:.25s;}.bars span:nth-child(7){animation-delay:.05s;}
-  @keyframes bar{0%,100%{height:6px;}50%{height:24px;}}
-
-  .qtext{margin-top:20px;max-width:520px;font-size:1.02rem;line-height:1.5;color:#fff;font-weight:600;}
-  .qmeta{margin-top:8px;font-size:.72rem;color:var(--dim);}
-  .flag{display:inline-block;font-size:.62rem;background:#22304f;color:var(--txt);padding:2px 8px;border-radius:6px;font-weight:700;margin-left:4px;}
-
-  /* progress dots */
-  .progress{position:absolute;top:12px;left:0;right:0;display:flex;justify-content:center;gap:5px;z-index:3;}
+  /* SIM */
+  #screen-sim{padding-top:calc(46px + env(safe-area-inset-top));}
+  .stage{position:relative;background:linear-gradient(160deg,#12203c,#0a1120);border:1px solid var(--line);border-radius:20px;overflow:hidden;display:flex;flex-direction:column;transition:box-shadow .25s,border-color .25s;}
+  .stage.eye-ok{border-color:rgba(47,212,122,.6);box-shadow:0 0 0 1px rgba(47,212,122,.4),0 0 26px rgba(47,212,122,.18) inset;}
+  .stage.eye-bad{border-color:rgba(255,77,94,.7);box-shadow:0 0 0 1px rgba(255,77,94,.5),0 0 30px rgba(255,77,94,.22) inset;}
+  .rec-tile{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:16px 16px 26px;position:relative;text-align:center;}
+  .progress{display:flex;justify-content:center;gap:5px;margin-bottom:10px;}
   .progress i{width:7px;height:7px;border-radius:50%;background:#2c3d63;}
   .progress i.done{background:var(--verde);}
   .progress i.cur{background:var(--azul2);transform:scale(1.35);}
-
-  /* self cam PiP */
-  .selftile{position:absolute;right:12px;bottom:12px;width:110px;height:150px;background:#0a1020;border:2px solid var(--line);border-radius:14px;overflow:hidden;z-index:5;box-shadow:0 6px 20px rgba(0,0,0,.4);}
+  /* recruiter face */
+  .face-wrap{position:relative;width:180px;height:180px;}
+  .face-wrap .halo{position:absolute;inset:-10px;border-radius:50%;}
+  .stage.speaking .face-wrap .halo::before,.stage.speaking .face-wrap .halo::after{content:"";position:absolute;inset:0;border-radius:50%;border:2px solid var(--azul2);animation:ring 1.9s ease-out infinite;}
+  .stage.speaking .face-wrap .halo::after{animation-delay:.95s;}
+  @keyframes ring{0%{transform:scale(.92);opacity:.6;}100%{transform:scale(1.4);opacity:0;}}
+  #recface{width:180px;height:180px;display:block;position:relative;z-index:2;animation:bob 5s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(-3px);}}
+  .lid{transform-origin:center;transform-box:fill-box;animation:blink 5.5s infinite;}
+  @keyframes blink{0%,96%,100%{transform:scaleY(0);}98%{transform:scaleY(1);}}
+  #mouth{transform-origin:center;transform-box:fill-box;}
+  .stage.speaking #mouth{animation:talk .28s ease-in-out infinite;}
+  @keyframes talk{0%,100%{transform:scaleY(.55);}50%{transform:scaleY(1.35);}}
+  .rec-name{margin-top:10px;font-weight:700;font-size:1rem;}
+  .rec-name .role{display:block;font-size:.74rem;color:var(--dim);font-weight:500;margin-top:2px;}
+  .eyehint{margin-top:6px;font-size:.7rem;color:var(--cyan);opacity:.85;display:flex;align-items:center;gap:5px;justify-content:center;}
+  .qtext{margin-top:14px;max-width:540px;font-size:1.05rem;line-height:1.5;color:#fff;font-weight:600;min-height:1.5em;}
+  .qmeta{margin-top:8px;font-size:.72rem;color:var(--dim);}
+  .flag{display:inline-block;font-size:.62rem;background:#22304f;color:var(--txt);padding:2px 8px;border-radius:6px;font-weight:700;margin-left:4px;}
+  .bars{height:22px;display:flex;align-items:flex-end;gap:3px;margin-top:10px;opacity:.2;transition:opacity .2s;}
+  .stage.speaking .bars{opacity:1;}
+  .bars span{width:4px;background:var(--azul2);border-radius:2px;height:5px;}
+  .stage.speaking .bars span{animation:bar .8s ease-in-out infinite;}
+  .bars span:nth-child(1){animation-delay:0s;}.bars span:nth-child(2){animation-delay:.1s;}.bars span:nth-child(3){animation-delay:.2s;}.bars span:nth-child(4){animation-delay:.3s;}.bars span:nth-child(5){animation-delay:.15s;}.bars span:nth-child(6){animation-delay:.25s;}.bars span:nth-child(7){animation-delay:.05s;}
+  @keyframes bar{0%,100%{height:5px;}50%{height:20px;}}
+  /* eye badge */
+  .eyebadge{position:absolute;top:44px;left:12px;z-index:6;background:rgba(6,10,20,.72);border:1px solid var(--line);border-radius:20px;padding:5px 11px;font-size:.72rem;font-weight:700;display:none;align-items:center;gap:6px;backdrop-filter:blur(4px);}
+  .eyebadge.show{display:flex;}
+  .eyebadge .ed{width:9px;height:9px;border-radius:50%;background:var(--dim);}
+  .eyebadge.ok .ed{background:var(--verde);} .eyebadge.ok{color:#bff5d4;border-color:rgba(47,212,122,.5);}
+  .eyebadge.bad .ed{background:var(--rojo);animation:blinkdot .7s infinite;} .eyebadge.bad{color:#ffd0d5;border-color:rgba(255,77,94,.55);}
+  @keyframes blinkdot{50%{opacity:.3;}}
+  /* self cam */
+  .selftile{position:absolute;right:12px;bottom:12px;width:104px;height:140px;background:#0a1020;border:2px solid var(--line);border-radius:14px;overflow:hidden;z-index:5;box-shadow:0 6px 20px rgba(0,0,0,.4);}
   .selftile video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1);background:#0a1020;}
-  .selftile .camoff{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--dim2);font-size:.66rem;text-align:center;padding:6px;}
-  .selftile .yo{position:absolute;bottom:4px;left:6px;font-size:.6rem;color:#fff;text-shadow:0 1px 3px #000;font-weight:700;}
+  .selftile .camoff{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--dim2);font-size:.64rem;text-align:center;padding:6px;}
+  .selftile .yo{position:absolute;bottom:4px;left:6px;font-size:.58rem;color:#fff;text-shadow:0 1px 3px #000;font-weight:700;}
   .selftile .camtoggle{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.55);color:#fff;border-radius:8px;width:26px;height:26px;font-size:.8rem;}
-  @media(max-width:380px){.selftile{width:86px;height:120px;}}
-
-  /* listening indicator */
+  @media(max-width:380px){.selftile{width:84px;height:114px;}}
   .listenbar{position:absolute;left:0;right:0;bottom:12px;display:flex;justify-content:center;z-index:6;pointer-events:none;}
   .listenpill{background:rgba(255,77,94,.16);border:1px solid var(--rojo);color:#ffd0d5;border-radius:22px;padding:7px 15px;font-size:.82rem;font-weight:700;display:flex;align-items:center;gap:9px;pointer-events:auto;}
-  .listenpill .dot{width:10px;height:10px;border-radius:50%;background:var(--rojo);animation:blink 1s infinite;}
-  @keyframes blink{50%{opacity:.25;}}
-  .listenpill.speaking{background:rgba(47,107,255,.16);border-color:var(--azul2);color:#cfe0ff;}
-  .listenpill.speaking .dot{background:var(--azul2);animation:none;}
+  .listenpill .dot{width:10px;height:10px;border-radius:50%;background:var(--rojo);animation:blinkdot 1s infinite;}
   .listenpill .tmr{font-variant-numeric:tabular-nums;}
-
-  /* captions */
   .captions{background:rgba(6,10,20,.72);border:1px solid var(--line);border-radius:14px;margin-top:12px;padding:12px 14px;min-height:56px;font-size:.95rem;line-height:1.5;backdrop-filter:blur(4px);}
-  .captions .cap-label{font-size:.66rem;color:var(--dim2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;display:flex;align-items:center;gap:6px;}
+  .captions .cap-label{font-size:.66rem;color:var(--dim2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;}
   .captions .cap-txt{color:#fff;}
   .captions .cap-txt.empty{color:var(--dim2);font-style:italic;}
   .captions .cap-txt .interim{color:var(--dim);}
-
-  /* controls */
   .controls{display:flex;gap:9px;margin-top:12px;flex-wrap:wrap;}
   .controls .btn{flex:1;min-width:130px;}
   .subctrl{display:flex;justify-content:center;gap:16px;margin-top:10px;}
   .subctrl button{background:none;color:var(--dim);font-size:.78rem;text-decoration:underline;}
-
-  /* fallback typed */
-  .typedfb{margin-top:12px;}
+  .typedfb{margin-top:12px;display:none;}
   .typedfb textarea{width:100%;background:#0c1526;border:1px solid var(--line);border-radius:12px;color:var(--txt);padding:11px;font-family:inherit;font-size:.92rem;min-height:80px;resize:vertical;}
-
-  /* feedback card */
+  /* feedback */
   .fbcard{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:15px;margin-top:14px;animation:fade .25s ease;}
   .fbtop{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
   .scorering{width:60px;height:60px;flex:0 0 auto;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.15rem;background:conic-gradient(var(--rc) calc(var(--p)*1%), #2a3a60 0);}
@@ -150,9 +135,11 @@
   .fbtop .ft p{margin:2px 0 0;font-size:.78rem;color:var(--dim);}
   .metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px;}
   .metric{background:#101c33;border:1px solid var(--line);border-radius:11px;padding:9px 10px;}
+  .metric.wide{grid-column:1 / -1;}
   .metric .mlabel{font-size:.66rem;color:var(--dim2);text-transform:uppercase;letter-spacing:.5px;}
   .metric .mval{font-size:.92rem;font-weight:700;margin-top:2px;}
   .metric .mval.g{color:var(--verde);}.metric .mval.y{color:var(--amar);}.metric .mval.r{color:var(--rojo);}
+  .eyemetric{border-color:rgba(37,201,208,.4);background:linear-gradient(135deg,rgba(37,201,208,.1),#101c33);}
   .starrow{display:flex;gap:6px;margin-bottom:12px;}
   .starrow .sp{flex:1;text-align:center;border-radius:10px;padding:7px 2px;font-size:.72rem;font-weight:800;border:1px solid var(--line);}
   .starrow .sp .l{font-size:1.05rem;display:block;}
@@ -160,13 +147,10 @@
   .starrow .sp.no{background:rgba(255,77,94,.1);border-color:rgba(255,77,94,.4);color:#ff96a1;}
   .fblist{margin:0;padding-left:2px;list-style:none;}
   .fblist li{font-size:.86rem;padding:5px 0 5px 22px;position:relative;color:var(--txt);}
-  .fblist li::before{position:absolute;left:0;top:4px;}
-  .fblist li.tip::before{content:"💡";}
-  .fblist li.warnli::before{content:"⚠️";}
-  .fblist.small li{font-size:.82rem;color:var(--dim);}
+  .fblist li.tip::before{content:"💡";position:absolute;left:0;top:4px;}
+  .fblist li.warnli::before{content:"⚠️";position:absolute;left:0;top:4px;}
   .fbhdr{font-size:.72rem;color:var(--dim2);text-transform:uppercase;letter-spacing:.7px;margin:10px 0 4px;}
-
-  /* END debrief */
+  /* END */
   .debrief h2{text-align:center;font-size:1.4rem;margin:6px 0 2px;}
   .debrief .dsub{text-align:center;color:var(--dim);font-size:.86rem;margin-bottom:14px;}
   .bigscore{text-align:center;margin:6px 0 16px;}
@@ -178,17 +162,17 @@
   .catbox .cv{font-size:1.3rem;font-weight:800;margin-top:3px;}
   .catbar{height:6px;background:#2a3a60;border-radius:6px;margin-top:6px;overflow:hidden;}
   .catbar i{display:block;height:100%;background:var(--azul2);}
+  .eyepanel{background:linear-gradient(135deg,rgba(37,201,208,.16),rgba(47,107,255,.1));border:1px solid var(--cyan);border-radius:14px;padding:15px;margin:11px 0;text-align:center;}
+  .eyepanel .big{font-size:2.4rem;font-weight:800;}
   .dsec{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin:11px 0;}
   .dsec h4{margin:0 0 9px;font-size:.95rem;display:flex;align-items:center;gap:7px;}
   .dsec ul{margin:0;padding-left:20px;font-size:.88rem;}
   .dsec li{margin-bottom:6px;}
   .motiv{background:linear-gradient(135deg,rgba(47,107,255,.16),rgba(37,201,208,.12));border:1px solid var(--azul);border-radius:14px;padding:15px;text-align:center;margin:12px 0;font-size:.92rem;}
-  .qbreak{font-size:.82rem;}
-  .qbreak .qb-row{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+  .qbreak .qb-row{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.82rem;}
   .qbreak .qb-row:last-child{border-bottom:none;}
   .qbreak .qb-q{flex:1;color:var(--dim);}
   .qbreak .qb-s{font-weight:800;flex:0 0 auto;}
-
   /* modal */
   .modal-bg{position:fixed;inset:0;background:rgba(4,8,16,.7);z-index:60;display:none;align-items:flex-end;justify-content:center;}
   .modal-bg.open{display:flex;}
@@ -209,113 +193,139 @@
 <body>
 
 <button class="gearbtn" id="btn-gear" title="IA opcional">⚙️</button>
-<div class="cd-chip">🎯 Martes 1/9 13:00 · faltan <b id="cd">--</b></div>
+<div class="cd-chip">🎯 Mar 1/9 13:00 · faltan <b id="cd">--</b></div>
 
 <div class="wrap">
 
-  <!-- ================= HOME ================= -->
+  <!-- HOME -->
   <section class="screen active" id="screen-home">
     <div class="hero">
       <div class="logo">✈️</div>
       <h1>Simulación de Entrevista <span class="tag">JETSMART</span></h1>
-      <p class="sub">Practicá tu Assessment 2 como si fuera una videollamada real con un reclutador. Te hace las preguntas en voz alta, te escucha y te corrige.</p>
+      <p class="sub">Una videollamada con un reclutador real: te habla, te reacciona, te presiona un poco. Miralo a los ojos — te va a avisar cuando desvíes la mirada.</p>
     </div>
-
     <div class="card">
       <h3>¿Cómo funciona?</h3>
       <ol class="steps">
-        <li>El reclutador te saluda y te hace cada pregunta en voz alta.</li>
-        <li>Se activa tu micrófono y respondés hablando, como en la entrevista real.</li>
-        <li>Tu respuesta aparece transcripta como subtítulos en vivo.</li>
-        <li>Apenas terminás, te da una corrección inmediata (STAR, muletillas, duración, ritmo).</li>
+        <li>El reclutador te recibe, charla con vos y te va haciendo las preguntas en voz alta.</li>
+        <li>Se activa tu micrófono y respondés hablando, mirándolo a los ojos.</li>
+        <li>La cámara detecta tu contacto visual y te avisa en vivo si te desviás.</li>
+        <li>El reclutador reacciona a tu respuesta y te corrige al instante.</li>
         <li>Al final, una devolución completa como cierre de entrevista.</li>
       </ol>
     </div>
-
     <div class="card">
       <h3>Ajustes</h3>
-      <div class="opts">
-        <div class="opt-row">
-          <div><div class="lbl">📷 Usar mi cámara</div><div class="desc">Solo para ambientación. El micrófono sí es necesario.</div></div>
-          <label class="sw"><input type="checkbox" id="opt-cam"><span class="track"></span></label>
-        </div>
-        <div class="opt-row">
-          <div><div class="lbl">🎙️ Activar mic automáticamente</div><div class="desc">Empieza a escucharte apenas termina la pregunta.</div></div>
-          <label class="sw"><input type="checkbox" id="opt-auto" checked><span class="track"></span></label>
-        </div>
-        <div class="opt-row">
-          <div><div class="lbl">🤫 Corte por silencio (~3s)</div><div class="desc">Corta solo si dejás de hablar. Igual tenés botón manual.</div></div>
-          <label class="sw"><input type="checkbox" id="opt-silence" checked><span class="track"></span></label>
-        </div>
-        <div class="opt-row">
-          <div><div class="lbl">🗣️ El reclutador habla</div><div class="desc">Lee las preguntas en voz alta (voz del navegador).</div></div>
-          <label class="sw"><input type="checkbox" id="opt-tts" checked><span class="track"></span></label>
-        </div>
-        <div class="opt-row" style="border-bottom:none;">
-          <div style="flex:1;"><div class="lbl">Duración</div><div class="desc">Cantidad de preguntas de la simulación.</div></div>
-        </div>
-        <div class="seg" id="seg-mode">
-          <button data-mode="full" class="on">Completa (~13)</button>
-          <button data-mode="short">Corta (6)</button>
-        </div>
+      <div class="opt-row">
+        <div><div class="lbl">📷 Cámara + contacto visual</div><div class="desc">Detecta cuándo mirás a los ojos. Necesita internet la 1ª vez.</div></div>
+        <label class="sw"><input type="checkbox" id="opt-cam" checked><span class="track"></span></label>
+      </div>
+      <div class="opt-row">
+        <div><div class="lbl">😰 Modo presión</div><div class="desc">El reclutador es más exigente y repregunta. Más nervios, más real.</div></div>
+        <label class="sw"><input type="checkbox" id="opt-pressure"><span class="track"></span></label>
+      </div>
+      <div class="opt-row">
+        <div><div class="lbl">🎙️ Activar mic automáticamente</div><div class="desc">Empieza a escucharte apenas termina de hablar.</div></div>
+        <label class="sw"><input type="checkbox" id="opt-auto" checked><span class="track"></span></label>
+      </div>
+      <div class="opt-row">
+        <div><div class="lbl">🤫 Corte por silencio (~3s)</div><div class="desc">Corta solo si dejás de hablar. Igual tenés botón manual.</div></div>
+        <label class="sw"><input type="checkbox" id="opt-silence" checked><span class="track"></span></label>
+      </div>
+      <div class="opt-row" style="border-bottom:none;">
+        <div style="flex:1;"><div class="lbl">Duración</div><div class="desc">Cantidad de preguntas.</div></div>
+      </div>
+      <div class="seg" id="seg-mode">
+        <button data-mode="full" class="on">Completa (~13)</button>
+        <button data-mode="short">Corta (6)</button>
       </div>
       <div class="warnbox" id="compat-warn" style="display:none;"></div>
     </div>
-
     <div class="card" id="history-card" style="display:none;">
       <h3>📈 Tus intentos anteriores</h3>
       <div class="history" id="history-list"></div>
     </div>
-
-    <button class="btn big" id="btn-start" style="margin-top:6px;">🎬 Iniciar simulación</button>
-    <p class="hint" style="text-align:center;margin-top:10px;">Al iniciar, el navegador te pedirá permiso de micrófono (y cámara si la activaste). Todo el análisis es en tu dispositivo.</p>
+    <button class="btn big" id="btn-start">🎬 Iniciar simulación</button>
+    <p class="hint" style="text-align:center;margin-top:10px;">Al iniciar, el navegador pedirá permiso de micrófono y cámara. Todo el análisis corre en tu dispositivo.</p>
   </section>
 
-  <!-- ================= SIM ================= -->
+  <!-- SIM -->
   <section class="screen" id="screen-sim">
     <div class="stage" id="stage">
-      <div class="progress" id="progress"></div>
+      <div class="eyebadge" id="eyebadge"><span class="ed"></span><span id="eyebadge-txt">Mirá a los ojos</span></div>
       <div class="rec-tile">
-        <div class="rings"></div>
-        <div class="avatar"><span class="plane">✈️</span></div>
-        <div class="rec-name">Reclutador <span class="role">Selección · JetSmart Argentina</span></div>
+        <div class="progress" id="progress"></div>
+        <div class="face-wrap">
+          <div class="halo"></div>
+          <svg id="recface" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="bgg" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#1c3a74"/><stop offset="1" stop-color="#12244c"/>
+              </linearGradient>
+              <linearGradient id="skin" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#f0c9a8"/><stop offset="1" stop-color="#e0b492"/>
+              </linearGradient>
+            </defs>
+            <circle cx="100" cy="100" r="98" fill="url(#bgg)"/>
+            <!-- shoulders / shirt -->
+            <path d="M40 200 C40 158 66 140 100 140 C134 140 160 158 160 200 Z" fill="#0e1b38"/>
+            <path d="M100 140 L88 168 L100 178 L112 168 Z" fill="#16305f"/>
+            <rect x="96" y="150" width="8" height="30" rx="3" fill="#25c9d0"/>
+            <!-- neck -->
+            <rect x="88" y="118" width="24" height="26" rx="10" fill="#e0b492"/>
+            <!-- head -->
+            <ellipse cx="100" cy="86" rx="42" ry="46" fill="url(#skin)"/>
+            <!-- ears -->
+            <circle cx="59" cy="88" r="7" fill="#e0b492"/><circle cx="141" cy="88" r="7" fill="#e0b492"/>
+            <!-- hair -->
+            <path d="M58 78 C56 40 92 30 100 30 C108 30 144 40 142 78 C140 60 128 50 100 50 C72 50 60 60 58 78 Z" fill="#2b2118"/>
+            <path d="M58 80 C54 62 66 48 66 48 C60 60 62 74 62 82 Z" fill="#2b2118"/>
+            <!-- eyebrows -->
+            <rect id="browL" x="72" y="70" width="20" height="5" rx="2.5" fill="#3a2c20"/>
+            <rect id="browR" x="108" y="70" width="20" height="5" rx="2.5" fill="#3a2c20"/>
+            <!-- eyes -->
+            <g>
+              <ellipse cx="82" cy="86" rx="11" ry="8" fill="#fff"/>
+              <ellipse cx="118" cy="86" rx="11" ry="8" fill="#fff"/>
+              <circle id="pupL" cx="82" cy="86" r="4.6" fill="#3a2c20"/>
+              <circle id="pupR" cx="118" cy="86" r="4.6" fill="#3a2c20"/>
+              <circle cx="83.6" cy="84.4" r="1.4" fill="#fff"/><circle cx="119.6" cy="84.4" r="1.4" fill="#fff"/>
+              <!-- eyelids for blink -->
+              <rect class="lid" x="71" y="78" width="22" height="9" rx="4" fill="#e8bf9c"/>
+              <rect class="lid" x="107" y="78" width="22" height="9" rx="4" fill="#e8bf9c"/>
+            </g>
+            <!-- nose -->
+            <path d="M100 88 L96 104 Q100 108 104 104 Z" fill="#d3a884"/>
+            <!-- mouth -->
+            <ellipse id="mouth" cx="100" cy="116" rx="13" ry="5" fill="#7a3b3b"/>
+            <path d="M87 116 Q100 121 113 116" stroke="#5a2a2a" stroke-width="2" fill="none" stroke-linecap="round"/>
+          </svg>
+        </div>
         <div class="bars"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="rec-name" id="rec-name">Martín Rey <span class="role">Reclutador · JetSmart Argentina</span></div>
+        <div class="eyehint">👁️ Mirá a los ojos del reclutador (cerca de la cámara)</div>
         <div class="qtext" id="qtext"></div>
         <div class="qmeta" id="qmeta"></div>
       </div>
-
       <div class="selftile" id="selftile">
         <video id="selfvideo" autoplay muted playsinline></video>
         <div class="camoff" id="camoff">📷<br>Cámara<br>apagada</div>
         <button class="camtoggle" id="camtoggle" title="Cámara">📷</button>
         <div class="yo">Yo</div>
       </div>
-
       <div class="listenbar" id="listenbar" style="display:none;">
-        <div class="listenpill" id="listenpill"><span class="dot"></span><span id="listentxt">Escuchando…</span> <span class="tmr" id="listentmr">0:00</span></div>
+        <div class="listenpill"><span class="dot"></span><span id="listentxt">Escuchando…</span> <span class="tmr" id="listentmr">0:00</span></div>
       </div>
     </div>
-
-    <div class="captions" id="captions">
-      <div class="cap-label" id="cap-label">💬 Tu respuesta</div>
-      <div class="cap-txt empty" id="cap-txt">Los subtítulos de lo que digas van a aparecer acá…</div>
-    </div>
-
-    <div class="typedfb" id="typedfb" style="display:none;">
-      <textarea id="typed-input" placeholder="Tu navegador no transcribe voz. Escribí tu respuesta acá y tocá 'Terminé'."></textarea>
-    </div>
-
+    <div class="captions"><div class="cap-label" id="cap-label">💬 Tu respuesta</div><div class="cap-txt empty" id="cap-txt">Los subtítulos van a aparecer acá…</div></div>
+    <div class="typedfb" id="typedfb"><textarea id="typed-input" placeholder="Tu navegador no transcribe voz. Escribí tu respuesta y tocá 'Terminé'."></textarea></div>
     <div class="controls" id="controls"></div>
     <div class="subctrl" id="subctrl"></div>
-
     <div id="fb-slot"></div>
   </section>
 
-  <!-- ================= END ================= -->
-  <section class="screen" id="screen-end">
-    <div class="debrief" id="debrief"></div>
-  </section>
-
+  <!-- END -->
+  <section class="screen" id="screen-end"><div class="debrief" id="debrief"></div></section>
 </div>
 
 <!-- MODAL IA -->
@@ -323,166 +333,96 @@
   <div class="modal">
     <button class="close-x" id="modal-close">✕</button>
     <h3>🤖 Feedback con IA (opcional)</h3>
-    <p>El motor de reglas ya te da toda la corrección sin esto. Con una API key gratis de Google Gemini, sumás un análisis cualitativo más rico en la devolución final.</p>
-    <div class="ai-state off" id="ai-state">IA desactivada — usando solo el motor de reglas</div>
-    <p><b>Key gratis:</b> entrá a <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>, creá una key y pegala acá. Queda solo en este dispositivo.</p>
+    <p>El motor de reglas ya te da toda la corrección sin esto. Con una API key gratis de Google Gemini sumás un análisis cualitativo más rico en la devolución final.</p>
+    <div class="ai-state off" id="ai-state">IA desactivada</div>
+    <p><b>Key gratis:</b> <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> → creá una key → pegala acá. Queda solo en este dispositivo.</p>
     <input type="password" id="ai-key" placeholder="Pegá tu API key de Gemini" autocomplete="off">
-    <div class="controls">
-      <button class="btn" id="ai-save">💾 Guardar</button>
-      <button class="btn ghost" id="ai-clear">🗑️ Borrar</button>
-    </div>
-    <p class="hint" style="margin-top:10px;">🔒 Nota: un archivo HTML no puede leer variables de entorno del sistema (como ANTHROPIC_API_KEY). Por eso la key se pega acá y se guarda en tu navegador. El motor de reglas nunca envía nada a internet.</p>
+    <div class="controls"><button class="btn" id="ai-save">💾 Guardar</button><button class="btn ghost" id="ai-clear">🗑️ Borrar</button></div>
+    <p class="hint" style="margin-top:10px;">🔒 Un archivo HTML no puede leer variables de entorno del sistema; por eso la key se pega acá. El motor de reglas y la detección de mirada nunca envían tu info.</p>
   </div>
 </div>
 
 <script>
 "use strict";
 
-/* ===================== BANCO DE PREGUNTAS ===================== */
-// cat: 'personal' | 'ingles' | 'situacional'   type: pitch|why|know|beh|sit|avail|closing
-const GREETING = "¡Hola! Bienvenido a esta entrevista para Tripulante de Cabina en JetSmart. Soy el reclutador y vamos a hacer una simulación, respondé con naturalidad como si fuera real. Cuando termine cada pregunta, se va a activar tu micrófono. Empecemos.";
-const CLOSING_LINE = "Muy bien, con esto terminamos la entrevista. Dame un momento que preparo tu devolución. Muchas gracias por tu tiempo.";
+/* ===== BANCO ===== */
+const GREETING = "¡Hola! ¿Qué tal? Bienvenido a esta entrevista para Tripulante de Cabina en JetSmart. Soy Martín, del equipo de selección. Poné­te cómodo.";
+const SMALLTALK_ = {
+  normal:"Antes de arrancar, quiero que estés tranquilo. Sé que las entrevistas ponen nerviosos, pero acá quiero conocerte de verdad, así que sé vos mismo. Una sola cosa: mirame a los ojos cuando me respondas, ¿dale? Bien, empecemos.",
+  pressure:"Te aviso: voy a ser bastante directo y quizás te repregunte, así que preparate. En el aire vas a tener que mantener la calma bajo presión, y esto es un poco de eso. Mirame a los ojos y respondé con seguridad. Arranquemos."
+};
+const CLOSING_LINE = "Muy bien, con esto terminamos. Dame un segundo que preparo tu devolución. Te agradezco mucho el tiempo y la buena predisposición.";
 
 const POOL = [
-  {pre:"Para arrancar y conocernos un poco.", q:"Contame brevemente sobre vos: ¿quién sos y por qué te presentaste a esta búsqueda?", lang:"es", type:"pitch", cat:"personal"},
-  {pre:"Gracias.", q:"¿Por qué querés trabajar en JetSmart y por qué como tripulante de cabina?", lang:"es", type:"why", cat:"personal"},
+  {pre:"Para arrancar y conocernos.", q:"Contame brevemente sobre vos: ¿quién sos y por qué te presentaste a esta búsqueda?", lang:"es", type:"pitch", cat:"personal"},
+  {pre:"Gracias por contarme.", q:"¿Por qué querés trabajar en JetSmart y por qué como tripulante de cabina?", lang:"es", type:"why", cat:"personal"},
   {pre:"Bien.", q:"¿Qué sabés sobre JetSmart? Contame lo que conozcas de la empresa.", lang:"es", type:"know", cat:"personal"},
-  {pre:"Vamos a un ejemplo concreto.", q:"Contame una situación en la que tuviste que atender a un cliente o una persona muy difícil. ¿Qué hiciste?", lang:"es", type:"beh", cat:"personal"},
+  {pre:"Vamos a un ejemplo concreto de tu experiencia.", q:"Contame una situación en la que tuviste que atender a un cliente o una persona muy difícil. ¿Qué hiciste?", lang:"es", type:"beh", cat:"personal"},
   {pre:"", q:"Contame de un momento en el que trabajaste bajo mucha presión. ¿Cómo lo manejaste?", lang:"es", type:"beh", cat:"personal"},
   {pre:"", q:"¿Cómo manejás un conflicto con un compañero de equipo? Dame un ejemplo real.", lang:"es", type:"beh", cat:"personal"},
-  {pre:"Ahora una situación de vuelo.", q:"Durante el vuelo, un pasajero se niega a cumplir una instrucción de seguridad y se pone agresivo. ¿Cómo actuás?", lang:"es", type:"sit", cat:"situacional"},
-  {pre:"Now let's switch to English for a bit.", q:"Tell me a little about yourself and why you want to join JetSmart.", lang:"en", type:"pitch", cat:"ingles"},
-  {pre:"", q:"Describe a time you gave excellent customer service.", lang:"en", type:"beh", cat:"ingles"},
+  {pre:"Ahora una situación de vuelo, imaginate que ya sos tripulante.", q:"Durante el vuelo, un pasajero se niega a cumplir una instrucción de seguridad y se pone agresivo. ¿Cómo actuás?", lang:"es", type:"sit", cat:"situacional"},
+  {pre:"Perfecto. Ahora cambiemos al inglés un rato, como en la entrevista real.", q:"Tell me a little about yourself and why you want to join JetSmart.", lang:"en", type:"pitch", cat:"ingles"},
+  {pre:"Good. Let's continue in English.", q:"Describe a time you gave excellent customer service.", lang:"en", type:"beh", cat:"ingles"},
   {pre:"One more in English.", q:"How do you handle stress and pressure at work?", lang:"en", type:"beh", cat:"ingles"},
-  {pre:"Volvemos al español. Te planteo un escenario de equipo.", q:"El vuelo aborta el despegue y hay pasajeros en pánico. Como parte de la tripulación, ¿cómo actuarías vos y qué rol tomarías en el equipo?", lang:"es", type:"sit", cat:"situacional"},
+  {pre:"Volvemos al español. Te planteo un escenario de equipo.", q:"El vuelo aborta el despegue y hay pasajeros en pánico. Como parte de la tripulación, ¿cómo actuás y qué rol tomás en el equipo?", lang:"es", type:"sit", cat:"situacional"},
   {pre:"", q:"Este puesto implica turnos rotativos, madrugadas, viajar y a veces cambiar de base. ¿Tenés disponibilidad y cómo lo manejarías?", lang:"es", type:"avail", cat:"personal"},
   {pre:"Para ir cerrando.", q:"¿Por qué deberíamos elegirte a vos entre todos los candidatos?", lang:"es", type:"why", cat:"personal"},
-  {pre:"Y por último.", q:"¿Tenés alguna pregunta para nosotros?", lang:"es", type:"closing", cat:"personal"}
+  {pre:"Y una última.", q:"¿Tenés alguna pregunta para nosotros?", lang:"es", type:"closing", cat:"personal"}
 ];
-const FULL_IDX  = [0,1,2,3,4,5,6,7,8,9,10,11,12,13];
-const SHORT_IDX = [0,1,3,6,7,12];
+const FULL_IDX=[0,1,2,3,4,5,6,7,8,9,10,11,12,13];
+const SHORT_IDX=[0,1,3,6,7,12];
+const IDEAL={beh:[45,90],sit:[40,85],why:[30,75],know:[25,60],avail:[25,60],pitch:[30,60],closing:[8,40]};
 
-const IDEAL = { beh:[45,90], sit:[40,85], why:[30,75], know:[25,60], avail:[25,60], pitch:[30,60], closing:[8,40] };
-
-/* ===================== COUNTDOWN ===================== */
-const TARGET = new Date("2026-09-01T13:00:00-03:00").getTime();
-function tickCd(){
-  let d=TARGET-Date.now(); const el=document.getElementById("cd");
-  if(d<=0){ el.textContent="¡es hoy! 🍀"; return; }
-  const dd=Math.floor(d/86400000); d-=dd*86400000;
-  const hh=Math.floor(d/3600000); d-=hh*3600000;
-  const mm=Math.floor(d/60000);
-  el.textContent = dd>0 ? (dd+"d "+hh+"h") : (hh+"h "+mm+"m");
-}
-setInterval(tickCd,30000); tickCd();
-
-/* ===================== STORAGE ===================== */
-const KEY="jetsmart_sim_v1";
-let store={history:[], aiKey:"", opts:{cam:false,auto:true,silence:true,tts:true,mode:"full"}};
-try{ const r=localStorage.getItem(KEY); if(r){ const p=JSON.parse(r); store.history=p.history||[]; store.aiKey=p.aiKey||""; store.opts=Object.assign(store.opts,p.opts||{}); } }catch(e){}
-function persist(){ try{ localStorage.setItem(KEY, JSON.stringify(store)); }catch(e){} }
-
-/* ===================== HELPERS ===================== */
-function fmt(s){ s=Math.max(0,Math.round(s)); const m=Math.floor(s/60),x=s%60; return m+":"+String(x).padStart(2,"0"); }
-function esc(s){ return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
-const $=id=>document.getElementById(id);
-
-/* ===================== MOTOR DE FEEDBACK (REGLAS) ===================== */
-const FILLERS = { es:["eh","este","o sea","como que","digamos","tipo","viste","nada","bueno","mmm"],
-                  en:["um","uh","like","you know","basically","actually","kind of","i mean"] };
-function analyze(text, secs, step){
-  const isES = step.lang!=="en";
-  text=(text||"").trim();
-  const words = text? text.split(/\s+/).filter(Boolean).length : 0;
-  const lower=" "+text.toLowerCase().replace(/\s+/g," ")+" ";
-  const wpm = secs>0? Math.round(words/(secs/60)) : 0;
-  // muletillas
-  const fl = FILLERS[isES?"es":"en"];
-  const fdetail={}; let fillers=0;
-  fl.forEach(f=>{ const c=lower.split(" "+f+" ").length-1; if(c>0){ fdetail[f]=c; fillers+=c; } });
-  const fillersTop = Object.keys(fdetail).sort((a,b)=>fdetail[b]-fdetail[a]).slice(0,3).map(f=>'"'+f+'" ×'+fdetail[f]);
-  const has=arr=>arr.some(k=>lower.includes(k));
-  const good=[],missing=[],tips=[];
-
-  // duración
-  const [imin,imax]=IDEAL[step.type]||[30,75];
-  let durV="justa", durCls="g";
-  if(secs>0){ if(secs<imin*0.75){durV="corta";durCls="r";} else if(secs>imax*1.3){durV="larga";durCls="y";} }
-  else { durV="—"; durCls=""; }
-  // ritmo
-  let paceV="—", paceCls="";
-  if(secs>0 && words>=8){ if(wpm>175){paceV="rápido";paceCls="y";} else if(wpm<100){paceV="lento";paceCls="y";} else {paceV="bien";paceCls="g";} }
-
-  let star=null, score=0;
-  const behLike = (step.type==="beh"||step.type==="sit");
-  if(behLike){
-    const S=isES?["cuando","una vez","recuerdo","había","habia","estaba","trabajaba","pasó","paso","situación","situacion","en mi trabajo","teníamos","teniamos","un pasajero","un cliente"]:["when","once","time","working","there was","situation","at my job","we had","i was","a passenger","a customer"];
-    const T=isES?["tenía que","tenia que","mi tarea","mi objetivo","responsable","debía","debia","necesitaba","me tocó","me toco","mi rol","tenía como","hay que","el objetivo"]:["i had to","my task","my job was","responsible","goal","needed to","my role","in charge","the objective"];
-    const A=isES?["hice","decidí","decidi","hablé","hable","resolví","resolvi","propuse","organicé","organice","tomé","tome","ayudé","ayude","expliqué","explique","me acerqué","me acerque","calmé","calme","ofrecí","ofreci","prioricé","priorice","avisé","avise"]:["i did","i decided","i talked","i spoke","i solved","i offered","i organized","i took","i helped","i explained","i calmed","i handled","i prioritized","i informed"];
-    const R=isES?["resultado","logré","logre","conseguí","consegui","al final","terminó","termino","aprendí","aprendi","gracias a","mejoró","mejoro","quedó","quedo","pude","solucion","felicit","el cliente quedó","se calmó","se calmo"]:["result","i achieved","in the end","learned","thanks to","improved","managed to","solved it","the customer was","ended up","calmed down"];
-    star={s:has(S),t:has(T),a:has(A),r:has(R)};
-    const nm=isES?{s:"la Situación",t:"la Tarea/rol",a:"la Acción",r:"el Resultado"}:{s:"the Situation",t:"the Task",a:"the Action",r:"the Result"};
-    ["s","t","a","r"].forEach(k=>{ if(star[k]) good.push((isES?"Incluiste ":"You included ")+nm[k]); });
-    if(!star.s) tips.push(isES?"Arrancá ubicando la Situación: dónde y cuándo pasó.":"Start by setting the Situation: where and when.");
-    if(!star.a) tips.push(isES?"Contá la Acción concreta que tomaste VOS, es lo que más pesa.":"Describe the concrete Action YOU took — it matters most.");
-    else if(!star.r) tips.push(isES?"Cerrá con el Resultado: cómo terminó y qué aprendiste (mejor con un dato).":"Close with the Result: how it ended and what you learned.");
-    if(!star.t && star.s && star.a) tips.push(isES?"Aclarás brevemente cuál era tu Tarea/responsabilidad.":"Briefly clarify your Task/responsibility.");
-    const present=(star.s?1:0)+(star.t?1:0)+(star.a?1:0)+(star.r?1:0);
-    const lenS = words>=70?16:words>=40?11:words>=20?6:3;
-    const fillS = fillers<=1?12:fillers<=3?8:fillers<=6?4:1;
-    const durS = durV==="justa"?12:durV==="—"?7:6;
-    score = present*15 + lenS + fillS + durS; // /100
-  } else {
-    const buckets = CONCEPTS[isES?"es":"en"][step.type]||[];
-    let cov=0;
-    buckets.forEach(b=>{ if(has(b.kw)){cov++; good.push((isES?"Mencionaste ":"You mentioned ")+b.label);} else if(step.type!=="closing"){ tips.push((isES?"Sumá ":"Add ")+b.label+"."); } });
-    const covR = buckets.length? cov/buckets.length : .6;
-    const lenS = words>=55?26:words>=28?18:words>=14?10:5;
-    const fillS = fillers<=1?12:fillers<=3?8:fillers<=6?4:1;
-    const durS = durV==="justa"?12:durV==="—"?8:7;
-    score = Math.round(lenS + covR*50 + fillS + durS);
-    if(step.type==="know" && cov<2) tips.push(isES?"Repasá: low-cost, mercado (Argentina/Chile/Perú), flota A320 y seguridad.":"Review: low-cost, market, A320 fleet, safety.");
-    if(step.type==="closing"){ score=Math.max(score,60); tips.length=0; good.length=0;
-      if(has(isES?["pregunt","cómo es","como es","capacit","crecer","equipo","siguiente","proceso","base","horario"]:["question","how is","training","grow","team","next","process","base"])) good.push(isES?"Bien: mostraste interés haciendo una pregunta.":"Good: you showed interest by asking.");
-      else tips.push(isES?"Siempre tené 1-2 preguntas listas (capacitación, cómo sigue el proceso, un día típico). Muestra interés.":"Always have 1-2 questions ready — it shows interest.");
-    }
-  }
-  // ritmo/muletillas tips
-  if(paceV==="rápido") tips.push(isES?"Bajá un poco el ritmo y respirá, se te va a entender mejor.":"Slow down a bit and breathe.");
-  else if(paceV==="lento") tips.push(isES?"Soltate un poco más, con más energía y fluidez.":"Loosen up, a bit more energy and flow.");
-  if(fillers>=4) tips.push(isES?("Cuidá las muletillas ("+fillersTop.join(", ")+"). Una pausa en silencio queda mejor."):("Watch fillers ("+fillersTop.join(", ")+"). A silent pause is better."));
-  if(durV==="corta") tips.push(isES?"Quedó corta: desarrollá más con un ejemplo concreto.":"Too short: develop more with a concrete example.");
-  else if(durV==="larga") tips.push(isES?"Quedó larga: andá más al grano, editá lo accesorio.":"Too long: get to the point.");
-
-  score=Math.max(0,Math.min(100,Math.round(score)));
-  if(words<3) { score=0; }
-  return {score,words,secs:Math.round(secs),wpm,fillers,fillersTop,durV,durCls,paceV,paceCls,star,
-          good:good.slice(0,4), tips:tips.slice(0,2), empty:words<3};
-}
-const CONCEPTS = {
+const FOLLOWUPS={
+  es:["Dame un ejemplo puntual de qué hiciste VOS ahí, no el equipo.","¿Y cuál fue el resultado final de eso?","¿Qué aprendiste de esa experiencia?","Profundizá un poco más en eso, ¿por qué reaccionaste así?"],
+  en:["Give me a specific example of what YOU did there.","And what was the final result of that?","What did you learn from that?"]
+};
+const REACT={
   es:{
-    know:[
-      {label:"el modelo low-cost",kw:["low cost","low-cost","bajo costo","bajos","económic","economic","barat","precio","accesible","democratiz"]},
-      {label:"su mercado/rutas",kw:["argentina","chile","perú","peru","región","region","rutas","destinos","mercado","latinoam"]},
-      {label:"la flota Airbus A320",kw:["airbus","a320","flota","aviones nuevos","moderna","moderno"]},
-      {label:"sus valores/seguridad",kw:["seguridad","valores","eficien","servicio","cultura"]},
-      {label:"su crecimiento",kw:["crecimiento","crece","creciendo","expansión","expansion","joven","nueva"]}
-    ],
-    why:[
-      {label:"tu motivación por el servicio/gente",kw:["servicio","atención","atencion","gente","personas","cliente","ayudar","trato","humano"]},
-      {label:"un vínculo concreto con JetSmart/el puesto",kw:["jetsmart","empresa","crecer","crecimiento","valores","low cost","aerolínea","aerolinea","tripulante","proyecto"]},
-      {label:"algo tuyo real (pasión/experiencia)",kw:["me gusta","siempre","pasión","pasion","disfruto","experiencia","sueño","sueno","desde","porque me"]}
-    ],
-    avail:[
-      {label:"disponibilidad total (turnos/madrugadas)",kw:["disponib","turnos","rotativo","madrugada","horario","noche","fin de semana","cualquier"]},
-      {label:"apertura a viajar/mudarte",kw:["viajar","mudar","base","ciudad","reubicar","trasladar","donde sea"]},
-      {label:"cómo te organizás/adaptás",kw:["organiz","adapto","adaptar","planific","acostumbrad","flexible","sin problema","manejo"]}
-    ],
-    pitch:[
-      {label:"quién sos + un rasgo fuerte",kw:["soy","persona","responsable","proactiv","sociable","organizad","adaptable","años"]},
-      {label:"tu orientación al servicio/gente",kw:["servicio","gente","personas","cliente","trato","equipo","atención","atencion"]},
-      {label:"por qué encajás con el puesto",kw:["tripulante","volar","aerolínea","aerolinea","seguridad","viajar","puesto","cabina"]}
-    ],
+    hi:["Muy bien, me gusta esa respuesta.","Perfecto, se nota que lo tenés claro.","Buenísimo, esa actitud es la que buscamos.","Bien, muy completo. Sigamos."],
+    mid:["Está bien, aunque me hubiese gustado un poco más de detalle.","Ajá, entiendo. Tomo nota, vamos a la siguiente.","Bien, aceptable. Puede mejorar, pero vas bien.","Ok, seguimos."],
+    lo:["Mmm, me quedé con ganas de un ejemplo más concreto.","Entiendo, pero necesito que seas más específico la próxima.","Ok… tranquilo, respirá y seguimos.","Tomo nota. Pensá bien la que viene."],
+    empty:["No te llegué a escuchar, ¿estás ahí? No importa, sigamos.","Parece que se cortó, no pasa nada, seguimos."]
+  },
+  en:{
+    hi:["Great answer, I like that.","Perfect, that's the attitude we look for.","Very good, well structured."],
+    mid:["That's okay, though I'd like a bit more detail.","Alright, noted. Let's move on.","Good enough, keep it up."],
+    lo:["Hmm, I wanted a more concrete example there.","I need you to be more specific next time.","Okay… relax, let's continue."],
+    empty:["I couldn't hear you, let's move on.","Seems it cut off, no worries."]
+  }
+};
+const EYE_CALLOUT={
+  es:[" Y algo importante: tratá de sostenerme la mirada, te noté los ojos un poco esquivos."," Una cosa más: mirame a los ojos, que eso transmite seguridad."],
+  en:[" Also, try to keep eye contact with me, it shows confidence."]
+};
+
+/* ===== COUNTDOWN ===== */
+const TARGET=new Date("2026-09-01T13:00:00-03:00").getTime();
+function tickCd(){ let d=TARGET-Date.now(); const el=$("cd"); if(!el)return;
+  if(d<=0){el.textContent="¡es hoy! 🍀";return;}
+  const dd=Math.floor(d/86400000); d-=dd*86400000; const hh=Math.floor(d/3600000); d-=hh*3600000; const mm=Math.floor(d/60000);
+  el.textContent = dd>0?(dd+"d "+hh+"h"):(hh+"h "+mm+"m"); }
+
+/* ===== STORAGE ===== */
+const KEY="jetsmart_sim_v2";
+let store={history:[],aiKey:"",opts:{cam:true,pressure:false,auto:true,silence:true,mode:"full"}};
+try{const r=localStorage.getItem(KEY);if(r){const p=JSON.parse(r);store.history=p.history||[];store.aiKey=p.aiKey||"";store.opts=Object.assign(store.opts,p.opts||{});}}catch(e){}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){}}
+
+/* ===== HELPERS ===== */
+function $(id){return document.getElementById(id);}
+function fmt(s){s=Math.max(0,Math.round(s));const m=Math.floor(s/60),x=s%60;return m+":"+String(x).padStart(2,"0");}
+function esc(s){return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
+function pick(a){return a[Math.floor(Math.random()*a.length)];}
+
+/* ===== MOTOR DE FEEDBACK ===== */
+const FILLERS={es:["eh","este","o sea","como que","digamos","tipo","viste","nada","bueno","mmm"],en:["um","uh","like","you know","basically","actually","kind of","i mean"]};
+const CONCEPTS={
+  es:{
+    know:[{label:"el modelo low-cost",kw:["low cost","low-cost","bajo costo","bajos","económic","economic","barat","precio","accesible","democratiz"]},{label:"su mercado/rutas",kw:["argentina","chile","perú","peru","región","region","rutas","destinos","mercado","latinoam"]},{label:"la flota Airbus A320",kw:["airbus","a320","flota","aviones nuevos","moderna","moderno"]},{label:"sus valores/seguridad",kw:["seguridad","valores","eficien","servicio","cultura"]},{label:"su crecimiento",kw:["crecimiento","crece","creciendo","expansión","expansion","joven","nueva"]}],
+    why:[{label:"tu motivación por el servicio/gente",kw:["servicio","atención","atencion","gente","personas","cliente","ayudar","trato","humano"]},{label:"un vínculo concreto con JetSmart/el puesto",kw:["jetsmart","empresa","crecer","crecimiento","valores","low cost","aerolínea","aerolinea","tripulante","proyecto"]},{label:"algo tuyo real (pasión/experiencia)",kw:["me gusta","siempre","pasión","pasion","disfruto","experiencia","sueño","sueno","desde","porque me"]}],
+    avail:[{label:"disponibilidad total (turnos/madrugadas)",kw:["disponib","turnos","rotativo","madrugada","horario","noche","fin de semana","cualquier"]},{label:"apertura a viajar/mudarte",kw:["viajar","mudar","base","ciudad","reubicar","trasladar","donde sea"]},{label:"cómo te organizás/adaptás",kw:["organiz","adapto","adaptar","planific","acostumbrad","flexible","sin problema","manejo"]}],
+    pitch:[{label:"quién sos + un rasgo fuerte",kw:["soy","persona","responsable","proactiv","sociable","organizad","adaptable","años"]},{label:"tu orientación al servicio/gente",kw:["servicio","gente","personas","cliente","trato","equipo","atención","atencion"]},{label:"por qué encajás con el puesto",kw:["tripulante","volar","aerolínea","aerolinea","seguridad","viajar","puesto","cabina"]}],
     closing:[]
   },
   en:{
@@ -493,448 +433,394 @@ const CONCEPTS = {
     closing:[]
   }
 };
-
-/* ===================== SPEECH: SYNTHESIS ===================== */
-const hasTTS = "speechSynthesis" in window;
-let voices=[];
-function loadVoices(){ try{ voices=speechSynthesis.getVoices()||[]; }catch(e){ voices=[]; } }
-if(hasTTS){ loadVoices(); speechSynthesis.onvoiceschanged=loadVoices; }
-function pickVoice(lang){
-  const pref = lang==="en"?["en-us","en-gb","en"]:["es-ar","es-419","es-mx","es-us","es-es","es"];
-  for(const p of pref){ const v=voices.find(v=>v.lang&&v.lang.toLowerCase().startsWith(p)); if(v) return v; }
-  return null;
+function analyze(text,secs,step){
+  const isES=step.lang!=="en"; text=(text||"").trim();
+  const words=text?text.split(/\s+/).filter(Boolean).length:0;
+  const lower=" "+text.toLowerCase().replace(/\s+/g," ")+" ";
+  const wpm=secs>0?Math.round(words/(secs/60)):0;
+  const fl=FILLERS[isES?"es":"en"]; const fd={}; let fillers=0;
+  fl.forEach(f=>{const c=lower.split(" "+f+" ").length-1; if(c>0){fd[f]=c;fillers+=c;}});
+  const fillersTop=Object.keys(fd).sort((a,b)=>fd[b]-fd[a]).slice(0,3).map(f=>'"'+f+'" ×'+fd[f]);
+  const has=a=>a.some(k=>lower.includes(k));
+  const good=[],tips=[];
+  const [imin,imax]=IDEAL[step.type]||[30,75];
+  let durV="justa",durCls="g"; if(secs>0){if(secs<imin*0.75){durV="corta";durCls="r";}else if(secs>imax*1.3){durV="larga";durCls="y";}}else{durV="—";durCls="";}
+  let paceV="—",paceCls=""; if(secs>0&&words>=8){if(wpm>175){paceV="rápido";paceCls="y";}else if(wpm<100){paceV="lento";paceCls="y";}else{paceV="bien";paceCls="g";}}
+  let star=null,score=0; const behLike=(step.type==="beh"||step.type==="sit");
+  if(behLike){
+    const S=isES?["cuando","una vez","recuerdo","había","habia","estaba","trabajaba","pasó","paso","situación","situacion","en mi trabajo","teníamos","teniamos","un pasajero","un cliente"]:["when","once","time","working","there was","situation","at my job","we had","i was","a passenger","a customer"];
+    const T=isES?["tenía que","tenia que","mi tarea","mi objetivo","responsable","debía","debia","necesitaba","me tocó","me toco","mi rol","tenía como","hay que","el objetivo"]:["i had to","my task","my job was","responsible","goal","needed to","my role","in charge","the objective"];
+    const A=isES?["hice","decidí","decidi","hablé","hable","resolví","resolvi","propuse","organicé","organice","tomé","tome","ayudé","ayude","expliqué","explique","me acerqué","me acerque","calmé","calme","ofrecí","ofreci","prioricé","priorice","avisé","avise"]:["i did","i decided","i talked","i spoke","i solved","i offered","i organized","i took","i helped","i explained","i calmed","i handled","i prioritized","i informed"];
+    const R=isES?["resultado","logré","logre","conseguí","consegui","al final","terminó","termino","aprendí","aprendi","gracias a","mejoró","mejoro","quedó","quedo","pude","solucion","felicit","se calmó","se calmo"]:["result","i achieved","in the end","learned","thanks to","improved","managed to","solved it","the customer was","ended up","calmed down"];
+    star={s:has(S),t:has(T),a:has(A),r:has(R)};
+    const nm=isES?{s:"la Situación",t:"la Tarea/rol",a:"la Acción",r:"el Resultado"}:{s:"the Situation",t:"the Task",a:"the Action",r:"the Result"};
+    ["s","t","a","r"].forEach(k=>{if(star[k])good.push((isES?"Incluiste ":"You included ")+nm[k]);});
+    if(!star.s)tips.push(isES?"Arrancá ubicando la Situación: dónde y cuándo pasó.":"Set the Situation first: where and when.");
+    if(!star.a)tips.push(isES?"Contá la Acción concreta que tomaste VOS, es lo que más pesa.":"Describe the concrete Action YOU took.");
+    else if(!star.r)tips.push(isES?"Cerrá con el Resultado: cómo terminó y qué aprendiste.":"Close with the Result.");
+    const present=(star.s?1:0)+(star.t?1:0)+(star.a?1:0)+(star.r?1:0);
+    const lenS=words>=70?16:words>=40?11:words>=20?6:3, fillS=fillers<=1?12:fillers<=3?8:fillers<=6?4:1, durS=durV==="justa"?12:durV==="—"?7:6;
+    score=present*15+lenS+fillS+durS;
+  } else {
+    const buckets=CONCEPTS[isES?"es":"en"][step.type]||[]; let cov=0;
+    buckets.forEach(b=>{if(has(b.kw)){cov++;good.push((isES?"Mencionaste ":"You mentioned ")+b.label);}else if(step.type!=="closing")tips.push((isES?"Sumá ":"Add ")+b.label+".");});
+    const covR=buckets.length?cov/buckets.length:.6, lenS=words>=55?26:words>=28?18:words>=14?10:5, fillS=fillers<=1?12:fillers<=3?8:fillers<=6?4:1, durS=durV==="justa"?12:durV==="—"?8:7;
+    score=Math.round(lenS+covR*50+fillS+durS);
+    if(step.type==="know"&&cov<2)tips.push(isES?"Repasá: low-cost, mercado, flota A320 y seguridad.":"Review: low-cost, market, A320 fleet, safety.");
+    if(step.type==="closing"){score=Math.max(score,60);tips.length=0;good.length=0;
+      if(has(isES?["pregunt","cómo es","como es","capacit","crecer","equipo","proceso","base","horario"]:["question","how is","training","grow","team","process","base"]))good.push(isES?"Bien: mostraste interés con una pregunta.":"Good: you showed interest.");
+      else tips.push(isES?"Tené siempre 1-2 preguntas listas (capacitación, cómo sigue el proceso). Muestra interés.":"Always have 1-2 questions ready.");}
+  }
+  if(paceV==="rápido")tips.push(isES?"Bajá el ritmo y respirá, se te va a entender mejor.":"Slow down and breathe.");
+  else if(paceV==="lento")tips.push(isES?"Soltate un poco más, con energía.":"Loosen up, more energy.");
+  if(fillers>=4)tips.push(isES?("Cuidá las muletillas ("+fillersTop.join(", ")+")."):("Watch fillers ("+fillersTop.join(", ")+")."));
+  if(durV==="corta")tips.push(isES?"Quedó corta: desarrollá más con un ejemplo.":"Too short.");
+  else if(durV==="larga")tips.push(isES?"Quedó larga: andá más al grano.":"Too long.");
+  score=Math.max(0,Math.min(100,Math.round(score))); if(words<3)score=0;
+  return {score,words,secs:Math.round(secs),wpm,fillers,fillersTop,durV,durCls,paceV,paceCls,star,good:good.slice(0,4),tips:tips.slice(0,2),empty:words<3};
 }
+
+/* ===== TTS ===== */
+const hasTTS="speechSynthesis" in window; let voices=[];
+function loadVoices(){try{voices=speechSynthesis.getVoices()||[];}catch(e){voices=[];}}
+if(hasTTS){loadVoices();speechSynthesis.onvoiceschanged=loadVoices;}
+function pickVoice(lang){const pref=lang==="en"?["en-us","en-gb","en"]:["es-ar","es-419","es-mx","es-us","es-es","es"];for(const p of pref){const v=voices.find(v=>v.lang&&v.lang.toLowerCase().startsWith(p));if(v)return v;}return null;}
 let speakResolve=null;
-function setSpeaking(on){ $("stage").classList.toggle("speaking", on); }
-function speak(text, lang){
-  return new Promise(resolve=>{
-    if(!hasTTS || !SIM.opts.tts){ resolve(); return; }
-    try{ speechSynthesis.cancel(); }catch(e){}
-    const u=new SpeechSynthesisUtterance(text);
-    const v=pickVoice(lang); if(v) u.voice=v;
-    u.lang = v?v.lang:(lang==="en"?"en-US":"es-ES");
-    u.rate = lang==="en"?0.95:1.0; u.pitch=1;
-    let done=false;
-    const finish=()=>{ if(done)return; done=true; setSpeaking(false); if(speakResolve===resolve)speakResolve=null; resolve(); };
-    u.onend=finish; u.onerror=finish;
-    speakResolve=resolve;
-    setSpeaking(true);
-    const est = 1500 + text.length*72;
-    setTimeout(()=>{ if(!done) finish(); }, est+4000);
-    try{ speechSynthesis.speak(u); }catch(e){ finish(); }
-  });
-}
-function skipSpeak(){ try{ speechSynthesis.cancel(); }catch(e){} if(speakResolve){ const r=speakResolve; speakResolve=null; setSpeaking(false); r(); } }
+function setSpeaking(on){$("stage").classList.toggle("speaking",on);}
+function speak(text,lang){return new Promise(resolve=>{
+  if(!hasTTS){resolve();return;}
+  try{speechSynthesis.cancel();}catch(e){}
+  const u=new SpeechSynthesisUtterance(text); const v=pickVoice(lang); if(v)u.voice=v;
+  u.lang=v?v.lang:(lang==="en"?"en-US":"es-ES"); u.rate=lang==="en"?0.95:1.0; u.pitch=1;
+  let done=false; const finish=()=>{if(done)return;done=true;setSpeaking(false);if(speakResolve===resolve)speakResolve=null;resolve();};
+  u.onend=finish; u.onerror=finish; speakResolve=resolve; setSpeaking(true);
+  setTimeout(()=>{if(!done)finish();},1500+text.length*72+4000);
+  try{speechSynthesis.speak(u);}catch(e){finish();}
+});}
+function skipSpeak(){try{speechSynthesis.cancel();}catch(e){}if(speakResolve){const r=speakResolve;speakResolve=null;setSpeaking(false);r();}}
 
-/* ===================== SPEECH: RECOGNITION ===================== */
-const SR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
-const hasSR = !!SR;
-const hasGUM = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+/* ===== RECOGNITION ===== */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition||null;
+const hasSR=!!SR, hasGUM=!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia);
 
-/* ===================== SIMULACIÓN (estado) ===================== */
-const SIM = {
-  seq:[], idx:0, results:[], opts:store.opts,
-  camStream:null, camOn:false,
-  recog:null, listening:false, manualStop:false, startedSpeaking:false,
-  finalText:"", interimText:"", answerStart:0, lastActivity:0, tick:null,
-  fallbackStart:0
+/* ===== EYE TRACKER (MediaPipe FaceLandmarker) ===== */
+const Eye={
+  available:false, loading:false, fl:null, raf:null, running:false, lastT:0, lastContact:true,
+  scoring:false, ans:{frames:0,contact:0,present:0},
+  async init(){
+    if(this.fl||this.loading) return this.available;
+    this.loading=true;
+    try{
+      const vision=await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.12");
+      const fileset=await vision.FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.12/wasm");
+      const mk=async(delegate)=>vision.FaceLandmarker.createFromOptions(fileset,{
+        baseOptions:{modelAssetPath:"https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",delegate},
+        outputFaceBlendshapes:true,runningMode:"VIDEO",numFaces:1});
+      try{this.fl=await mk("GPU");}catch(e){this.fl=await mk("CPU");}
+      this.available=true;
+    }catch(e){ this.available=false; }
+    this.loading=false; return this.available;
+  },
+  start(){ if(!this.available)return; this.running=true; this.lastContact=true; this._loop(); },
+  stop(){ this.running=false; if(this.raf)cancelAnimationFrame(this.raf); this.raf=null; },
+  startAnswer(){ this.ans={frames:0,contact:0,present:0}; this.scoring=true; },
+  endAnswer(){ this.scoring=false; const a=this.ans; if(a.frames<4)return null; return {pct:Math.round(a.contact/a.frames*100), present:Math.round(a.present/a.frames*100)}; },
+  _gaze(bs){ const g=n=>{const o=bs.find(x=>x.categoryName===n);return o?o.score:0;};
+    const h=Math.max(g("eyeLookOutLeft"),g("eyeLookInLeft"),g("eyeLookOutRight"),g("eyeLookInRight"));
+    const v=Math.max(g("eyeLookUpLeft"),g("eyeLookDownLeft"),g("eyeLookUpRight"),g("eyeLookDownRight"));
+    const blink=Math.max(g("eyeBlinkLeft"),g("eyeBlinkRight"));
+    return {gaze:Math.max(h,v*0.9),blink}; },
+  _loop(){
+    if(!this.running)return;
+    this.raf=requestAnimationFrame(()=>this._loop());
+    const v=$("selfvideo"); const now=performance.now();
+    if(now-this.lastT<90) return; this.lastT=now;
+    if(!SIM.camOn||!v||v.readyState<2){ setEyeUI("none"); return; }
+    let has=false, contact=false;
+    try{
+      const res=this.fl.detectForVideo(v,now);
+      has=res.faceLandmarks&&res.faceLandmarks.length>0;
+      if(has){
+        const bs=(res.faceBlendshapes&&res.faceBlendshapes[0])?res.faceBlendshapes[0].categories:[];
+        const {gaze,blink}=this._gaze(bs);
+        contact = blink>0.5 ? this.lastContact : (gaze<0.5);
+        this.lastContact=contact;
+      }
+    }catch(e){}
+    setEyeUI(has?(contact?"ok":"bad"):"none");
+    if(this.scoring){ this.ans.frames++; if(has)this.ans.present++; if(has&&contact)this.ans.contact++; }
+  }
 };
+function setEyeUI(state){
+  const st=$("stage"), b=$("eyebadge"), t=$("eyebadge-txt");
+  st.classList.remove("eye-ok","eye-bad");
+  b.classList.remove("ok","bad","show");
+  if(!SIM.eyeActive)return;
+  b.classList.add("show");
+  if(state==="ok"){ st.classList.add("eye-ok"); b.classList.add("ok"); t.textContent="Buen contacto visual"; }
+  else if(state==="bad"){ st.classList.add("eye-bad"); b.classList.add("bad"); t.textContent="¡Mirá a los ojos!"; }
+  else { t.textContent="No te veo en cámara"; }
+}
+
+/* ===== SIM STATE ===== */
+const SIM={seq:[],idx:0,results:[],opts:store.opts,camStream:null,camOn:false,eyeActive:false,
+  recog:null,listening:false,manualStop:false,startedSpeaking:false,finalText:"",interimText:"",
+  answerStart:0,lastActivity:0,tick:null,fallbackStart:0};
 const SILENCE_MS=3000;
+function showScreen(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));$(id).classList.add("active");window.scrollTo(0,0);}
+function renderCaptions(){const el=$("cap-txt");const full=(SIM.finalText+SIM.interimText).trim();
+  if(!full){el.className="cap-txt empty";el.textContent=hasSR?"Escuchando… hablá con naturalidad":"Escribí tu respuesta abajo";return;}
+  el.className="cap-txt";el.innerHTML=esc(SIM.finalText)+'<span class="interim">'+esc(SIM.interimText)+'</span>';}
+function setControls(h,s){$("controls").innerHTML=h||"";$("subctrl").innerHTML=s||"";}
+function renderProgress(){const p=$("progress");p.innerHTML="";SIM.seq.forEach((s,i)=>{if(s.kind!=="ask")return;const el=document.createElement("i");if(i<SIM.idx)el.className="done";else if(i===SIM.idx)el.className="cur";p.appendChild(el);});}
+function bindCommon(){const q=$("c-quit");if(q)q.onclick=quitSim;const sk=$("c-skip");if(sk)sk.onclick=()=>{skipSpeak();stopListening();nextStep();};}
+function stepNumber(){let n=0;for(let i=0;i<=SIM.idx;i++){if(SIM.seq[i].kind==="ask")n++;}return n;}
+function questionCount(){return SIM.seq.filter(s=>s.kind==="ask").length;}
 
-function showScreen(id){ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active")); $(id).classList.add("active"); window.scrollTo(0,0); }
-
-/* ---- captions ---- */
-function renderCaptions(){
-  const el=$("cap-txt");
-  const full=(SIM.finalText+SIM.interimText).trim();
-  if(!full){ el.className="cap-txt empty"; el.textContent = hasSR? "Escuchando… hablá con naturalidad" : "Escribí tu respuesta abajo"; return; }
-  el.className="cap-txt";
-  el.innerHTML = esc(SIM.finalText) + '<span class="interim">'+esc(SIM.interimText)+'</span>';
-}
-
-/* ---- controls rendering ---- */
-function setControls(html, subHtml){ $("controls").innerHTML=html||""; $("subctrl").innerHTML=subHtml||""; }
-
-/* ---- progress dots ---- */
-function renderProgress(){
-  const p=$("progress"); p.innerHTML="";
-  SIM.seq.forEach((s,i)=>{ const el=document.createElement("i"); if(i<SIM.idx)el.className="done"; else if(i===SIM.idx)el.className="cur"; p.appendChild(el); });
-}
-
-/* ---- run a step ---- */
 async function runStep(){
   const step=SIM.seq[SIM.idx];
-  renderProgress();
-  $("fb-slot").innerHTML="";
-  $("typedfb").style.display="none";
-  SIM.finalText=""; SIM.interimText=""; renderCaptions();
-  $("cap-label").textContent = step.kind==="say" ? "💬 El reclutador dice" : "💬 Tu respuesta";
+  renderProgress(); $("fb-slot").innerHTML=""; $("typedfb").style.display="none";
+  SIM.finalText="";SIM.interimText="";renderCaptions();
+  $("cap-label").textContent=step.kind==="say"?"💬 El reclutador":"💬 Tu respuesta";
   $("listenbar").style.display="none";
-  // show text
-  $("qtext").textContent = step.kind==="say" ? step.spoken : step.q;
-  $("qmeta").innerHTML = step.kind==="say" ? "" : ("Pregunta "+stepNumber()+" de "+questionCount()+" <span class='flag'>"+(step.lang==="en"?"🇬🇧 English":"🇦🇷 Español")+"</span>");
-  // speaking controls
-  setControls(
-    '<button class="btn ghost" id="c-respond">▶ Responder ahora</button>' +
-    (step.kind==="say" ? '' : '<button class="btn ghost sm" id="c-skip">⏭ Saltar</button>'),
-    '<button id="c-quit">✕ Terminar simulación</button>'
-  );
-  bindCommon();
-  const cRespond=$("c-respond"); if(cRespond) cRespond.onclick=()=>{ skipSpeak(); };
-
-  // speak
-  await speak(step.spoken || step.q, step.lang);
-
-  if(step.kind==="say"){ SIM.idx++; return runStep(); }
-  // question → listen or manual
-  if(SIM.opts.auto){ beginListening(); }
-  else { setControls('<button class="btn ok" id="c-begin">🎙️ Responder</button><button class="btn ghost sm" id="c-skip">⏭ Saltar</button>','<button id="c-quit">✕ Terminar simulación</button>'); bindCommon(); $("c-begin").onclick=beginListening; }
+  $("qtext").textContent=step.kind==="say"?"":step.q;
+  $("qmeta").innerHTML=step.kind==="say"?"":("Pregunta "+stepNumber()+" de "+questionCount()+(step.isFollow?" · repregunta":"")+" <span class='flag'>"+(step.lang==="en"?"🇬🇧 English":"🇦🇷 Español")+"</span>");
+  setControls('<button class="btn ghost" id="c-respond">▶ Responder ahora</button>'+(step.kind==="say"?'':'<button class="btn ghost sm" id="c-skip">⏭ Saltar</button>'),'<button id="c-quit">✕ Terminar</button>');
+  bindCommon(); const cr=$("c-respond"); if(cr)cr.onclick=()=>skipSpeak();
+  await speak(step.spoken||step.q, step.lang);
+  if(step.kind==="say"){SIM.idx++;return runStep();}
+  if(SIM.opts.auto)beginListening();
+  else{setControls('<button class="btn ok" id="c-begin">🎙️ Responder</button><button class="btn ghost sm" id="c-skip">⏭ Saltar</button>','<button id="c-quit">✕ Terminar</button>');bindCommon();$("c-begin").onclick=beginListening;}
 }
-function stepNumber(){ let n=0; for(let i=0;i<=SIM.idx;i++){ if(SIM.seq[i].kind==="ask") n++; } return n; }
-function questionCount(){ return SIM.seq.filter(s=>s.kind==="ask").length; }
-
-function bindCommon(){
-  const q=$("c-quit"); if(q) q.onclick=quitSim;
-  const sk=$("c-skip"); if(sk) sk.onclick=()=>{ skipSpeak(); stopListening(); nextStep(); };
-}
-
-/* ---- listening ---- */
 function beginListening(){
   const step=SIM.seq[SIM.idx];
-  SIM.finalText=""; SIM.interimText=""; renderCaptions();
-  $("listenbar").style.display="flex";
-  updateListenPill(false);
-  setControls('<button class="btn ok" id="c-done">✅ Terminé de responder</button><button class="btn ghost sm" id="c-skip">⏭ Saltar</button>','<button id="c-quit">✕ Terminar simulación</button>');
-  bindCommon();
-  $("c-done").onclick=()=>finishAnswer();
-
-  if(!hasSR){
-    // fallback typed
-    $("typedfb").style.display="block";
-    $("cap-label").textContent="✍️ Escribí tu respuesta";
-    SIM.fallbackStart=Date.now();
-    $("typed-input").value=""; $("typed-input").focus();
-    updateListenPill(false, true);
-    return;
-  }
-  SIM.listening=true; SIM.manualStop=false; SIM.startedSpeaking=false;
-  SIM.answerStart=Date.now(); SIM.lastActivity=Date.now();
+  SIM.finalText="";SIM.interimText="";renderCaptions();
+  $("listenbar").style.display="flex"; $("listentxt").textContent="Escuchando…";
+  setControls('<button class="btn ok" id="c-done">✅ Terminé de responder</button><button class="btn ghost sm" id="c-skip">⏭ Saltar</button>','<button id="c-quit">✕ Terminar</button>');
+  bindCommon(); $("c-done").onclick=()=>finishAnswer();
+  if(SIM.eyeActive)Eye.startAnswer();
+  if(!hasSR){$("typedfb").style.display="block";$("cap-label").textContent="✍️ Escribí tu respuesta";SIM.fallbackStart=Date.now();$("typed-input").value="";$("typed-input").focus();return;}
+  SIM.listening=true;SIM.manualStop=false;SIM.startedSpeaking=false;SIM.answerStart=Date.now();SIM.lastActivity=Date.now();
   try{
-    SIM.recog=new SR(); SIM.recog.lang= step.lang==="en"?"en-US":"es-AR"; SIM.recog.continuous=true; SIM.recog.interimResults=true;
-    SIM.recog.onresult=ev=>{
-      let interim="";
-      for(let i=ev.resultIndex;i<ev.results.length;i++){ const r=ev.results[i]; if(r.isFinal) SIM.finalText+=r[0].transcript+" "; else interim+=r[0].transcript; }
-      SIM.interimText=interim;
-      const full=(SIM.finalText+interim).trim();
-      if(full){ SIM.lastActivity=Date.now(); SIM.startedSpeaking=true; updateListenPill(true); }
-      renderCaptions();
-    };
-    SIM.recog.onerror=ev=>{ if(ev.error==="not-allowed"||ev.error==="service-not-allowed"){ $("listentxt").textContent="🚫 Micrófono bloqueado"; } };
-    SIM.recog.onend=()=>{ if(SIM.listening&&!SIM.manualStop){ try{SIM.recog.start();}catch(e){} } };
+    SIM.recog=new SR();SIM.recog.lang=step.lang==="en"?"en-US":"es-AR";SIM.recog.continuous=true;SIM.recog.interimResults=true;
+    SIM.recog.onresult=ev=>{let interim="";for(let i=ev.resultIndex;i<ev.results.length;i++){const r=ev.results[i];if(r.isFinal)SIM.finalText+=r[0].transcript+" ";else interim+=r[0].transcript;}SIM.interimText=interim;const full=(SIM.finalText+interim).trim();if(full){SIM.lastActivity=Date.now();SIM.startedSpeaking=true;$("listentxt").textContent="Te escucho…";}renderCaptions();};
+    SIM.recog.onerror=ev=>{if(ev.error==="not-allowed"||ev.error==="service-not-allowed")$("listentxt").textContent="🚫 Micrófono bloqueado";};
+    SIM.recog.onend=()=>{if(SIM.listening&&!SIM.manualStop){try{SIM.recog.start();}catch(e){}}};
     SIM.recog.start();
   }catch(e){}
   clearInterval(SIM.tick);
-  SIM.tick=setInterval(()=>{
-    const s=(Date.now()-SIM.answerStart)/1000;
-    $("listentmr").textContent=fmt(s);
-    if(SIM.opts.silence && SIM.startedSpeaking && (Date.now()-SIM.lastActivity)>SILENCE_MS){ finishAnswer(); }
-  },250);
+  SIM.tick=setInterval(()=>{const s=(Date.now()-SIM.answerStart)/1000;$("listentmr").textContent=fmt(s);if(SIM.opts.silence&&SIM.startedSpeaking&&(Date.now()-SIM.lastActivity)>SILENCE_MS)finishAnswer();},250);
 }
-function updateListenPill(speaking, typed){
-  const pill=$("listenpill"), t=$("listentxt");
-  if(typed){ $("listenbar").style.display="flex"; pill.className="listenpill speaking"; t.textContent="Modo texto"; $("listentmr").textContent=""; return; }
-  pill.className="listenpill"+(speaking?" ":"");
-  t.textContent = speaking? "Te escucho…" : "Escuchando…";
-}
-function stopListening(){
-  SIM.listening=false; SIM.manualStop=true;
-  clearInterval(SIM.tick); SIM.tick=null;
-  if(SIM.recog){ try{SIM.recog.stop();}catch(e){} SIM.recog=null; }
-}
-function finishAnswer(){
-  const step=SIM.seq[SIM.idx];
-  let secs, transcript;
-  if(!hasSR){
-    transcript=($("typed-input").value||"").trim();
-    secs=(Date.now()-SIM.fallbackStart)/1000;
-    $("typedfb").style.display="none";
-  } else {
-    if(!SIM.listening) return;
-    secs=(Date.now()-SIM.answerStart)/1000;
-    transcript=(SIM.finalText+SIM.interimText).trim();
-    stopListening();
-  }
+function stopListening(){SIM.listening=false;SIM.manualStop=true;clearInterval(SIM.tick);SIM.tick=null;if(SIM.recog){try{SIM.recog.stop();}catch(e){}SIM.recog=null;}}
+async function finishAnswer(){
+  const step=SIM.seq[SIM.idx]; let secs,transcript;
+  if(!hasSR){transcript=($("typed-input").value||"").trim();secs=(Date.now()-SIM.fallbackStart)/1000;$("typedfb").style.display="none";}
+  else{if(!SIM.listening)return;secs=(Date.now()-SIM.answerStart)/1000;transcript=(SIM.finalText+SIM.interimText).trim();stopListening();}
   $("listenbar").style.display="none";
-  const res=analyze(transcript, secs, step);
-  SIM.results.push({q:step.q, lang:step.lang, type:step.type, cat:step.cat, transcript, secs:Math.round(secs), res});
-  showFeedbackCard(res, step);
+  const eye=SIM.eyeActive?Eye.endAnswer():null;
+  const res=analyze(transcript,secs,step);
+  res.base=res.score; res.eyePct=eye?eye.pct:null;
+  if(eye) res.score=Math.round(res.base*0.7 + eye.pct*0.3);
+  SIM.results.push({q:step.q,lang:step.lang,type:step.type,cat:step.cat,isFollow:!!step.isFollow,transcript,secs:Math.round(secs),res});
+  // ¿repregunta?
+  const canFollow = SIM.opts.pressure && !step.isFollow && (step.type==="beh"||step.type==="sit") && !res.empty && res.words>6 && Math.random()<0.5;
+  if(canFollow){ const q=pick(FOLLOWUPS[step.lang==="en"?"en":"es"]); SIM.seq.splice(SIM.idx+1,0,{kind:"ask",q,spoken:q,lang:step.lang,type:step.type,cat:step.cat,isFollow:true}); }
+  // reacción hablada del reclutador
+  const react=buildReaction(res,step,eye,canFollow);
+  showFeedbackCard(res,step);
+  speak(react.text,step.lang);
 }
-
-/* ---- immediate feedback card ---- */
-function showFeedbackCard(res, step){
+function buildReaction(res,step,eye,willFollow){
+  const L=step.lang==="en"?"en":"es";
+  const tier=res.empty?"empty":res.score>=72?"hi":res.score>=50?"mid":"lo";
+  let t=pick(REACT[L][tier]);
+  if(eye && eye.pct<55 && Math.random()<0.85) t+=pick(EYE_CALLOUT[L]);
+  if(willFollow) t+= L==="en"?" Let me dig a bit deeper.":" Dejame profundizar un poco.";
+  return {text:t,tier};
+}
+function showFeedbackCard(res,step){
   const isES=step.lang!=="en";
-  const last = SIM.idx>=SIM.seq.length-1 || SIM.seq.slice(SIM.idx+1).every(s=>s.kind!=="ask") ? false : false;
-  const isLastQ = !SIM.seq.slice(SIM.idx+1).some(s=>s.kind==="ask");
-  const rc = res.score>=75?"var(--verde)":res.score>=50?"var(--amar)":"var(--rojo)";
-  const lbl = res.empty? "No detecté tu respuesta" : res.score>=75?"¡Muy bien!":res.score>=50?"Vas bien, a pulir":"A reforzar";
-  let h='<div class="fbcard">';
-  h+='<div class="fbtop"><div class="scorering" style="--p:'+res.score+';--rc:'+rc+';"><span>'+res.score+'</span></div>'+
-     '<div class="ft"><h4>Corrección — '+(step.lang==="en"?"🇬🇧":"🇦🇷")+' '+lbl+'</h4><p>'+(res.empty?(isES?"Grabá o escribí una respuesta y probá de nuevo.":"Record or type an answer and retry."):"Puntaje de esta respuesta")+'</p></div></div>';
-
+  const isLastQ=!SIM.seq.slice(SIM.idx+1).some(s=>s.kind==="ask");
+  const rc=res.score>=75?"var(--verde)":res.score>=50?"var(--amar)":"var(--rojo)";
+  const lbl=res.empty?"No detecté tu respuesta":res.score>=75?"¡Muy bien!":res.score>=50?"Vas bien, a pulir":"A reforzar";
+  let h='<div class="fbcard"><div class="fbtop"><div class="scorering" style="--p:'+res.score+';--rc:'+rc+';"><span>'+res.score+'</span></div><div class="ft"><h4>Corrección — '+(step.lang==="en"?"🇬🇧":"🇦🇷")+' '+lbl+'</h4><p>'+(res.empty?"Grabá o escribí y reintentá.":"Puntaje de esta respuesta"+(res.eyePct!=null?" (incluye contacto visual)":""))+'</p></div></div>';
   if(!res.empty){
-    // STAR row (solo beh/sit)
-    if(res.star){
-      const nm={s:"S",t:"T",a:"A",r:"R"};
-      h+='<div class="starrow">'+["s","t","a","r"].map(k=>'<div class="sp '+(res.star[k]?"yes":"no")+'"><span class="l">'+nm[k]+'</span>'+(res.star[k]?"✓":"✗")+'</div>').join("")+'</div>';
+    if(res.eyePct!=null){
+      const ec=res.eyePct>=70?"g":res.eyePct>=45?"y":"r";
+      h+='<div class="metrics"><div class="metric wide eyemetric"><div class="mlabel">👁️ Contacto visual (lo más importante)</div><div class="mval '+ec+'">'+res.eyePct+'% del tiempo mirando a los ojos'+(res.eyePct<60?' — ¡sostené más la mirada!':' — ¡muy bien!')+'</div></div></div>';
     }
-    // metrics
+    if(res.star){const nm={s:"S",t:"T",a:"A",r:"R"};h+='<div class="starrow">'+["s","t","a","r"].map(k=>'<div class="sp '+(res.star[k]?"yes":"no")+'"><span class="l">'+nm[k]+'</span>'+(res.star[k]?"✓":"✗")+'</div>').join("")+'</div>';}
     h+='<div class="metrics">';
     h+='<div class="metric"><div class="mlabel">Duración</div><div class="mval '+res.durCls+'">'+fmt(res.secs)+' · '+res.durV+'</div></div>';
-    h+='<div class="metric"><div class="mlabel">Ideal ('+step.type.toUpperCase()+')</div><div class="mval">'+(IDEAL[step.type][0])+'–'+(IDEAL[step.type][1])+' s</div></div>';
+    h+='<div class="metric"><div class="mlabel">Ideal ('+step.type.toUpperCase()+')</div><div class="mval">'+IDEAL[step.type][0]+'–'+IDEAL[step.type][1]+' s</div></div>';
     h+='<div class="metric"><div class="mlabel">Ritmo</div><div class="mval '+res.paceCls+'">'+(res.wpm||"—")+' ppm · '+res.paceV+'</div></div>';
     h+='<div class="metric"><div class="mlabel">Muletillas</div><div class="mval '+(res.fillers<=1?"g":res.fillers<=4?"y":"r")+'">'+res.fillers+(res.fillersTop.length?' ('+res.fillersTop[0]+')':'')+'</div></div>';
     h+='</div>';
-    if(res.star){
-      const nmf={s:"Situación",t:"Tarea",a:"Acción",r:"Resultado"};
-      const falt=["s","t","a","r"].filter(k=>!res.star[k]).map(k=>nmf[k]);
-      if(falt.length) h+='<div class="fbhdr">Estructura STAR — te faltó</div><ul class="fblist"><li class="warnli">'+falt.join(", ")+'</li></ul>';
-      else h+='<div class="fbhdr">Estructura STAR</div><ul class="fblist small"><li>✓ Cubriste las 4 partes. ¡Excelente!</li></ul>';
-    }
-    if(res.tips.length){ h+='<div class="fbhdr">Sugerencias</div><ul class="fblist">'+res.tips.map(t=>'<li class="tip">'+esc(t)+'</li>').join("")+'</ul>'; }
-  } else {
-    if(res.tips.length) h+='<ul class="fblist">'+res.tips.map(t=>'<li class="tip">'+esc(t)+'</li>').join("")+'</ul>';
-  }
+    if(res.star){const nmf={s:"Situación",t:"Tarea",a:"Acción",r:"Resultado"};const falt=["s","t","a","r"].filter(k=>!res.star[k]).map(k=>nmf[k]);if(falt.length)h+='<div class="fbhdr">STAR — te faltó</div><ul class="fblist"><li class="warnli">'+falt.join(", ")+'</li></ul>';}
+    if(res.tips.length)h+='<div class="fbhdr">Sugerencias</div><ul class="fblist">'+res.tips.map(t=>'<li class="tip">'+esc(t)+'</li>').join("")+'</ul>';
+  } else if(res.tips.length)h+='<ul class="fblist">'+res.tips.map(t=>'<li class="tip">'+esc(t)+'</li>').join("")+'</ul>';
   h+='</div>';
   $("fb-slot").innerHTML=h;
-
-  setControls(
-    (isLastQ ? '<button class="btn ok" id="c-next">🏁 Ver mi devolución final</button>' : '<button class="btn ok" id="c-next">➡️ Siguiente pregunta</button>') +
-    '<button class="btn ghost sm" id="c-retry">🔁 Reintentar</button>',
-    '<button id="c-quit">✕ Terminar simulación</button>'
-  );
-  bindCommon();
-  $("c-next").onclick=nextStep;
-  $("c-retry").onclick=()=>{ SIM.results.pop(); $("fb-slot").innerHTML=""; runStep(); };
+  setControls((isLastQ?'<button class="btn ok" id="c-next">🏁 Ver mi devolución final</button>':'<button class="btn ok" id="c-next">➡️ Siguiente</button>')+'<button class="btn ghost sm" id="c-retry">🔁 Reintentar</button>','<button id="c-quit">✕ Terminar</button>');
+  bindCommon(); $("c-next").onclick=nextStep; $("c-retry").onclick=()=>{SIM.results.pop();$("fb-slot").innerHTML="";runStep();};
   $("fb-slot").scrollIntoView({behavior:"smooth",block:"nearest"});
 }
+function nextStep(){skipSpeak();stopListening();SIM.idx++;if(SIM.idx>=SIM.seq.length){endSim();return;}runStep();}
+function quitSim(){stopListening();skipSpeak();Eye.stop();stopCam();if(SIM.results.length>0)endSim();else showScreen("screen-home");}
 
-function nextStep(){
-  stopListening();
-  // advance to next ask/say
-  SIM.idx++;
-  if(SIM.idx>=SIM.seq.length || !SIM.seq.slice(SIM.idx).some(s=>true)){ endSim(); return; }
-  if(SIM.idx>=SIM.seq.length){ endSim(); return; }
-  runStep();
-}
-
-function quitSim(){
-  stopListening(); skipSpeak();
-  stopCam();
-  if(SIM.results.length>0){ endSim(); }
-  else { showScreen("screen-home"); }
-}
-
-/* ===================== CÁMARA ===================== */
+/* ===== CÁMARA ===== */
 async function startCam(){
-  if(!hasGUM){ return; }
+  if(!hasGUM)return;
   try{
     SIM.camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user"},audio:false});
-    $("selfvideo").srcObject=SIM.camStream; SIM.camOn=true;
-    $("camoff").style.display="none"; $("selfvideo").style.display="block";
-    $("camtoggle").textContent="📷";
-  }catch(e){ SIM.camOn=false; $("camoff").style.display="flex"; $("camoff").innerHTML="📷<br>Sin cámara"; }
+    $("selfvideo").srcObject=SIM.camStream;SIM.camOn=true;
+    $("camoff").style.display="none";$("selfvideo").style.display="block";$("camtoggle").textContent="📷";
+  }catch(e){SIM.camOn=false;$("camoff").style.display="flex";$("camoff").innerHTML="📷<br>Sin cámara";}
 }
-function stopCam(){ if(SIM.camStream){ SIM.camStream.getTracks().forEach(t=>t.stop()); SIM.camStream=null; } SIM.camOn=false; }
+function stopCam(){if(SIM.camStream){SIM.camStream.getTracks().forEach(t=>t.stop());SIM.camStream=null;}SIM.camOn=false;}
 function toggleCam(){
-  if(SIM.camOn){ stopCam(); $("camoff").style.display="flex"; $("camoff").innerHTML="📷<br>Cámara<br>apagada"; $("selfvideo").style.display="none"; $("camtoggle").textContent="🚫"; }
-  else { startCam(); }
+  if(SIM.camOn){stopCam();$("camoff").style.display="flex";$("camoff").innerHTML="📷<br>Cámara<br>apagada";$("selfvideo").style.display="none";$("camtoggle").textContent="🚫";setEyeUI("none");}
+  else{startCam();}
 }
 $("camtoggle").onclick=toggleCam;
 
-/* ===================== INICIO ===================== */
+/* ===== INICIO ===== */
 async function startSim(){
-  // build sequence
-  const idxs = SIM.opts.mode==="short"?SHORT_IDX:FULL_IDX;
-  SIM.seq=[{kind:"say", spoken:GREETING, lang:"es"}];
-  idxs.forEach(i=>{ const p=POOL[i]; SIM.seq.push({kind:"ask", q:p.q, spoken:(p.pre?p.pre+" ":"")+p.q, lang:p.lang, type:p.type, cat:p.cat}); });
-  SIM.idx=0; SIM.results=[];
+  const idxs=SIM.opts.mode==="short"?SHORT_IDX:FULL_IDX;
+  SIM.seq=[{kind:"say",spoken:GREETING,lang:"es"},{kind:"say",spoken:SIM.opts.pressure?SMALLTALK_.pressure:SMALLTALK_.normal,lang:"es"}];
+  idxs.forEach(i=>{const p=POOL[i];SIM.seq.push({kind:"ask",q:p.q,spoken:(p.pre?p.pre+" ":"")+p.q,lang:p.lang,type:p.type,cat:p.cat});});
+  SIM.idx=0;SIM.results=[];SIM.eyeActive=false;
   showScreen("screen-sim");
-  // prime mic permission (SR uses its own mic; we just trigger the prompt)
-  if(hasGUM){ try{ const s=await navigator.mediaDevices.getUserMedia({audio:true}); s.getTracks().forEach(t=>t.stop()); }catch(e){} }
-  if(SIM.opts.cam){ await startCam(); }
-  else { $("camoff").style.display="flex"; $("selfvideo").style.display="none"; $("camtoggle").textContent="🚫"; }
+  if(hasGUM){try{const s=await navigator.mediaDevices.getUserMedia({audio:true});s.getTracks().forEach(t=>t.stop());}catch(e){}}
+  if(SIM.opts.cam){
+    await startCam();
+    if(SIM.camOn){ $("eyebadge-txt").textContent="Cargando detección…"; $("eyebadge").classList.add("show");
+      const ok=await Eye.init();
+      if(ok){ SIM.eyeActive=true; Eye.start(); }
+      else { SIM.eyeActive=false; $("eyebadge").classList.remove("show"); }
+    }
+  } else {$("camoff").style.display="flex";$("selfvideo").style.display="none";$("camtoggle").textContent="🚫";}
   runStep();
 }
 
-/* ===================== DEVOLUCIÓN FINAL ===================== */
+/* ===== DEVOLUCIÓN FINAL ===== */
 function endSim(){
-  stopListening(); stopCam();
+  stopListening();Eye.stop();stopCam();
   const answers=SIM.results.filter(r=>r.type!=="closing");
   const scored=answers.length?answers:SIM.results;
-  const overall = scored.length? Math.round(scored.reduce((a,r)=>a+r.res.score,0)/scored.length) : 0;
-  // categorías
+  const overall=scored.length?Math.round(scored.reduce((a,r)=>a+r.res.score,0)/scored.length):0;
   const cats={personal:[],ingles:[],situacional:[]};
-  SIM.results.forEach(r=>{ if(r.type==="closing")return; if(cats[r.cat]) cats[r.cat].push(r.res.score); });
-  const catAvg=c=>cats[c].length?Math.round(cats[c].reduce((a,b)=>a+b,0)/cats[c].length):null;
-  const cPers=catAvg("personal"), cIng=catAvg("ingles"), cSit=catAvg("situacional");
-  // métricas agregadas
-  const behs=SIM.results.filter(r=>r.res.star);
-  let starParts=0, starTot=0; behs.forEach(r=>{ ["s","t","a","r"].forEach(k=>{ starTot++; if(r.res.star[k])starParts++; }); });
-  const starPct=starTot?Math.round(starParts/starTot*100):null;
+  SIM.results.forEach(r=>{if(r.type==="closing")return;if(cats[r.cat])cats[r.cat].push(r.res.score);});
+  const cavg=c=>cats[c].length?Math.round(cats[c].reduce((a,b)=>a+b,0)/cats[c].length):null;
+  const cPers=cavg("personal"),cIng=cavg("ingles"),cSit=cavg("situacional");
+  const eyeArr=SIM.results.filter(r=>r.res.eyePct!=null).map(r=>r.res.eyePct);
+  const eyeAvg=eyeArr.length?Math.round(eyeArr.reduce((a,b)=>a+b,0)/eyeArr.length):null;
+  const behs=SIM.results.filter(r=>r.res.star);let sp=0,st=0;behs.forEach(r=>["s","t","a","r"].forEach(k=>{st++;if(r.res.star[k])sp++;}));
+  const starPct=st?Math.round(sp/st*100):null;
   const totFill=SIM.results.reduce((a,r)=>a+r.res.fillers,0);
-  const paces=SIM.results.filter(r=>r.res.wpm>0).map(r=>r.res.wpm);
-  const avgWpm=paces.length?Math.round(paces.reduce((a,b)=>a+b,0)/paces.length):0;
-  const durJusta=SIM.results.filter(r=>r.res.durV==="justa").length;
+  const paces=SIM.results.filter(r=>r.res.wpm>0).map(r=>r.res.wpm);const avgWpm=paces.length?Math.round(paces.reduce((a,b)=>a+b,0)/paces.length):0;
 
-  // fortalezas / mejoras
-  const strengths=[], improves=[];
+  const strengths=[],improves=[];
   const best=[...scored].sort((a,b)=>b.res.score-a.res.score)[0];
   const worst=[...scored].sort((a,b)=>a.res.score-b.res.score)[0];
-  if(best && best.res.score>=65) strengths.push("Tu mejor momento fue en «"+shortQ(best.q)+"» ("+best.res.score+"/100). Ahí se te notó preparado.");
-  if(starPct!=null && starPct>=70) strengths.push("Buena estructura STAR: cubriste el "+starPct+"% de las partes (Situación/Tarea/Acción/Resultado) en tus ejemplos.");
-  if(totFill<=3) strengths.push("Hablás limpio, con muy pocas muletillas ("+totFill+" en toda la entrevista).");
-  if(avgWpm>=100 && avgWpm<=170) strengths.push("Buen ritmo de habla ("+avgWpm+" palabras/min): claro y natural.");
-  if(cIng!=null && cIng>=60) strengths.push("Te defendiste bien en inglés ("+cIng+"/100). Seguí practicando en voz alta.");
-  if(durJusta>=Math.ceil(scored.length/2)) strengths.push("Administrás bien el tiempo: varias respuestas quedaron en la duración justa.");
-  while(strengths.length<2) strengths.push("Completaste toda la simulación de punta a punta: la constancia es lo que más suma.");
+  if(eyeAvg!=null&&eyeAvg>=70)strengths.push("Muy buen contacto visual: sostuviste la mirada el "+eyeAvg+"% del tiempo. Eso transmite seguridad, que es clave en un TCP.");
+  if(best&&best.res.score>=65)strengths.push("Tu mejor momento fue en «"+shortQ(best.q)+"» ("+best.res.score+"/100).");
+  if(starPct!=null&&starPct>=70)strengths.push("Buena estructura STAR: cubriste el "+starPct+"% de las partes en tus ejemplos.");
+  if(totFill<=3)strengths.push("Hablás limpio, con muy pocas muletillas ("+totFill+" en toda la entrevista).");
+  if(cIng!=null&&cIng>=60)strengths.push("Te defendiste bien en inglés ("+cIng+"/100).");
+  while(strengths.length<2)strengths.push("Completaste toda la simulación de punta a punta. La constancia es lo que más suma.");
 
-  if(starPct!=null && starPct<70) improves.push("Reforzá la estructura STAR, sobre todo cerrar con el Resultado concreto (qué lograste, con un dato si podés).");
-  if(worst && worst.res.score<60) improves.push("La pregunta «"+shortQ(worst.q)+"» quedó floja ("+worst.res.score+"/100). Preparate un ejemplo puntual para esa.");
-  if(totFill>=6) improves.push("Bajá las muletillas ("+totFill+" en total). Practicá reemplazarlas por una pausa en silencio.");
-  if(avgWpm>170) improves.push("Vas un poco rápido ("+avgWpm+" ppm). Respirá y bajá el ritmo para que se te entienda mejor.");
-  else if(avgWpm>0 && avgWpm<100) improves.push("Podés hablar con un poco más de energía y fluidez ("+avgWpm+" ppm).");
-  if(cIng!=null && cIng<55) improves.push("El bloque en inglés es tu punto más flojo ("+cIng+"/100). Ensayá 'tell me about yourself' en voz alta varias veces.");
-  if(cSit!=null && cSit<60) improves.push("En los escenarios situacionales, nombrá siempre: calma, seguridad/protocolo y trabajo en equipo.");
-  while(improves.length<2) improves.push("Repetí la simulación 2-3 veces más antes del martes para ganar soltura.");
+  if(eyeAvg!=null&&eyeAvg<70)improves.push("⭐ Lo más importante: el contacto visual. Mantuviste la mirada solo el "+eyeAvg+"% del tiempo. Practicá mirar fijo a los ojos del reclutador (cerca de la cámara), aunque estés nervioso.");
+  if(eyeAvg==null)improves.push("Practicá con la cámara activada para entrenar el contacto visual: es de lo primero que evalúa un reclutador.");
+  if(starPct!=null&&starPct<70)improves.push("Reforzá la estructura STAR, sobre todo cerrar con el Resultado concreto.");
+  if(worst&&worst.res.score<60)improves.push("La pregunta «"+shortQ(worst.q)+"» quedó floja ("+worst.res.score+"/100). Preparate un ejemplo puntual.");
+  if(totFill>=6)improves.push("Bajá las muletillas ("+totFill+" en total): reemplazalas por una pausa en silencio.");
+  if(avgWpm>170)improves.push("Vas un poco rápido ("+avgWpm+" ppm). Respirá y bajá el ritmo.");
+  while(improves.length<2)improves.push("Repetí la simulación 2-3 veces más antes del martes para ganar soltura.");
 
-  const cd=(function(){ let d=TARGET-Date.now(); if(d<=0)return "hoy"; const dd=Math.floor(d/86400000); const hh=Math.floor((d-dd*86400000)/3600000); return dd>0?(dd+" día"+(dd>1?"s":"")+" y "+hh+" h"):(hh+" h"); })();
+  const cd=(function(){let d=TARGET-Date.now();if(d<=0)return "hoy";const dd=Math.floor(d/86400000);const hh=Math.floor((d-dd*86400000)/3600000);return dd>0?(dd+" día"+(dd>1?"s":"")+" y "+hh+" h"):(hh+" h");})();
+  store.history.unshift({date:new Date().toISOString(),score:overall,cats:{personal:cPers,ingles:cIng,situacional:cSit},eye:eyeAvg,mode:SIM.opts.mode});
+  store.history=store.history.slice(0,20);persist();
 
-  // guardar historial
-  store.history.unshift({date:new Date().toISOString(), score:overall, cats:{personal:cPers,ingles:cIng,situacional:cSit}, mode:SIM.opts.mode, n:scored.length});
-  store.history=store.history.slice(0,20); persist();
-
-  const ovLbl = overall>=75?"¡Estás muy bien encaminado!":overall>=55?"Vas por buen camino, a seguir puliendo":"Todavía hay margen — practicá y vas a mejorar rápido";
-  const ovColor = overall>=75?"var(--verde)":overall>=55?"var(--amar)":"var(--naranja)";
-
-  let h='<h2>🎬 Devolución de tu entrevista</h2><div class="dsub">Debrief final de la simulación</div>';
+  const ovLbl=overall>=75?"¡Estás muy bien encaminado!":overall>=55?"Vas por buen camino, a seguir puliendo":"Todavía hay margen — practicá y vas a mejorar rápido";
+  const ovColor=overall>=75?"var(--verde)":overall>=55?"var(--amar)":"var(--naranja)";
+  let h='<h2>🎬 Devolución de tu entrevista</h2><div class="dsub">Martín · Reclutador JetSmart</div>';
   h+='<div class="bigscore"><div class="num" style="color:'+ovColor+';">'+overall+'<span style="font-size:1.2rem;color:var(--dim);">/100</span></div><div class="lbl">Nivel de preparación · '+ovLbl+'</div></div>';
-
-  h+='<div class="catgrid">';
-  h+=catBox("👔 Personal", cPers); h+=catBox("🇬🇧 Inglés", cIng); h+=catBox("🎭 Situacional", cSit);
-  h+='</div>';
-
+  if(eyeAvg!=null){const ec=eyeAvg>=70?"var(--verde)":eyeAvg>=45?"var(--amar)":"var(--rojo)";
+    h+='<div class="eyepanel"><div style="font-size:.8rem;color:var(--cyan);text-transform:uppercase;letter-spacing:.8px;">👁️ Contacto visual · lo más importante</div><div class="big" style="color:'+ec+'">'+eyeAvg+'%</div><div style="font-size:.85rem;color:var(--dim)">'+(eyeAvg>=70?"Excelente, transmitís seguridad. Sostenelo así el martes.":eyeAvg>=45?"Aceptable, pero podés mejorar. Mirá más fijo a los ojos.":"Te falta mirada. Es lo primero que se nota — entrená esto sí o sí.")+'</div></div>';}
+  h+='<div class="catgrid">'+catBox("👔 Personal",cPers)+catBox("🇬🇧 Inglés",cIng)+catBox("🎭 Situacional",cSit)+'</div>';
   h+='<div class="dsec"><h4>✅ Tus fortalezas</h4><ul>'+strengths.slice(0,3).map(s=>"<li>"+esc(s)+"</li>").join("")+'</ul></div>';
   h+='<div class="dsec"><h4>🎯 A mejorar</h4><ul>'+improves.slice(0,3).map(s=>"<li>"+esc(s)+"</li>").join("")+'</ul></div>';
-
-  // desglose por pregunta
   h+='<div class="dsec"><h4>📋 Respuesta por respuesta</h4><div class="qbreak">';
-  SIM.results.forEach((r,i)=>{ const c=r.res.score>=75?"var(--verde)":r.res.score>=50?"var(--amar)":"var(--rojo)"; h+='<div class="qb-row"><span class="qb-q">'+(i+1)+". "+esc(shortQ(r.q))+(r.type==="closing"?' <span class="flag">cierre</span>':'')+'</span><span class="qb-s" style="color:'+c+'">'+r.res.score+'</span></div>'; });
+  SIM.results.forEach((r,i)=>{const c=r.res.score>=75?"var(--verde)":r.res.score>=50?"var(--amar)":"var(--rojo)";h+='<div class="qb-row"><span class="qb-q">'+(i+1)+". "+esc(shortQ(r.q))+(r.isFollow?' <span class="flag">repreg.</span>':'')+(r.type==="closing"?' <span class="flag">cierre</span>':'')+'</span><span class="qb-s" style="color:'+c+'">'+r.res.score+(r.res.eyePct!=null?' · 👁️'+r.res.eyePct+'%':'')+'</span></div>';});
   h+='</div></div>';
-
-  h+='<div class="motiv">💙 Tu entrevista real en JetSmart es el <b>martes 1/9 a las 13:00hs</b> (faltan '+cd+').<br>Ya diste el paso más importante: practicar en serio. Llegá temprano, sonreí, hablá con calma y mostrá tus ganas reales. <b>La vas a romper.</b> 🍀✈️</div>';
-
-  h+='<div id="ai-final"></div>';
-  h+='<div class="controls" style="margin-top:6px;">';
-  if((store.aiKey||"").trim()) h+='<button class="btn ai" id="c-ai">🤖 Análisis con IA (Gemini)</button>';
-  h+='<button class="btn ok" id="c-again">🔁 Nueva simulación</button></div>';
-  h+='<div class="subctrl"><button id="c-home2">🏠 Volver al inicio</button></div>';
-
-  $("debrief").innerHTML=h;
-  showScreen("screen-end");
-  $("c-again").onclick=()=>{ showScreen("screen-home"); renderHistory(); };
-  $("c-home2").onclick=()=>{ showScreen("screen-home"); renderHistory(); };
-  const cai=$("c-ai"); if(cai) cai.onclick=()=>runAiFinal(overall,{cPers,cIng,cSit});
-  // reclutador cierra
+  h+='<div class="motiv">💙 Tu entrevista real en JetSmart es el <b>martes 1/9 a las 13:00hs</b> (faltan '+cd+').<br>Ya diste el paso más importante: practicar en serio. Llegá temprano, sonreí, <b>mirá a los ojos</b>, hablá con calma y mostrá tus ganas reales. <b>La vas a romper.</b> 🍀✈️</div>';
+  h+='<div id="ai-final"></div><div class="controls" style="margin-top:6px;">';
+  if((store.aiKey||"").trim())h+='<button class="btn ai" id="c-ai">🤖 Análisis con IA</button>';
+  h+='<button class="btn ok" id="c-again">🔁 Nueva simulación</button></div><div class="subctrl"><button id="c-home2">🏠 Inicio</button></div>';
+  $("debrief").innerHTML=h; showScreen("screen-end");
+  $("c-again").onclick=()=>{showScreen("screen-home");renderHistory();};
+  $("c-home2").onclick=()=>{showScreen("screen-home");renderHistory();};
+  const cai=$("c-ai");if(cai)cai.onclick=()=>runAiFinal(overall,{cPers,cIng,cSit,eyeAvg});
   speak(CLOSING_LINE,"es");
 }
-function catBox(name,val){
-  const v=val==null?"—":val; const w=val==null?0:val;
-  const c=val==null?"var(--dim)":val>=75?"var(--verde)":val>=50?"var(--amar)":"var(--rojo)";
-  return '<div class="catbox"><div class="cn">'+name+'</div><div class="cv" style="color:'+c+'">'+v+'</div><div class="catbar"><i style="width:'+w+'%;background:'+c+'"></i></div></div>';
-}
-function shortQ(q){ q=q.replace(/\s+/g," ").trim(); return q.length>52?q.slice(0,50)+"…":q; }
+function catBox(name,val){const v=val==null?"—":val,w=val==null?0:val,c=val==null?"var(--dim)":val>=75?"var(--verde)":val>=50?"var(--amar)":"var(--rojo)";return '<div class="catbox"><div class="cn">'+name+'</div><div class="cv" style="color:'+c+'">'+v+'</div><div class="catbar"><i style="width:'+w+'%;background:'+c+'"></i></div></div>';}
+function shortQ(q){q=q.replace(/\s+/g," ").trim();return q.length>50?q.slice(0,48)+"…":q;}
 
-/* ===================== IA FINAL (opcional Gemini) ===================== */
+/* ===== IA FINAL ===== */
 async function runAiFinal(overall,cats){
-  const slot=$("ai-final");
-  slot.innerHTML='<div class="fb-ai">🤖 Analizando tu entrevista con IA…</div>';
+  const slot=$("ai-final");slot.innerHTML='<div class="fb-ai">🤖 Analizando tu entrevista con IA…</div>';
   const lines=SIM.results.map((r,i)=>(i+1)+". ["+(r.lang==="en"?"EN":"ES")+"] "+shortQ(r.q)+"\n   Respuesta: "+(r.transcript||"(vacía)")).join("\n");
-  const prompt="Sos un reclutador senior de JetSmart especializado en selección de tripulantes de cabina. "+
-    "Un candidato SIN experiencia previa hizo una simulación de entrevista (Assessment 2). Puntaje general del motor de reglas: "+overall+"/100 "+
-    "(Personal: "+(cats.cPers??"-")+", Inglés: "+(cats.cIng??"-")+", Situacional: "+(cats.cSit??"-")+"). "+
-    "Estas fueron las preguntas y sus respuestas transcriptas (pueden tener errores de dictado, ignoralos):\n"+lines+
-    "\n\nDame una devolución final breve y motivadora en español rioplatense (tuteo con 'vos'), con este formato:\n"+
-    "RESUMEN: (2-3 frases sobre cómo estuvo en general)\n"+
-    "3 COSAS PARA CORREGIR ANTES DEL MARTES: (bullets concretos y accionables)\n"+
-    "1 CONSEJO CLAVE: (el más importante)\n"+
-    "No inventes datos falsos sobre JetSmart. Sé directo, cálido y práctico.";
-  try{
-    const txt=await gemini(prompt);
-    slot.innerHTML='<div class="dsec"><h4><span class="fb-badge-ai">🤖 Gemini AI</span></h4><div class="fb-ai">'+esc(txt)+'</div></div>';
-  }catch(e){
-    const m=e.message==="BAD_KEY"?"La API key no es válida (revisala en ⚙️).":e.message==="NO_KEY"?"Falta la key (cargala en ⚙️).":"No se pudo conectar con la IA. Igual tenés toda tu devolución arriba.";
-    slot.innerHTML='<div class="fb-ai">⚠️ '+esc(m)+'</div>';
-  }
+  const prompt="Sos un reclutador senior de JetSmart (selección de tripulantes de cabina). Un candidato SIN experiencia previa hizo una simulación (Assessment 2). Puntaje del motor de reglas: "+overall+"/100 (Personal "+(cats.cPers??"-")+", Inglés "+(cats.cIng??"-")+", Situacional "+(cats.cSit??"-")+", Contacto visual "+(cats.eyeAvg??"-")+"%). Preguntas y respuestas transcriptas (ignorá errores de dictado):\n"+lines+"\n\nDevolución final breve y motivadora en español rioplatense (voseo), formato:\nRESUMEN: (2-3 frases)\n3 COSAS PARA CORREGIR ANTES DEL MARTES: (bullets accionables, incluí el contacto visual si estuvo bajo)\n1 CONSEJO CLAVE:\nNo inventes datos falsos de JetSmart. Directo, cálido, práctico.";
+  try{const txt=await gemini(prompt);slot.innerHTML='<div class="dsec"><h4><span class="fb-badge-ai">🤖 Gemini AI</span></h4><div class="fb-ai">'+esc(txt)+'</div></div>';}
+  catch(e){const m=e.message==="BAD_KEY"?"API key inválida (revisala en ⚙️).":e.message==="NO_KEY"?"Falta la key (⚙️).":"No se pudo conectar. Tenés toda tu devolución arriba igual.";slot.innerHTML='<div class="fb-ai">⚠️ '+esc(m)+'</div>';}
 }
 async function gemini(prompt){
-  const key=(store.aiKey||"").trim(); if(!key) throw new Error("NO_KEY");
-  const models=["gemini-2.0-flash","gemini-1.5-flash","gemini-flash-latest"]; let last=null;
-  for(const m of models){
-    try{
-      const url="https://generativelanguage.googleapis.com/v1beta/models/"+m+":generateContent?key="+encodeURIComponent(key);
-      const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:0.6,maxOutputTokens:700}})});
-      if(!r.ok){ const t=await r.text(); if(r.status===400&&/API key not valid|API_KEY_INVALID/i.test(t))throw new Error("BAD_KEY"); last=new Error("HTTP "+r.status); continue; }
-      const j=await r.json();
-      const txt=j&&j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts&&j.candidates[0].content.parts[0].text;
-      if(txt)return txt.trim(); last=new Error("empty");
-    }catch(e){ if(e.message==="BAD_KEY")throw e; last=e; }
-  }
+  const key=(store.aiKey||"").trim();if(!key)throw new Error("NO_KEY");
+  const models=["gemini-2.0-flash","gemini-1.5-flash","gemini-flash-latest"];let last=null;
+  for(const m of models){try{
+    const url="https://generativelanguage.googleapis.com/v1beta/models/"+m+":generateContent?key="+encodeURIComponent(key);
+    const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:0.6,maxOutputTokens:700}})});
+    if(!r.ok){const t=await r.text();if(r.status===400&&/API key not valid|API_KEY_INVALID/i.test(t))throw new Error("BAD_KEY");last=new Error("HTTP "+r.status);continue;}
+    const j=await r.json();const txt=j&&j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts&&j.candidates[0].content.parts[0].text;if(txt)return txt.trim();last=new Error("empty");
+  }catch(e){if(e.message==="BAD_KEY")throw e;last=e;}}
   throw last||new Error("fail");
 }
 
-/* ===================== HISTORY UI ===================== */
+/* ===== HISTORY ===== */
 function renderHistory(){
-  const card=$("history-card"), list=$("history-list");
-  if(!store.history.length){ card.style.display="none"; return; }
-  card.style.display="block";
-  const best=Math.max(...store.history.map(h=>h.score));
-  list.innerHTML=store.history.slice(0,6).map(h=>{
-    const d=new Date(h.date); const ds=d.toLocaleDateString("es-AR",{day:"2-digit",month:"2-digit"})+" "+d.toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"});
-    return '<div class="h-row"><span>'+ds+' · '+(h.mode==="short"?"corta":"completa")+(h.score===best?' 🏆':'')+'</span><b>'+h.score+'/100</b></div>';
-  }).join("") + (store.history.length>1?'<div class="h-row" style="border:none;color:var(--dim2)"><span>Mejor puntaje</span><b style="color:var(--verde)">'+best+'/100</b></div>':'');
+  const card=$("history-card"),list=$("history-list");if(!store.history.length){card.style.display="none";return;}
+  card.style.display="block";const best=Math.max(...store.history.map(h=>h.score));
+  list.innerHTML=store.history.slice(0,6).map(h=>{const d=new Date(h.date);const ds=d.toLocaleDateString("es-AR",{day:"2-digit",month:"2-digit"})+" "+d.toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"});return '<div class="h-row"><span>'+ds+(h.eye!=null?' · 👁️'+h.eye+'%':'')+(h.score===best?' 🏆':'')+'</span><b>'+h.score+'/100</b></div>';}).join("")+(store.history.length>1?'<div class="h-row" style="border:none;color:var(--dim2)"><span>Mejor puntaje</span><b style="color:var(--verde)">'+best+'/100</b></div>':'');
 }
 
-/* ===================== OPCIONES UI ===================== */
-function syncOpts(){
-  $("opt-cam").checked=SIM.opts.cam; $("opt-auto").checked=SIM.opts.auto;
-  $("opt-silence").checked=SIM.opts.silence; $("opt-tts").checked=SIM.opts.tts;
-  document.querySelectorAll("#seg-mode button").forEach(b=>b.classList.toggle("on", b.dataset.mode===SIM.opts.mode));
-}
-$("opt-cam").onchange=e=>{ SIM.opts.cam=e.target.checked; persist(); };
-$("opt-auto").onchange=e=>{ SIM.opts.auto=e.target.checked; persist(); };
-$("opt-silence").onchange=e=>{ SIM.opts.silence=e.target.checked; persist(); };
-$("opt-tts").onchange=e=>{ SIM.opts.tts=e.target.checked; persist(); };
-document.querySelectorAll("#seg-mode button").forEach(b=>{ b.onclick=()=>{ SIM.opts.mode=b.dataset.mode; persist(); syncOpts(); }; });
+/* ===== OPCIONES ===== */
+function syncOpts(){$("opt-cam").checked=SIM.opts.cam;$("opt-pressure").checked=SIM.opts.pressure;$("opt-auto").checked=SIM.opts.auto;$("opt-silence").checked=SIM.opts.silence;document.querySelectorAll("#seg-mode button").forEach(b=>b.classList.toggle("on",b.dataset.mode===SIM.opts.mode));}
+$("opt-cam").onchange=e=>{SIM.opts.cam=e.target.checked;persist();};
+$("opt-pressure").onchange=e=>{SIM.opts.pressure=e.target.checked;persist();};
+$("opt-auto").onchange=e=>{SIM.opts.auto=e.target.checked;persist();};
+$("opt-silence").onchange=e=>{SIM.opts.silence=e.target.checked;persist();};
+document.querySelectorAll("#seg-mode button").forEach(b=>{b.onclick=()=>{SIM.opts.mode=b.dataset.mode;persist();syncOpts();};});
 $("btn-start").onclick=startSim;
 
-/* compat warnings */
-(function(){
-  let msgs=[];
-  if(!hasSR) msgs.push("⚠️ Tu navegador no transcribe voz automáticamente. Vas a poder escribir tu respuesta a mano en cada pregunta. Para la experiencia completa, abrila con <b>Chrome en Android</b>.");
-  if(!hasTTS) msgs.push("⚠️ Tu navegador no puede leer las preguntas en voz alta, pero vas a verlas en pantalla igual.");
-  if(msgs.length){ const w=$("compat-warn"); w.style.display="block"; w.innerHTML=msgs.join("<br><br>"); }
+/* ===== COMPAT ===== */
+(function(){let m=[];
+  if(!hasSR)m.push("⚠️ Tu navegador no transcribe voz. Vas a poder escribir tu respuesta. Para la experiencia completa usá <b>Chrome en Android</b>.");
+  if(!hasTTS)m.push("⚠️ Tu navegador no puede leer las preguntas en voz alta, pero las vas a ver en pantalla.");
+  m.push("👁️ La detección de contacto visual descarga un modelo la 1ª vez, así que necesita <b>internet</b> al iniciar. Sin internet, el resto funciona igual.");
+  const w=$("compat-warn");w.style.display="block";w.innerHTML=m.join("<br><br>");
 })();
 
-/* ===================== MODAL IA ===================== */
-function refreshAi(){ const el=$("ai-state"); if((store.aiKey||"").trim()){ el.className="ai-state on"; el.textContent="✅ IA activada — análisis Gemini disponible en la devolución final"; } else { el.className="ai-state off"; el.textContent="IA desactivada — usando solo el motor de reglas"; } }
-$("btn-gear").onclick=()=>{ $("ai-key").value=store.aiKey||""; refreshAi(); $("modal-bg").classList.add("open"); };
+/* ===== MODAL IA ===== */
+function refreshAi(){const el=$("ai-state");if((store.aiKey||"").trim()){el.className="ai-state on";el.textContent="✅ IA activada — análisis Gemini en la devolución final";}else{el.className="ai-state off";el.textContent="IA desactivada — usando solo el motor de reglas";}}
+$("btn-gear").onclick=()=>{$("ai-key").value=store.aiKey||"";refreshAi();$("modal-bg").classList.add("open");};
 $("modal-close").onclick=()=>$("modal-bg").classList.remove("open");
-$("modal-bg").onclick=e=>{ if(e.target===$("modal-bg"))$("modal-bg").classList.remove("open"); };
-$("ai-save").onclick=()=>{ store.aiKey=($("ai-key").value||"").trim(); persist(); refreshAi(); if(store.aiKey)setTimeout(()=>$("modal-bg").classList.remove("open"),600); };
-$("ai-clear").onclick=()=>{ store.aiKey=""; $("ai-key").value=""; persist(); refreshAi(); };
+$("modal-bg").onclick=e=>{if(e.target===$("modal-bg"))$("modal-bg").classList.remove("open");};
+$("ai-save").onclick=()=>{store.aiKey=($("ai-key").value||"").trim();persist();refreshAi();if(store.aiKey)setTimeout(()=>$("modal-bg").classList.remove("open"),600);};
+$("ai-clear").onclick=()=>{store.aiKey="";$("ai-key").value="";persist();refreshAi();};
 
-/* ===================== INIT ===================== */
-syncOpts(); renderHistory(); refreshAi();
+/* ===== INIT ===== */
+setInterval(tickCd,30000);tickCd();syncOpts();renderHistory();refreshAi();
 </script>
 </body>
 </html>
