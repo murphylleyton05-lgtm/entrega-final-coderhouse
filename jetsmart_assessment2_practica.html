@@ -188,6 +188,35 @@
   .fb-ai{white-space:pre-wrap;font-size:.87rem;line-height:1.55;background:#101c33;border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:10px;}
   .fb-badge-ai{display:inline-block;background:linear-gradient(135deg,#7b3ff2,#b13ff2);color:#fff;font-size:.62rem;font-weight:700;padding:2px 9px;border-radius:20px;}
   .hint{font-size:.76rem;color:var(--dim2);}
+  .nameinput{width:100%;background:#0c1526;border:1px solid var(--line);border-radius:10px;color:var(--txt);padding:11px;font-size:.92rem;margin-top:8px;}
+  /* connecting / calling overlay */
+  .calling{position:absolute;inset:0;z-index:12;background:linear-gradient(160deg,#12244c,#080f1f);display:none;flex-direction:column;align-items:center;justify-content:center;gap:8px;animation:fade .3s ease;}
+  .calling.show{display:flex;}
+  .call-av{width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,#2f6bff,#1a3a8c);display:flex;align-items:center;justify-content:center;font-size:3rem;box-shadow:0 0 0 0 rgba(47,107,255,.5);animation:callpulse 1.4s ease-out infinite;}
+  @keyframes callpulse{0%{box-shadow:0 0 0 0 rgba(47,107,255,.5);}100%{box-shadow:0 0 0 34px rgba(47,107,255,0);}}
+  .call-name{font-size:1.3rem;font-weight:800;margin-top:14px;}
+  .call-sub{font-size:.82rem;color:var(--dim);}
+  .call-status{margin-top:12px;font-size:.9rem;color:var(--cyan);font-weight:700;}
+  .call-status .d{animation:dots 1.4s infinite;}
+  @keyframes dots{0%,20%{opacity:0;}50%{opacity:1;}100%{opacity:0;}}
+  .call-bars{display:flex;gap:4px;margin-top:16px;align-items:flex-end;height:22px;}
+  .call-bars span{width:5px;background:var(--verde);border-radius:2px;animation:cbar 1s ease-in-out infinite;}
+  .call-bars span:nth-child(1){height:8px;animation-delay:0s;}.call-bars span:nth-child(2){height:14px;animation-delay:.15s;}.call-bars span:nth-child(3){height:20px;animation-delay:.3s;}.call-bars span:nth-child(4){height:12px;animation-delay:.45s;}
+  @keyframes cbar{0%,100%{opacity:.35;}50%{opacity:1;}}
+  /* live indicator */
+  .livedot{position:absolute;top:12px;right:12px;z-index:6;background:rgba(255,77,94,.16);border:1px solid var(--rojo);color:#ffd0d5;border-radius:20px;padding:3px 9px;font-size:.62rem;font-weight:800;letter-spacing:.5px;display:flex;align-items:center;gap:5px;}
+  .livedot .d{width:7px;height:7px;border-radius:50%;background:var(--rojo);animation:blinkdot 1s infinite;}
+  /* live eye bar */
+  .eyelive{position:absolute;left:12px;right:12px;bottom:56px;z-index:6;background:rgba(6,10,20,.72);border:1px solid var(--line);border-radius:12px;padding:8px 11px;display:none;backdrop-filter:blur(4px);}
+  .eyelive.show{display:block;}
+  .eyelive-lbl{font-size:.7rem;color:var(--dim);display:flex;justify-content:space-between;margin-bottom:5px;}
+  .eyelive-lbl b{font-variant-numeric:tabular-nums;}
+  .eyelive-bar{height:7px;background:#2a3a60;border-radius:6px;overflow:hidden;}
+  .eyelive-bar i{display:block;height:100%;width:0%;background:var(--rojo);transition:width .25s,background .25s;}
+  /* face expression / nod */
+  #recface.listening{animation:nod 2.6s ease-in-out infinite;}
+  @keyframes nod{0%,100%{transform:translateY(0) rotate(0);}22%{transform:translateY(3px) rotate(1.2deg);}55%{transform:translateY(0px) rotate(-1deg);}}
+  #browL,#browR,#smile{transition:all .3s ease;}
 </style>
 </head>
 <body>
@@ -216,6 +245,10 @@
     </div>
     <div class="card">
       <h3>Ajustes</h3>
+      <div class="opt-row" style="border-bottom:none;padding-bottom:2px;">
+        <div style="flex:1;"><div class="lbl">🙋 Tu nombre <span style="color:var(--dim2);font-weight:400;">(opcional)</span></div><div class="desc">Para que el reclutador te hable por tu nombre.</div></div>
+      </div>
+      <input id="opt-name" class="nameinput" type="text" placeholder="Ej: Lucía" maxlength="20" style="margin-bottom:8px;">
       <div class="opt-row">
         <div><div class="lbl">📷 Cámara + contacto visual</div><div class="desc">Detecta cuándo mirás a los ojos. Necesita internet la 1ª vez.</div></div>
         <label class="sw"><input type="checkbox" id="opt-cam" checked><span class="track"></span></label>
@@ -252,6 +285,14 @@
   <!-- SIM -->
   <section class="screen" id="screen-sim">
     <div class="stage" id="stage">
+      <div class="calling" id="calling">
+        <div class="call-av">🧑‍✈️</div>
+        <div class="call-name">Martín Rey</div>
+        <div class="call-sub">Reclutador · JetSmart Argentina</div>
+        <div class="call-status">📞 Conectando<span class="d">.</span><span class="d">.</span><span class="d">.</span></div>
+        <div class="call-bars"><span></span><span></span><span></span><span></span></div>
+      </div>
+      <div class="livedot" id="livedot" style="display:none;"><span class="d"></span>EN VIVO</div>
       <div class="eyebadge" id="eyebadge"><span class="ed"></span><span id="eyebadge-txt">Mirá a los ojos</span></div>
       <div class="rec-tile">
         <div class="progress" id="progress"></div>
@@ -298,7 +339,7 @@
             <path d="M100 88 L96 104 Q100 108 104 104 Z" fill="#d3a884"/>
             <!-- mouth -->
             <ellipse id="mouth" cx="100" cy="116" rx="13" ry="5" fill="#7a3b3b"/>
-            <path d="M87 116 Q100 121 113 116" stroke="#5a2a2a" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <path id="smile" d="M87 117 Q100 121 113 117" stroke="#5a2a2a" stroke-width="2.4" fill="none" stroke-linecap="round"/>
           </svg>
         </div>
         <div class="bars"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
@@ -312,6 +353,10 @@
         <div class="camoff" id="camoff">📷<br>Cámara<br>apagada</div>
         <button class="camtoggle" id="camtoggle" title="Cámara">📷</button>
         <div class="yo">Yo</div>
+      </div>
+      <div class="eyelive" id="eyelive">
+        <div class="eyelive-lbl">👁️ Contacto visual en vivo <b id="eyelive-pct">—</b></div>
+        <div class="eyelive-bar"><i id="eyelive-fill"></i></div>
       </div>
       <div class="listenbar" id="listenbar" style="display:none;">
         <div class="listenpill"><span class="dot"></span><span id="listentxt">Escuchando…</span> <span class="tmr" id="listentmr">0:00</span></div>
@@ -414,6 +459,21 @@ function $(id){return document.getElementById(id);}
 function fmt(s){s=Math.max(0,Math.round(s));const m=Math.floor(s/60),x=s%60;return m+":"+String(x).padStart(2,"0");}
 function esc(s){return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
 function pick(a){return a[Math.floor(Math.random()*a.length)];}
+function firstName(){return (store.opts.name||"").trim().split(/\s+/)[0]||"";}
+function cap(s){return s?s.charAt(0).toUpperCase()+s.slice(1):s;}
+function greetingText(){const n=firstName();return "¡Hola"+(n?" "+cap(n):"")+"! ¿Qué tal? Bienvenido a esta entrevista para Tripulante de Cabina en JetSmart. Soy Martín, del equipo de selección. Ponete cómodo.";}
+/* ===== AUDIO ===== */
+let actx=null;
+function AC(){if(!actx){try{actx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}return actx;}
+function tone(freq,start,dur,gain,type){const c=AC();if(!c)return;try{const o=c.createOscillator(),g=c.createGain();o.type=type||"sine";o.frequency.value=freq;o.connect(g);g.connect(c.destination);const t=c.currentTime+start;g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(gain||0.12,t+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);o.start(t);o.stop(t+dur+0.03);}catch(e){}}
+function chime(){tone(659,0,0.13,0.11,"sine");tone(880,0.12,0.22,0.11,"sine");}
+function ring(){for(let k=0;k<2;k++){const s=k*1.1;tone(440,s,0.42,0.07,"sine");tone(480,s,0.42,0.07,"sine");}}
+function endTone(){tone(523,0,0.16,0.11);tone(392,0.15,0.3,0.11);}
+/* ===== EXPRESIONES ===== */
+const MOUTH={happy:"M83 112 Q100 129 117 112",neutral:"M87 117 Q100 121 113 117",stern:"M87 120 Q100 114 113 120"};
+function setExpression(x){const s=$("smile");if(s)s.setAttribute("d",MOUTH[x]||MOUTH.neutral);
+  const bl=$("browL"),br=$("browR");const y=x==="happy"?"67":x==="stern"?"72":"70";if(bl)bl.setAttribute("y",y);if(br)br.setAttribute("y",y);}
+function tierToExpr(t){return t==="hi"?"happy":t==="lo"?"stern":"neutral";}
 
 /* ===== MOTOR DE FEEDBACK ===== */
 const FILLERS={es:["eh","este","o sea","como que","digamos","tipo","viste","nada","bueno","mmm"],en:["um","uh","like","you know","basically","actually","kind of","i mean"]};
@@ -548,7 +608,12 @@ const Eye={
       }
     }catch(e){}
     setEyeUI(has?(contact?"ok":"bad"):"none");
-    if(this.scoring){ this.ans.frames++; if(has)this.ans.present++; if(has&&contact)this.ans.contact++; }
+    if(this.scoring){ this.ans.frames++; if(has)this.ans.present++; if(has&&contact)this.ans.contact++;
+      const pct=Math.round(this.ans.contact/this.ans.frames*100);
+      const f=$("eyelive-fill"),p=$("eyelive-pct");
+      if(f){ f.style.width=pct+"%"; f.style.background=pct>=70?"var(--verde)":pct>=45?"var(--amar)":"var(--rojo)"; }
+      if(p){ p.textContent=pct+"%"; }
+    }
   }
 };
 function setEyeUI(state){
@@ -598,7 +663,8 @@ function beginListening(){
   $("listenbar").style.display="flex"; $("listentxt").textContent="Escuchando…";
   setControls('<button class="btn ok" id="c-done">✅ Terminé de responder</button><button class="btn ghost sm" id="c-skip">⏭ Saltar</button>','<button id="c-quit">✕ Terminar</button>');
   bindCommon(); $("c-done").onclick=()=>finishAnswer();
-  if(SIM.eyeActive)Eye.startAnswer();
+  chime(); setExpression("neutral"); $("recface").classList.add("listening");
+  if(SIM.eyeActive){ Eye.startAnswer(); $("eyelive").classList.add("show"); const f=$("eyelive-fill"); if(f)f.style.width="0%"; $("eyelive-pct").textContent="0%"; }
   if(!hasSR){$("typedfb").style.display="block";$("cap-label").textContent="✍️ Escribí tu respuesta";SIM.fallbackStart=Date.now();$("typed-input").value="";$("typed-input").focus();return;}
   SIM.listening=true;SIM.manualStop=false;SIM.startedSpeaking=false;SIM.answerStart=Date.now();SIM.lastActivity=Date.now();
   try{
@@ -616,7 +682,7 @@ async function finishAnswer(){
   const step=SIM.seq[SIM.idx]; let secs,transcript;
   if(!hasSR){transcript=($("typed-input").value||"").trim();secs=(Date.now()-SIM.fallbackStart)/1000;$("typedfb").style.display="none";}
   else{if(!SIM.listening)return;secs=(Date.now()-SIM.answerStart)/1000;transcript=(SIM.finalText+SIM.interimText).trim();stopListening();}
-  $("listenbar").style.display="none";
+  $("listenbar").style.display="none"; $("eyelive").classList.remove("show"); $("recface").classList.remove("listening");
   const eye=SIM.eyeActive?Eye.endAnswer():null;
   const res=analyze(transcript,secs,step);
   res.base=res.score; res.eyePct=eye?eye.pct:null;
@@ -628,12 +694,15 @@ async function finishAnswer(){
   // reacción hablada del reclutador
   const react=buildReaction(res,step,eye,canFollow);
   showFeedbackCard(res,step);
-  speak(react.text,step.lang);
+  setExpression(tierToExpr(react.tier));
+  speak(react.text,step.lang).then(()=>setExpression("neutral"));
 }
 function buildReaction(res,step,eye,willFollow){
   const L=step.lang==="en"?"en":"es";
   const tier=res.empty?"empty":res.score>=72?"hi":res.score>=50?"mid":"lo";
   let t=pick(REACT[L][tier]);
+  const n=firstName();
+  if(n && L==="es" && Math.random()<0.4) t=cap(n)+", "+t.charAt(0).toLowerCase()+t.slice(1);
   if(eye && eye.pct<55 && Math.random()<0.85) t+=pick(EYE_CALLOUT[L]);
   if(willFollow) t+= L==="en"?" Let me dig a bit deeper.":" Dejame profundizar un poco.";
   return {text:t,tier};
@@ -685,21 +754,28 @@ function toggleCam(){
 $("camtoggle").onclick=toggleCam;
 
 /* ===== INICIO ===== */
-async function startSim(){
-  const idxs=SIM.opts.mode==="short"?SHORT_IDX:FULL_IDX;
-  SIM.seq=[{kind:"say",spoken:GREETING,lang:"es"},{kind:"say",spoken:SIM.opts.pressure?SMALLTALK_.pressure:SMALLTALK_.normal,lang:"es"}];
-  idxs.forEach(i=>{const p=POOL[i];SIM.seq.push({kind:"ask",q:p.q,spoken:(p.pre?p.pre+" ":"")+p.q,lang:p.lang,type:p.type,cat:p.cat});});
-  SIM.idx=0;SIM.results=[];SIM.eyeActive=false;
-  showScreen("screen-sim");
+function delay(ms){return new Promise(r=>setTimeout(r,ms));}
+async function setupMedia(){
   if(hasGUM){try{const s=await navigator.mediaDevices.getUserMedia({audio:true});s.getTracks().forEach(t=>t.stop());}catch(e){}}
   if(SIM.opts.cam){
     await startCam();
-    if(SIM.camOn){ $("eyebadge-txt").textContent="Cargando detección…"; $("eyebadge").classList.add("show");
-      const ok=await Eye.init();
-      if(ok){ SIM.eyeActive=true; Eye.start(); }
-      else { SIM.eyeActive=false; $("eyebadge").classList.remove("show"); }
-    }
+    if(SIM.camOn){ const ok=await Eye.init(); if(ok){SIM.eyeActive=true;Eye.start();} else {SIM.eyeActive=false;} }
   } else {$("camoff").style.display="flex";$("selfvideo").style.display="none";$("camtoggle").textContent="🚫";}
+}
+async function startSim(){
+  const idxs=SIM.opts.mode==="short"?SHORT_IDX:FULL_IDX;
+  SIM.seq=[{kind:"say",spoken:greetingText(),lang:"es"},{kind:"say",spoken:SIM.opts.pressure?SMALLTALK_.pressure:SMALLTALK_.normal,lang:"es"}];
+  idxs.forEach(i=>{const p=POOL[i];SIM.seq.push({kind:"ask",q:p.q,spoken:(p.pre?p.pre+" ":"")+p.q,lang:p.lang,type:p.type,cat:p.cat});});
+  SIM.idx=0;SIM.results=[];SIM.eyeActive=false; setExpression("neutral");
+  showScreen("screen-sim");
+  // unlock + play ringtone, load media in parallel during the "call"
+  try{const c=AC();if(c&&c.state==="suspended")await c.resume();}catch(e){}
+  $("calling").classList.add("show"); ring();
+  $("eyebadge").classList.remove("show"); $("livedot").style.display="none";
+  await Promise.all([ setupMedia(), delay(2800) ]);
+  $("calling").classList.remove("show");
+  $("livedot").style.display="flex";
+  if(SIM.eyeActive){ $("eyebadge-txt").textContent="Mirá a los ojos"; }
   runStep();
 }
 
@@ -762,7 +838,8 @@ function endSim(){
   $("c-again").onclick=()=>{showScreen("screen-home");renderHistory();};
   $("c-home2").onclick=()=>{showScreen("screen-home");renderHistory();};
   const cai=$("c-ai");if(cai)cai.onclick=()=>runAiFinal(overall,{cPers,cIng,cSit,eyeAvg});
-  speak(CLOSING_LINE,"es");
+  const nn=firstName(); endTone(); setExpression("happy");
+  speak((nn?"Gracias "+cap(nn)+". ":"")+CLOSING_LINE,"es").then(()=>setExpression("neutral"));
 }
 function catBox(name,val){const v=val==null?"—":val,w=val==null?0:val,c=val==null?"var(--dim)":val>=75?"var(--verde)":val>=50?"var(--amar)":"var(--rojo)";return '<div class="catbox"><div class="cn">'+name+'</div><div class="cv" style="color:'+c+'">'+v+'</div><div class="catbar"><i style="width:'+w+'%;background:'+c+'"></i></div></div>';}
 function shortQ(q){q=q.replace(/\s+/g," ").trim();return q.length>50?q.slice(0,48)+"…":q;}
@@ -795,7 +872,8 @@ function renderHistory(){
 }
 
 /* ===== OPCIONES ===== */
-function syncOpts(){$("opt-cam").checked=SIM.opts.cam;$("opt-pressure").checked=SIM.opts.pressure;$("opt-auto").checked=SIM.opts.auto;$("opt-silence").checked=SIM.opts.silence;document.querySelectorAll("#seg-mode button").forEach(b=>b.classList.toggle("on",b.dataset.mode===SIM.opts.mode));}
+function syncOpts(){$("opt-cam").checked=SIM.opts.cam;$("opt-pressure").checked=SIM.opts.pressure;$("opt-auto").checked=SIM.opts.auto;$("opt-silence").checked=SIM.opts.silence;$("opt-name").value=SIM.opts.name||"";document.querySelectorAll("#seg-mode button").forEach(b=>b.classList.toggle("on",b.dataset.mode===SIM.opts.mode));}
+$("opt-name").oninput=e=>{SIM.opts.name=e.target.value;persist();};
 $("opt-cam").onchange=e=>{SIM.opts.cam=e.target.checked;persist();};
 $("opt-pressure").onchange=e=>{SIM.opts.pressure=e.target.checked;persist();};
 $("opt-auto").onchange=e=>{SIM.opts.auto=e.target.checked;persist();};
