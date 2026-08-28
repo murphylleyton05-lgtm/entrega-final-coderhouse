@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0b3d91">
+<title>JetSmart · Práctica Assessment 2</title>
+<style>
+  :root{
+    --azul:#0b3d91;
+    --azul2:#1657c9;
+    --azul-claro:#e8f0fe;
+    --rojo:#e4032e;      /* acento tipo JetSmart */
+    --verde:#1a8f3c;
+    --amarillo:#c98a00;
+    --gris:#5b6472;
+    --gris-claro:#f4f6fa;
+    --borde:#dce2ec;
+    --texto:#1b2330;
+    --blanco:#ffffff;
+    --sombra:0 2px 10px rgba(11,61,145,.08);
+    --radio:14px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--gris-claro);
+    color:var(--texto);
+    line-height:1.45;
+    font-size:16px;
+    padding-bottom:78px; /* espacio para nav fijo */
+  }
+  /* ---------- HEADER ---------- */
+  header{
+    background:linear-gradient(135deg,var(--azul),var(--azul2));
+    color:#fff;
+    padding:14px 16px calc(14px + env(safe-area-inset-top)) 16px;
+    padding-top:calc(14px + env(safe-area-inset-top));
+    position:sticky;top:0;z-index:20;
+    box-shadow:0 2px 8px rgba(0,0,0,.12);
+  }
+  .brand{display:flex;align-items:center;gap:9px;font-weight:800;font-size:1.05rem;letter-spacing:.3px;}
+  .brand .tag{background:var(--rojo);color:#fff;font-size:.62rem;padding:2px 7px;border-radius:20px;font-weight:700;letter-spacing:.5px;}
+  .brand .plane{font-size:1.2rem;}
+  .countdown-wrap{margin-top:10px;}
+  .cd-label{font-size:.72rem;opacity:.9;margin-bottom:5px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+  .cd-grid{display:flex;gap:8px;}
+  .cd-box{
+    background:rgba(255,255,255,.14);
+    border:1px solid rgba(255,255,255,.22);
+    border-radius:10px;
+    padding:7px 4px;
+    text-align:center;
+    flex:1;
+    backdrop-filter:blur(2px);
+  }
+  .cd-num{font-size:1.35rem;font-weight:800;line-height:1;}
+  .cd-unit{font-size:.6rem;text-transform:uppercase;letter-spacing:.6px;opacity:.85;margin-top:3px;}
+  .cd-live{font-size:.7rem;opacity:.9;margin-top:6px;}
+
+  /* ---------- CONTENIDO ---------- */
+  main{padding:14px 14px 20px 14px;max-width:640px;margin:0 auto;}
+  .view{display:none;animation:fade .25s ease;}
+  .view.active{display:block;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+  h2.title{font-size:1.15rem;margin:2px 0 4px 0;display:flex;align-items:center;gap:8px;}
+  .subtitle{color:var(--gris);font-size:.85rem;margin:0 0 14px 0;}
+
+  .card{
+    background:var(--blanco);
+    border:1px solid var(--borde);
+    border-radius:var(--radio);
+    padding:14px;
+    box-shadow:var(--sombra);
+    margin-bottom:12px;
+  }
+
+  /* STAR box */
+  .star{
+    background:var(--azul-claro);
+    border:1px solid #c9dbfb;
+    border-radius:var(--radio);
+    padding:11px 13px;
+    margin-bottom:14px;
+    font-size:.83rem;
+  }
+  .star b{color:var(--azul);}
+  .star .row{margin-top:3px;}
+  .star .letter{display:inline-block;width:20px;font-weight:800;color:var(--rojo);}
+  details.star-d summary{cursor:pointer;font-weight:700;color:var(--azul);list-style:none;display:flex;justify-content:space-between;align-items:center;}
+  details.star-d summary::-webkit-details-marker{display:none;}
+  details.star-d summary .chev{transition:.2s;}
+  details.star-d[open] summary .chev{transform:rotate(180deg);}
+
+  /* Progreso resumen */
+  .progress-bar-wrap{background:#e9edf3;border-radius:20px;height:9px;overflow:hidden;margin:8px 0 4px;}
+  .progress-bar{height:100%;background:linear-gradient(90deg,var(--verde),#3bbf5f);width:0%;transition:width .35s;}
+  .progress-text{font-size:.78rem;color:var(--gris);}
+
+  /* Lista de preguntas */
+  .q-item{
+    background:var(--blanco);
+    border:1px solid var(--borde);
+    border-left:5px solid var(--borde);
+    border-radius:12px;
+    padding:12px 13px;
+    margin-bottom:10px;
+    box-shadow:var(--sombra);
+    transition:border-color .2s;
+  }
+  .q-item.st-verde{border-left-color:var(--verde);}
+  .q-item.st-amarillo{border-left-color:var(--amarillo);}
+  .q-item.st-practicada{border-left-color:var(--azul2);}
+  .q-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;cursor:pointer;}
+  .q-text{font-weight:600;font-size:.95rem;flex:1;}
+  .q-badge{font-size:.6rem;padding:2px 7px;border-radius:20px;white-space:nowrap;font-weight:700;color:#fff;}
+  .b-verde{background:var(--verde);}
+  .b-amarillo{background:var(--amarillo);}
+  .b-practicada{background:var(--azul2);}
+  .b-pend{background:#aab3c0;}
+  .q-body{display:none;margin-top:11px;}
+  .q-item.open .q-body{display:block;}
+
+  .timer-box{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+  .timer-display{
+    font-variant-numeric:tabular-nums;
+    font-weight:800;font-size:1.5rem;
+    background:var(--azul);color:#fff;
+    padding:5px 14px;border-radius:10px;min-width:86px;text-align:center;
+  }
+  .timer-display.warn{background:var(--amarillo);}
+  .timer-display.done{background:var(--rojo);animation:pulse .6s ease 2;}
+  @keyframes pulse{50%{transform:scale(1.06);}}
+
+  button{font-family:inherit;cursor:pointer;border:none;}
+  .btn{
+    background:var(--azul2);color:#fff;font-weight:700;font-size:.82rem;
+    padding:8px 13px;border-radius:9px;
+  }
+  .btn:active{transform:scale(.97);}
+  .btn.ghost{background:#eef2f8;color:var(--azul);}
+  .btn.sm{padding:6px 11px;font-size:.76rem;}
+  .btn-row{display:flex;gap:7px;flex-wrap:wrap;}
+
+  .config-row{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--gris);margin-bottom:12px;flex-wrap:wrap;}
+  .config-row input[type=range]{flex:1;min-width:120px;accent-color:var(--azul2);}
+  .config-row .val{font-weight:800;color:var(--azul);min-width:52px;text-align:right;}
+
+  textarea{
+    width:100%;border:1px solid var(--borde);border-radius:10px;
+    padding:10px;font-family:inherit;font-size:.9rem;resize:vertical;min-height:80px;
+    background:#fcfdff;color:var(--texto);
+  }
+  textarea:focus{outline:2px solid var(--azul-claro);border-color:var(--azul2);}
+  .saved-tick{font-size:.72rem;color:var(--verde);opacity:0;transition:.2s;font-weight:700;}
+  .saved-tick.show{opacity:1;}
+
+  .status-btns{display:flex;gap:6px;margin-top:11px;flex-wrap:wrap;}
+  .sbtn{
+    flex:1;min-width:96px;font-size:.72rem;font-weight:700;padding:7px 4px;border-radius:9px;
+    border:1.5px solid var(--borde);background:#fff;color:var(--gris);text-align:center;line-height:1.15;
+  }
+  .sbtn.active.a-practicada{background:var(--azul2);color:#fff;border-color:var(--azul2);}
+  .sbtn.active.a-verde{background:var(--verde);color:#fff;border-color:var(--verde);}
+  .sbtn.active.a-amarillo{background:var(--amarillo);color:#fff;border-color:var(--amarillo);}
+
+  /* Dinámica grupal */
+  .scenario{font-size:1.02rem;font-weight:600;line-height:1.5;}
+  .roles{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0;}
+  .role-chip{font-size:.72rem;background:var(--azul-claro);color:var(--azul);padding:4px 10px;border-radius:20px;font-weight:700;border:1px solid #c9dbfb;}
+
+  /* Cheat sheet */
+  .cheat h3{font-size:.95rem;margin:0 0 7px;color:var(--azul);display:flex;align-items:center;gap:7px;}
+  .cheat ul{margin:0;padding-left:18px;font-size:.9rem;}
+  .cheat li{margin-bottom:5px;}
+  .frase{background:var(--gris-claro);border-left:3px solid var(--azul2);padding:8px 11px;border-radius:0 8px 8px 0;margin-bottom:8px;font-size:.9rem;font-style:italic;}
+  .checklist label{display:flex;align-items:flex-start;gap:9px;padding:7px 0;font-size:.92rem;border-bottom:1px dashed var(--borde);cursor:pointer;}
+  .checklist label:last-child{border-bottom:none;}
+  .checklist input{width:20px;height:20px;accent-color:var(--verde);margin-top:1px;flex-shrink:0;}
+  .checklist input:checked + span{text-decoration:line-through;color:var(--gris);}
+
+  .hint{font-size:.78rem;color:var(--gris);margin:4px 0 12px;}
+  .lang-flag{font-size:.62rem;background:#eef2f8;color:var(--azul);padding:2px 7px;border-radius:6px;font-weight:700;}
+
+  .reset-link{font-size:.75rem;color:var(--gris);text-align:center;margin:18px 0 4px;text-decoration:underline;background:none;display:block;width:100%;}
+
+  /* ---------- NAV ---------- */
+  nav{
+    position:fixed;bottom:0;left:0;right:0;z-index:30;
+    background:#fff;border-top:1px solid var(--borde);
+    display:flex;
+    padding-bottom:env(safe-area-inset-bottom);
+    box-shadow:0 -2px 10px rgba(11,61,145,.06);
+  }
+  .nav-btn{
+    flex:1;background:none;padding:8px 2px 9px;
+    display:flex;flex-direction:column;align-items:center;gap:2px;
+    color:var(--gris);font-size:.6rem;font-weight:600;line-height:1.1;
+  }
+  .nav-btn .ic{font-size:1.25rem;}
+  .nav-btn.active{color:var(--azul2);}
+  .nav-btn.active .ic{transform:translateY(-1px);}
+
+  @media(min-width:560px){
+    .nav-btn{font-size:.68rem;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <span class="plane">✈️</span> JetSmart <span class="tag">ASSESSMENT 2</span>
+  </div>
+  <div class="countdown-wrap">
+    <div class="cd-label">🎯 Entrevista · <b>Martes 1/9/2026 · 13:00 hs</b></div>
+    <div class="cd-grid">
+      <div class="cd-box"><div class="cd-num" id="cd-d">--</div><div class="cd-unit">Días</div></div>
+      <div class="cd-box"><div class="cd-num" id="cd-h">--</div><div class="cd-unit">Horas</div></div>
+      <div class="cd-box"><div class="cd-num" id="cd-m">--</div><div class="cd-unit">Min</div></div>
+      <div class="cd-box"><div class="cd-num" id="cd-s">--</div><div class="cd-unit">Seg</div></div>
+    </div>
+    <div class="cd-live" id="cd-msg"></div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ============ ESPAÑOL ============ -->
+  <section class="view active" id="v-es">
+    <h2 class="title">🗣️ Entrevista personal <span class="lang-flag">ESP</span></h2>
+    <p class="subtitle">Tocá una pregunta, arrancá el timer y respondé en voz alta. Después anotá tus puntos clave.</p>
+
+    <div class="card" style="padding:11px 13px;">
+      <div class="progress-text" id="prog-es-txt">0 de 0 practicadas</div>
+      <div class="progress-bar-wrap"><div class="progress-bar" id="prog-es-bar"></div></div>
+    </div>
+
+    <details class="star star-d" open>
+      <summary><span>⭐ Metodología STAR (estructurá así tus respuestas)</span><span class="chev">▾</span></summary>
+      <div style="margin-top:8px;">
+        <div class="row"><span class="letter">S</span><b>Situación:</b> contexto breve. ¿Dónde, cuándo, qué pasaba?</div>
+        <div class="row"><span class="letter">T</span><b>Tarea:</b> tu responsabilidad / el objetivo.</div>
+        <div class="row"><span class="letter">A</span><b>Acción:</b> qué hiciste VOS concretamente (lo más importante).</div>
+        <div class="row"><span class="letter">R</span><b>Resultado:</b> cómo terminó + qué aprendiste. Si podés, con un dato.</div>
+      </div>
+    </details>
+
+    <div class="config-row">
+      ⏱️ Tiempo por respuesta:
+      <input type="range" id="cfg-es" min="30" max="150" step="15" value="75">
+      <span class="val" id="cfg-es-val">75 s</span>
+    </div>
+
+    <div id="list-es"></div>
+    <button class="reset-link" data-reset="es">↺ Reiniciar progreso de esta sección</button>
+  </section>
+
+  <!-- ============ ENGLISH ============ -->
+  <section class="view" id="v-en">
+    <h2 class="title">🇬🇧 English Interview <span class="lang-flag">ENG</span></h2>
+    <p class="subtitle">Same idea, answer out loud in English. A bit more time — it's your second language, take it easy.</p>
+
+    <div class="card" style="padding:11px 13px;">
+      <div class="progress-text" id="prog-en-txt">0 de 0 practicadas</div>
+      <div class="progress-bar-wrap"><div class="progress-bar" id="prog-en-bar"></div></div>
+    </div>
+
+    <div class="star">
+      <b>⭐ STAR (same structure in English):</b>
+      <div class="row"><span class="letter">S</span>Situation · <span class="letter">T</span>Task · <span class="letter">A</span>Action · <span class="letter">R</span>Result</div>
+      <div style="margin-top:6px;font-size:.8rem;color:var(--gris);">Tip: hablá lento y claro. Mejor simple y bien pronunciado que complejo y trabado.</div>
+    </div>
+
+    <div class="config-row">
+      ⏱️ Tiempo por respuesta:
+      <input type="range" id="cfg-en" min="45" max="180" step="15" value="105">
+      <span class="val" id="cfg-en-val">105 s</span>
+    </div>
+
+    <div id="list-en"></div>
+    <button class="reset-link" data-reset="en">↺ Reiniciar progreso de esta sección</button>
+  </section>
+
+  <!-- ============ DINÁMICA GRUPAL ============ -->
+  <section class="view" id="v-grupo">
+    <h2 class="title">👥 Dinámica grupal</h2>
+    <p class="subtitle">Un escenario situacional al azar. Pensá cómo actuarías <b>y qué rol tomarías</b> dentro del grupo.</p>
+
+    <div class="star" style="background:#fff7e6;border-color:#f0d9a0;">
+      <b style="color:var(--amarillo);">🎭 Roles posibles en el grupo:</b>
+      <div class="roles" style="margin-top:8px;">
+        <span class="role-chip">🧭 Líder</span>
+        <span class="role-chip">🤝 Mediador</span>
+        <span class="role-chip">⚙️ Ejecutor</span>
+        <span class="role-chip">💡 Aporta ideas</span>
+        <span class="role-chip">📋 Organiza</span>
+        <span class="role-chip">👂 Escucha/apoya</span>
+      </div>
+      <div style="font-size:.78rem;color:var(--gris);">No hace falta ser el líder. Sumá con calma, escuchá al otro y proponé algo concreto.</div>
+    </div>
+
+    <div class="card">
+      <div class="config-row" style="margin-bottom:10px;">
+        ⏱️ Tiempo para pensar/escribir:
+        <input type="range" id="cfg-gr" min="60" max="300" step="30" value="150">
+        <span class="val" id="cfg-gr-val">2:30</span>
+      </div>
+      <div class="timer-box">
+        <div class="timer-display" id="gr-timer">2:30</div>
+        <div class="btn-row">
+          <button class="btn sm" id="gr-start">▶ Iniciar</button>
+          <button class="btn sm ghost" id="gr-reset">↺ Reset</button>
+        </div>
+      </div>
+      <div class="scenario" id="gr-scenario">Tocá "Nuevo escenario" para empezar.</div>
+      <div style="margin-top:12px;">
+        <button class="btn" id="gr-next">🎲 Nuevo escenario</button>
+      </div>
+      <div style="margin-top:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <b style="font-size:.85rem;">📝 Tu respuesta / rol que tomarías:</b>
+          <span class="saved-tick" id="gr-tick">✓ guardado</span>
+        </div>
+        <textarea id="gr-notes" placeholder="Ej: Tomaría el rol de mediador. Primero calmaría al grupo, propondría dividir tareas: uno comunica con cabina, otro..."></textarea>
+      </div>
+    </div>
+    <p class="hint">💡 Consejo: en una dinámica buscan trabajo en equipo, comunicación y actitud calmada bajo presión. No busques "ganar", buscá aportar.</p>
+  </section>
+
+  <!-- ============ REPASO RÁPIDO ============ -->
+  <section class="view" id="v-repaso">
+    <h2 class="title">⚡ Repaso rápido</h2>
+    <p class="subtitle">Tu cheat sheet de última hora. Abrila antes de entrar.</p>
+
+    <div class="card cheat">
+      <h3>⭐ STAR en 4 pasos</h3>
+      <ul>
+        <li><b>S</b>ituación — contexto corto</li>
+        <li><b>T</b>area — tu rol / objetivo</li>
+        <li><b>A</b>cción — qué hiciste VOS (lo clave)</li>
+        <li><b>R</b>esultado — cómo terminó + aprendizaje</li>
+      </ul>
+    </div>
+
+    <div class="card cheat">
+      <h3>🗣️ "Contame sobre vos" — frases fuertes</h3>
+      <div class="frase">"Soy una persona de trato con el público, me manejo bien bajo presión y disfruto trabajar en equipo."</div>
+      <div class="frase">"Busco un trabajo dinámico, con contacto humano, donde la seguridad y el buen servicio sean prioridad — por eso me veo como tripulante."</div>
+      <div class="frase">"Me adapto rápido a cambios y turnos, soy responsable con los protocolos y mantengo la calma cuando las cosas se complican."</div>
+      <div class="frase">"Elijo JetSmart porque es una empresa en crecimiento, joven, y quiero crecer con ella a largo plazo."</div>
+    </div>
+
+    <div class="card cheat">
+      <h3>💙 Puntos JetSmart (para "¿qué sabés de nosotros?")</h3>
+      <ul>
+        <li>Aerolínea <b>low-cost / ultra low-cost</b> — precios bajos, servicios opcionales.</li>
+        <li>Opera en <b>Argentina, Chile, Perú</b> y rutas regionales; en expansión.</li>
+        <li>Flota moderna (familia <b>Airbus A320</b>).</li>
+        <li>Valores: <b>seguridad</b>, eficiencia, buena onda, democratizar el volar.</li>
+        <li>Modelo: "que más gente pueda viajar en avión pagando menos".</li>
+      </ul>
+      <p class="hint" style="margin-bottom:0;">⚠️ Verificá datos actualizados en la web oficial antes de la entrevista.</p>
+    </div>
+
+    <div class="card cheat">
+      <h3>✅ Checklist última hora</h3>
+      <div class="checklist" id="checklist"></div>
+    </div>
+
+    <div class="card cheat" style="background:var(--azul-claro);border-color:#c9dbfb;">
+      <h3>🌟 Actitud durante la entrevista</h3>
+      <ul>
+        <li><b>Sonreí</b> y hacé contacto visual — es un puesto de servicio.</li>
+        <li>Postura derecha, presentación impecable, manos tranquilas.</li>
+        <li>Escuchá la pregunta completa antes de responder.</li>
+        <li>Si no entendés algo en inglés: "Could you repeat that, please?" — sin pánico.</li>
+        <li>Mostrá <b>disponibilidad</b>: turnos rotativos, viajar, mudarte si hace falta.</li>
+        <li>Cerrá con energía: agradecé y mostrá ganas reales de estar ahí.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============ NAV ============ -->
+<nav>
+  <button class="nav-btn active" data-view="v-es"><span class="ic">🗣️</span>Español</button>
+  <button class="nav-btn" data-view="v-en"><span class="ic">🇬🇧</span>English</button>
+  <button class="nav-btn" data-view="v-grupo"><span class="ic">👥</span>Grupal</button>
+  <button class="nav-btn" data-view="v-repaso"><span class="ic">⚡</span>Repaso</button>
+</nav>
+
+<script>
+"use strict";
+
+/* ================= DATOS ================= */
+const PREGUNTAS_ES = [
+  "Contame sobre vos (versión corta, tipo elevator pitch de 1 min).",
+  "¿Por qué querés trabajar en JetSmart?",
+  "¿Por qué querés ser tripulante de cabina?",
+  "¿Qué sabés sobre JetSmart? (modelo low-cost, valores, mercado)",
+  "Contame de una situación en la que tuviste que lidiar con un cliente o persona difícil.",
+  "Contame de un momento en el que trabajaste bajo presión.",
+  "¿Cómo manejás un conflicto con un compañero de equipo?",
+  "Describí una situación en la que tuviste que tomar una decisión rápida sin consultar a nadie.",
+  "¿Qué harías si un pasajero se pone agresivo o no respeta una instrucción de seguridad?",
+  "¿Qué es para vos el trabajo en equipo? Dame un ejemplo real tuyo.",
+  "¿Cómo te ves en 5 años?",
+  "Contame sobre un error que cometiste en un trabajo anterior y cómo lo solucionaste.",
+  "¿Por qué deberíamos elegirte a vos?",
+  "¿Cómo manejás turnos rotativos, madrugadas y estar lejos de casa?",
+  // Extras típicas de TCP / aerolíneas
+  "¿Cuáles considerás que son tus 3 fortalezas y una debilidad? Dame ejemplos.",
+  "¿Qué harías si dos pasajeros discuten fuerte por un asiento durante el vuelo?",
+  "Un pasajero se descompensa en pleno vuelo. ¿Cómo reaccionás?",
+  "¿Cómo darías una mala noticia a los pasajeros (ej: demora o cancelación) manteniendo la calma?",
+  "Contame una vez que diste un servicio al cliente que superó las expectativas.",
+  "¿Por qué querés dejar tu trabajo actual / por qué buscás este cambio?",
+  "¿Qué es lo que más te atrae y qué es lo más difícil de este trabajo, según vos?",
+  "¿Tenés disponibilidad para viajar, mudarte de base o cambiar de ciudad si es necesario?",
+  "¿Cómo manejás el estar muchas horas de pie, con sonrisa, aunque estés cansado/a?",
+  "Si un compañero comete un error de seguridad y no se da cuenta, ¿qué hacés?"
+];
+
+const PREGUNTAS_EN = [
+  "Tell me about yourself.",
+  "Why do you want to work for JetSmart?",
+  "Describe a time you gave excellent customer service.",
+  "How do you handle stress and pressure?",
+  "What would you do if a passenger refuses to follow a safety instruction?",
+  "Where do you see yourself in five years?",
+  "What does teamwork mean to you?",
+  // Extras
+  "Why do you want to become a flight attendant?",
+  "Tell me about a time you dealt with a difficult customer.",
+  "What are your main strengths and one weakness?",
+  "How would you handle a conflict with a coworker?",
+  "Are you comfortable with rotating shifts, early mornings and being away from home?",
+  "A passenger feels unwell during the flight. What do you do?",
+  "Why should we choose you over other candidates?",
+  "Tell me about a mistake you made at work and how you solved it."
+];
+
+const ESCENARIOS = [
+  "El vuelo debe abortar el despegue y hay pasajeros con pánico. Como equipo, ¿cómo organizan la comunicación y calman la cabina?",
+  "Se extravía el equipaje de un pasajero VIP justo antes del embarque. En grupo, ¿cómo lo resuelven sin demorar el vuelo?",
+  "Un compañero de tripulación no está cumpliendo un protocolo de seguridad. ¿Cómo lo abordan como equipo sin generar un conflicto mayor?",
+  "Tienen 25 minutos para embarcar 180 pasajeros porque el vuelo salió demorado. Como equipo, ¿qué plan arman?",
+  // Extras
+  "Durante el vuelo se detecta un olor a quemado leve en la galley. Como equipo, ¿cómo se organizan para verificar y comunicar sin alarmar a los pasajeros?",
+  "Una familia con un bebé y un pasajero que quiere dormir discuten por el ruido. En grupo, ¿cómo median para que ambos queden conformes?",
+  "El vuelo se desvía a otro aeropuerto por mal clima y los pasajeros están cansados y molestos. ¿Cómo se reparten las tareas para contenerlos?",
+  "Falta un miembro de la tripulación por enfermedad y quedan cortos de personal para el servicio. Como equipo, ¿cómo reorganizan las funciones?",
+  "Un pasajero con miedo a volar entra en pánico durante una turbulencia fuerte. En grupo, ¿quién hace qué para asistirlo mientras siguen atendiendo la cabina?"
+];
+
+const CHECKLIST = [
+  "Llegar 30–40 min antes (mejor sobrar tiempo que correr).",
+  "Documentación lista: DNI, CV, títulos/certificados.",
+  "Presentación impecable: prolijo/a, sobrio/a, pelo y uñas cuidadas.",
+  "Celular en silencio y guardado.",
+  "Respirar hondo antes de entrar — actitud tranquila y positiva.",
+  "Sonreír y saludar con firmeza al llegar.",
+  "Contacto visual y escucha activa.",
+  "Repasar mentalmente mi 'contame sobre vos' y 2-3 ejemplos STAR.",
+  "Tener listo 'qué sé de JetSmart' y por qué los elijo.",
+  "Agradecer al final y mostrar ganas reales del puesto."
+];
+
+/* ================= COUNTDOWN ================= */
+// 1/9/2026 13:00 hora Argentina (UTC-3)
+const TARGET = new Date("2026-09-01T13:00:00-03:00").getTime();
+function tickCountdown(){
+  const now = Date.now();
+  let diff = TARGET - now;
+  const msg = document.getElementById("cd-msg");
+  if(diff <= 0){
+    document.getElementById("cd-d").textContent="0";
+    document.getElementById("cd-h").textContent="0";
+    document.getElementById("cd-m").textContent="0";
+    document.getElementById("cd-s").textContent="0";
+    msg.textContent = "🍀 ¡Es hoy / ya pasó! Mucha suerte, la vas a romper.";
+    return;
+  }
+  const d = Math.floor(diff/86400000); diff-=d*86400000;
+  const h = Math.floor(diff/3600000);  diff-=h*3600000;
+  const m = Math.floor(diff/60000);    diff-=m*60000;
+  const s = Math.floor(diff/1000);
+  document.getElementById("cd-d").textContent=d;
+  document.getElementById("cd-h").textContent=String(h).padStart(2,"0");
+  document.getElementById("cd-m").textContent=String(m).padStart(2,"0");
+  document.getElementById("cd-s").textContent=String(s).padStart(2,"0");
+  if(d===0) msg.textContent = "🔥 ¡Falta menos de un día! Repaso final y a descansar.";
+  else if(d<=2) msg.textContent = "💪 Ya falta poco. Practicá un par de preguntas hoy.";
+  else msg.textContent = "";
+}
+setInterval(tickCountdown,1000); tickCountdown();
+
+/* ================= STORAGE ================= */
+const STORE_KEY = "jetsmart_a2_v1";
+let state = { es:{}, en:{}, grupo:{notes:"",scenario:null}, checklist:{}, cfg:{es:75,en:105,gr:150} };
+try{
+  const raw = localStorage.getItem(STORE_KEY);
+  if(raw){ const p = JSON.parse(raw); state = Object.assign(state, p);
+    state.es=p.es||{}; state.en=p.en||{}; state.grupo=p.grupo||{notes:"",scenario:null};
+    state.checklist=p.checklist||{}; state.cfg=Object.assign({es:75,en:105,gr:150},p.cfg||{}); }
+}catch(e){ /* localStorage no disponible o corrupto: seguimos con defaults */ }
+
+function save(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+}
+
+/* ================= NAV ================= */
+document.querySelectorAll(".nav-btn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById(btn.dataset.view).classList.add("active");
+    window.scrollTo({top:0,behavior:"smooth"});
+  });
+});
+
+/* ================= TIMER HELPER ================= */
+function fmt(sec){
+  const m=Math.floor(sec/60), s=sec%60;
+  return m>0 ? m+":"+String(s).padStart(2,"0") : String(s);
+}
+// crea un timer independiente controlado por un objeto
+function makeTimer(displayEl, getDuration, onDone){
+  let remaining=0, id=null, running=false;
+  function render(){
+    displayEl.textContent = fmt(remaining);
+    displayEl.classList.remove("warn","done");
+    if(remaining<=0){ displayEl.classList.add("done"); }
+    else if(remaining<=10){ displayEl.classList.add("warn"); }
+  }
+  function stop(){ if(id){clearInterval(id);id=null;} running=false; }
+  return {
+    start(){
+      if(running) return;
+      if(remaining<=0) remaining=getDuration();
+      running=true;
+      id=setInterval(()=>{
+        remaining--;
+        render();
+        if(remaining<=0){ stop(); if(onDone)onDone(); }
+      },1000);
+    },
+    toggle(){ running?this.pause():this.start(); },
+    pause(){ stop(); },
+    reset(){ stop(); remaining=getDuration(); render(); },
+    setDefault(){ if(!running){ remaining=getDuration(); render(); } }
+  };
+}
+
+/* ================= LISTAS DE PREGUNTAS (ES/EN) ================= */
+const STATUSES = [
+  {key:"practicada", label:"✔ Practicada", cls:"a-practicada", badge:"b-practicada", item:"st-practicada", badgeTxt:"Practicada"},
+  {key:"verde",      label:"💪 Me sentí seguro", cls:"a-verde", badge:"b-verde", item:"st-verde", badgeTxt:"Seguro"},
+  {key:"amarillo",   label:"📖 Necesito repasar", cls:"a-amarillo", badge:"b-amarillo", item:"st-amarillo", badgeTxt:"Repasar"}
+];
+
+function buildList(lang, preguntas, containerId, timerCfgKey){
+  const cont = document.getElementById(containerId);
+  cont.innerHTML="";
+  preguntas.forEach((q,i)=>{
+    const id = lang+"_"+i;
+    const rec = state[lang][id] || {status:null, notes:""};
+    const item = document.createElement("div");
+    item.className="q-item";
+    applyItemClass(item, rec.status);
+
+    // cabecera
+    const head=document.createElement("div");
+    head.className="q-head";
+    head.innerHTML = `<div class="q-text">${i+1}. ${q}</div>`;
+    const badge=document.createElement("span");
+    badge.className="q-badge";
+    head.appendChild(badge);
+    updateBadge(badge, rec.status);
+
+    // cuerpo
+    const body=document.createElement("div");
+    body.className="q-body";
+
+    // timer
+    const tbox=document.createElement("div");
+    tbox.className="timer-box";
+    const disp=document.createElement("div");
+    disp.className="timer-display";
+    const brow=document.createElement("div");
+    brow.className="btn-row";
+    const bStart=document.createElement("button"); bStart.className="btn sm"; bStart.textContent="▶ Iniciar";
+    const bReset=document.createElement("button"); bReset.className="btn sm ghost"; bReset.textContent="↺";
+    brow.appendChild(bStart); brow.appendChild(bReset);
+    tbox.appendChild(disp); tbox.appendChild(brow);
+
+    const timer = makeTimer(disp, ()=>state.cfg[timerCfgKey], ()=>{
+      try{navigator.vibrate&&navigator.vibrate(200);}catch(e){}
+      bStart.textContent="▶ Iniciar"; running=false;
+    });
+    let running=false;
+    timer.setDefault();
+    bStart.addEventListener("click",()=>{
+      timer.toggle(); running=!running;
+      bStart.textContent = running ? "⏸ Pausar" : "▶ Reanudar";
+    });
+    bReset.addEventListener("click",()=>{ timer.reset(); running=false; bStart.textContent="▶ Iniciar"; });
+
+    // notas
+    const notesWrap=document.createElement("div");
+    const lbl=document.createElement("div");
+    lbl.style.cssText="display:flex;justify-content:space-between;align-items:center;margin:2px 0 6px;";
+    lbl.innerHTML=`<b style="font-size:.82rem;">📝 Tus puntos clave / respuesta:</b>`;
+    const tick=document.createElement("span"); tick.className="saved-tick"; tick.textContent="✓ guardado";
+    lbl.appendChild(tick);
+    const ta=document.createElement("textarea");
+    ta.value=rec.notes||"";
+    ta.placeholder = lang==="en" ? "Write your key points here..." : "Anotá acá tus puntos clave, ejemplos STAR, frases...";
+    let tId=null;
+    ta.addEventListener("input",()=>{
+      rec.notes=ta.value; state[lang][id]=rec;
+      clearTimeout(tId); tId=setTimeout(()=>{ save(); tick.classList.add("show"); setTimeout(()=>tick.classList.remove("show"),1200); },400);
+    });
+    notesWrap.appendChild(lbl); notesWrap.appendChild(ta);
+
+    // status buttons
+    const sb=document.createElement("div"); sb.className="status-btns";
+    STATUSES.forEach(st=>{
+      const b=document.createElement("button");
+      b.className="sbtn "+st.cls+(rec.status===st.key?" active":"");
+      b.textContent=st.label;
+      b.addEventListener("click",()=>{
+        rec.status = (rec.status===st.key)?null:st.key;
+        state[lang][id]=rec; save();
+        // refresh botones
+        sb.querySelectorAll(".sbtn").forEach(x=>x.classList.remove("active"));
+        if(rec.status){ b.classList.add("active"); }
+        applyItemClass(item, rec.status);
+        updateBadge(badge, rec.status);
+        updateProgress();
+      });
+      sb.appendChild(b);
+    });
+
+    body.appendChild(tbox);
+    body.appendChild(notesWrap);
+    body.appendChild(sb);
+
+    head.addEventListener("click",(e)=>{
+      if(e.target.tagName==="BUTTON") return;
+      item.classList.toggle("open");
+      if(item.classList.contains("open")) timer.setDefault();
+    });
+
+    item.appendChild(head);
+    item.appendChild(body);
+    cont.appendChild(item);
+  });
+  updateProgress();
+}
+
+function applyItemClass(item,status){
+  item.classList.remove("st-verde","st-amarillo","st-practicada");
+  const s=STATUSES.find(x=>x.key===status);
+  if(s) item.classList.add(s.item);
+}
+function updateBadge(badge,status){
+  const s=STATUSES.find(x=>x.key===status);
+  if(s){ badge.className="q-badge "+s.badge; badge.textContent=s.badgeTxt; }
+  else { badge.className="q-badge b-pend"; badge.textContent="Pendiente"; }
+}
+
+function countPracticed(langObj, total){
+  // "practicada" cuenta como practicada; también verde y amarillo cuentan como que ya la trabajó
+  let n=0;
+  for(const k in langObj){ if(langObj[k] && langObj[k].status) n++; }
+  return Math.min(n,total);
+}
+function updateProgress(){
+  const nEs=countPracticed(state.es, PREGUNTAS_ES.length);
+  const nEn=countPracticed(state.en, PREGUNTAS_EN.length);
+  document.getElementById("prog-es-txt").textContent = `${nEs} de ${PREGUNTAS_ES.length} trabajadas`;
+  document.getElementById("prog-es-bar").style.width = (nEs/PREGUNTAS_ES.length*100)+"%";
+  document.getElementById("prog-en-txt").textContent = `${nEn} de ${PREGUNTAS_EN.length} trabajadas`;
+  document.getElementById("prog-en-bar").style.width = (nEn/PREGUNTAS_EN.length*100)+"%";
+}
+
+/* ================= CONFIG SLIDERS ================= */
+function bindCfg(sliderId, valId, key, fmtFn){
+  const sl=document.getElementById(sliderId), vl=document.getElementById(valId);
+  sl.value=state.cfg[key];
+  vl.textContent=fmtFn(state.cfg[key]);
+  sl.addEventListener("input",()=>{
+    state.cfg[key]=parseInt(sl.value,10);
+    vl.textContent=fmtFn(state.cfg[key]);
+    save();
+  });
+}
+bindCfg("cfg-es","cfg-es-val","es",v=>v+" s");
+bindCfg("cfg-en","cfg-en-val","en",v=>v+" s");
+bindCfg("cfg-gr","cfg-gr-val","gr",v=>fmt(v));
+
+/* ================= DINÁMICA GRUPAL ================= */
+const grDisp=document.getElementById("gr-timer");
+const grTimer=makeTimer(grDisp, ()=>state.cfg.gr, ()=>{ try{navigator.vibrate&&navigator.vibrate([200,100,200]);}catch(e){} });
+grTimer.setDefault();
+const grScenarioEl=document.getElementById("gr-scenario");
+const grNotes=document.getElementById("gr-notes");
+const grTick=document.getElementById("gr-tick");
+let grBtnRun=false;
+
+if(state.grupo.scenario!=null && ESCENARIOS[state.grupo.scenario]){
+  grScenarioEl.textContent=ESCENARIOS[state.grupo.scenario];
+}
+grNotes.value=state.grupo.notes||"";
+let grSaveId=null;
+grNotes.addEventListener("input",()=>{
+  state.grupo.notes=grNotes.value;
+  clearTimeout(grSaveId); grSaveId=setTimeout(()=>{ save(); grTick.classList.add("show"); setTimeout(()=>grTick.classList.remove("show"),1200); },400);
+});
+document.getElementById("gr-start").addEventListener("click",function(){
+  grTimer.toggle(); grBtnRun=!grBtnRun;
+  this.textContent = grBtnRun ? "⏸ Pausar" : "▶ Reanudar";
+});
+document.getElementById("gr-reset").addEventListener("click",()=>{
+  grTimer.reset(); grBtnRun=false; document.getElementById("gr-start").textContent="▶ Iniciar";
+});
+document.getElementById("gr-next").addEventListener("click",()=>{
+  let idx=Math.floor(Math.random()*ESCENARIOS.length);
+  if(ESCENARIOS.length>1 && idx===state.grupo.scenario){ idx=(idx+1)%ESCENARIOS.length; }
+  state.grupo.scenario=idx; save();
+  grScenarioEl.textContent=ESCENARIOS[idx];
+  grTimer.reset(); grBtnRun=false; document.getElementById("gr-start").textContent="▶ Iniciar";
+});
+
+/* ================= CHECKLIST ================= */
+const clCont=document.getElementById("checklist");
+CHECKLIST.forEach((txt,i)=>{
+  const lbl=document.createElement("label");
+  const cb=document.createElement("input"); cb.type="checkbox"; cb.checked=!!state.checklist[i];
+  const sp=document.createElement("span"); sp.textContent=txt;
+  cb.addEventListener("change",()=>{ state.checklist[i]=cb.checked; save(); });
+  lbl.appendChild(cb); lbl.appendChild(sp);
+  clCont.appendChild(lbl);
+});
+
+/* ================= RESET SECCIÓN ================= */
+document.querySelectorAll("[data-reset]").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    const lang=btn.dataset.reset;
+    if(confirm("¿Reiniciar el progreso de esta sección? Se borran los estados y notas.")){
+      state[lang]={}; save();
+      if(lang==="es") buildList("es",PREGUNTAS_ES,"list-es","es");
+      else buildList("en",PREGUNTAS_EN,"list-en","en");
+    }
+  });
+});
+
+/* ================= INIT ================= */
+buildList("es",PREGUNTAS_ES,"list-es","es");
+buildList("en",PREGUNTAS_EN,"list-en","en");
+updateProgress();
+</script>
+</body>
+</html>
