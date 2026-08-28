@@ -217,6 +217,44 @@
   #recface.listening{animation:nod 2.6s ease-in-out infinite;}
   @keyframes nod{0%,100%{transform:translateY(0) rotate(0);}22%{transform:translateY(3px) rotate(1.2deg);}55%{transform:translateY(0px) rotate(-1deg);}}
   #browL,#browR,#smile{transition:all .3s ease;}
+  /* breathing overlay */
+  .breathe{position:fixed;inset:0;z-index:70;background:radial-gradient(circle at 50% 45%,#14315f,#060c18);display:none;flex-direction:column;align-items:center;justify-content:center;gap:22px;text-align:center;padding:24px;}
+  .breathe.show{display:flex;}
+  .breathe .bcircle{width:170px;height:170px;border-radius:50%;background:radial-gradient(circle,#2f6bff,#1a3a8c);display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:800;color:#fff;box-shadow:0 0 40px rgba(47,107,255,.4);transition:transform 4s ease-in-out,box-shadow 4s;}
+  .breathe .bphase{font-size:1.3rem;font-weight:800;}
+  .breathe .bsub{font-size:.86rem;color:var(--dim);max-width:320px;}
+  .breathe .bskip{margin-top:6px;background:#22304f;color:var(--txt);padding:10px 18px;border-radius:11px;font-weight:700;}
+  /* achievements */
+  .badges{display:flex;flex-wrap:wrap;gap:9px;}
+  .badge{background:#101c33;border:1px solid var(--line);border-radius:12px;padding:9px 11px;display:flex;align-items:center;gap:9px;font-size:.8rem;min-width:calc(50% - 5px);opacity:.4;}
+  .badge.on{opacity:1;border-color:rgba(255,207,77,.5);background:linear-gradient(135deg,rgba(255,207,77,.12),#101c33);}
+  .badge .bic{font-size:1.4rem;}
+  .badge .bn{font-weight:800;}
+  .badge .bd{font-size:.68rem;color:var(--dim);}
+  .badge.newone{animation:pop .5s ease;}
+  @keyframes pop{0%{transform:scale(.6);}60%{transform:scale(1.12);}100%{transform:scale(1);}}
+  .newbanner{background:linear-gradient(135deg,#ffcf4d,#ff9a3c);color:#3a2c00;border-radius:12px;padding:11px 13px;font-weight:800;font-size:.9rem;margin:10px 0;text-align:center;animation:pop .5s ease;}
+  /* spark chart */
+  .spark{width:100%;height:70px;margin-top:6px;}
+  .spark-lbl{font-size:.7rem;color:var(--dim2);display:flex;justify-content:space-between;margin-top:2px;}
+  /* video playback */
+  .vidwrap{margin:11px 0;}
+  .vidwrap video{width:100%;border-radius:12px;background:#000;border:1px solid var(--line);}
+  /* transcript review */
+  .qb-row details{margin-top:4px;}
+  .qb-row summary{cursor:pointer;color:var(--azul2);font-size:.74rem;list-style:none;}
+  .qb-row summary::-webkit-details-marker{display:none;}
+  .qb-transcript{font-size:.8rem;color:var(--txt);background:#0c1526;border:1px solid var(--line);border-radius:8px;padding:8px;margin-top:5px;}
+  .qbrow2{display:flex;flex-direction:column;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+  .qbrow2 .top{display:flex;justify-content:space-between;gap:8px;font-size:.82rem;}
+  @media print{
+    body{background:#fff;color:#000;}
+    .cd-chip,.gearbtn,nav,.controls,.subctrl,#ai-final,.vidwrap,.motiv .foot{display:none!important;}
+    .screen{display:block!important;}
+    #screen-sim,#screen-home{display:none!important;}
+    .dsec,.catbox,.eyepanel,.badge{border-color:#ccc;background:#fff;color:#000;}
+    .dsec h4,.debrief h2{color:#000;}
+  }
 </style>
 </head>
 <body>
@@ -256,6 +294,14 @@
       <div class="opt-row">
         <div><div class="lbl">😰 Modo presión</div><div class="desc">El reclutador es más exigente y repregunta. Más nervios, más real.</div></div>
         <label class="sw"><input type="checkbox" id="opt-pressure"><span class="track"></span></label>
+      </div>
+      <div class="opt-row">
+        <div><div class="lbl">🎥 Grabar la sesión</div><div class="desc">Graba tu cámara para que te veas después. Queda en tu dispositivo.</div></div>
+        <label class="sw"><input type="checkbox" id="opt-record" checked><span class="track"></span></label>
+      </div>
+      <div class="opt-row">
+        <div><div class="lbl">🧘 Respiración previa</div><div class="desc">Ejercicio 4-7-8 de 15s para calmar los nervios antes de arrancar.</div></div>
+        <label class="sw"><input type="checkbox" id="opt-breathe"><span class="track"></span></label>
       </div>
       <div class="opt-row">
         <div><div class="lbl">🎙️ Activar mic automáticamente</div><div class="desc">Empieza a escucharte apenas termina de hablar.</div></div>
@@ -373,6 +419,14 @@
   <section class="screen" id="screen-end"><div class="debrief" id="debrief"></div></section>
 </div>
 
+<!-- BREATHING -->
+<div class="breathe" id="breathe">
+  <div class="bcircle" id="bcircle">Respirá</div>
+  <div class="bphase" id="bphase">Preparate…</div>
+  <div class="bsub">Seguí el círculo: inhalá cuando crece, sostené, exhalá cuando se achica. Bajá las pulsaciones antes de entrar.</div>
+  <button class="bskip" id="bskip">Saltar y empezar →</button>
+</div>
+
 <!-- MODAL IA -->
 <div class="modal-bg" id="modal-bg">
   <div class="modal">
@@ -398,24 +452,48 @@ const SMALLTALK_ = {
 };
 const CLOSING_LINE = "Muy bien, con esto terminamos. Dame un segundo que preparo tu devolución. Te agradezco mucho el tiempo y la buena predisposición.";
 
-const POOL = [
-  {pre:"Para arrancar y conocernos.", q:"Contame brevemente sobre vos: ¿quién sos y por qué te presentaste a esta búsqueda?", lang:"es", type:"pitch", cat:"personal"},
-  {pre:"Gracias por contarme.", q:"¿Por qué querés trabajar en JetSmart y por qué como tripulante de cabina?", lang:"es", type:"why", cat:"personal"},
-  {pre:"Bien.", q:"¿Qué sabés sobre JetSmart? Contame lo que conozcas de la empresa.", lang:"es", type:"know", cat:"personal"},
-  {pre:"Vamos a un ejemplo concreto de tu experiencia.", q:"Contame una situación en la que tuviste que atender a un cliente o una persona muy difícil. ¿Qué hiciste?", lang:"es", type:"beh", cat:"personal"},
-  {pre:"", q:"Contame de un momento en el que trabajaste bajo mucha presión. ¿Cómo lo manejaste?", lang:"es", type:"beh", cat:"personal"},
-  {pre:"", q:"¿Cómo manejás un conflicto con un compañero de equipo? Dame un ejemplo real.", lang:"es", type:"beh", cat:"personal"},
-  {pre:"Ahora una situación de vuelo, imaginate que ya sos tripulante.", q:"Durante el vuelo, un pasajero se niega a cumplir una instrucción de seguridad y se pone agresivo. ¿Cómo actuás?", lang:"es", type:"sit", cat:"situacional"},
-  {pre:"Perfecto. Ahora cambiemos al inglés un rato, como en la entrevista real.", q:"Tell me a little about yourself and why you want to join JetSmart.", lang:"en", type:"pitch", cat:"ingles"},
-  {pre:"Good. Let's continue in English.", q:"Describe a time you gave excellent customer service.", lang:"en", type:"beh", cat:"ingles"},
-  {pre:"One more in English.", q:"How do you handle stress and pressure at work?", lang:"en", type:"beh", cat:"ingles"},
-  {pre:"Volvemos al español. Te planteo un escenario de equipo.", q:"El vuelo aborta el despegue y hay pasajeros en pánico. Como parte de la tripulación, ¿cómo actuás y qué rol tomás en el equipo?", lang:"es", type:"sit", cat:"situacional"},
-  {pre:"", q:"Este puesto implica turnos rotativos, madrugadas, viajar y a veces cambiar de base. ¿Tenés disponibilidad y cómo lo manejarías?", lang:"es", type:"avail", cat:"personal"},
-  {pre:"Para ir cerrando.", q:"¿Por qué deberíamos elegirte a vos entre todos los candidatos?", lang:"es", type:"why", cat:"personal"},
-  {pre:"Y una última.", q:"¿Tenés alguna pregunta para nosotros?", lang:"es", type:"closing", cat:"personal"}
+const BANK={
+  pitch:{es:["Contame brevemente sobre vos: ¿quién sos y por qué te presentaste a esta búsqueda?","Presentate en un minuto: ¿quién sos y qué te trae hoy acá?","Para arrancar, ¿cómo te describirías y por qué querés este puesto?"],
+         en:["Tell me a little about yourself and why you want to join JetSmart.","In a minute, tell me who you are and why you're here today."]},
+  why:{es:["¿Por qué querés trabajar en JetSmart y por qué como tripulante de cabina?","¿Qué te motiva a ser tripulante de cabina justamente en JetSmart?","¿Por qué elegiste esta profesión y esta aerolínea en particular?"]},
+  know:{es:["¿Qué sabés sobre JetSmart? Contame lo que conozcas de la empresa.","¿Qué conocés del modelo de negocio de JetSmart y su lugar en el mercado?"]},
+  beh:{es:["Contame una situación en la que tuviste que atender a un cliente o persona muy difícil. ¿Qué hiciste?","Contame de un momento en el que trabajaste bajo mucha presión. ¿Cómo lo manejaste?","¿Cómo manejás un conflicto con un compañero de equipo? Dame un ejemplo real.","Contame de un error que cometiste en un trabajo y cómo lo resolviste.","Contame una vez que diste un servicio que superó las expectativas del cliente.","Describí una situación en la que tuviste que tomar una decisión rápida sin consultar a nadie."],
+       en:["Describe a time you gave excellent customer service.","How do you handle stress and pressure at work?","Tell me about a time you dealt with a difficult customer.","Tell me about a mistake you made at work and how you fixed it."]},
+  sit:{es:["Durante el vuelo, un pasajero se niega a cumplir una instrucción de seguridad y se pone agresivo. ¿Cómo actuás?","Un pasajero se descompensa en pleno vuelo. ¿Cómo reaccionás?","Dos pasajeros discuten fuerte por un asiento durante el embarque. ¿Qué hacés?","Tenés que darle una mala noticia a los pasajeros, una demora larga. ¿Cómo la comunicás manteniendo la calma?"],
+       grupal:["El vuelo aborta el despegue y hay pasajeros en pánico. Como parte de la tripulación, ¿cómo actuás y qué rol tomás en el equipo?","El vuelo salió demorado y tienen 25 minutos para embarcar 180 pasajeros. Como equipo, ¿qué plan arman?","Un compañero no está cumpliendo un protocolo de seguridad. ¿Cómo lo abordan como equipo sin generar un conflicto mayor?"],
+       en:["What would you do if a passenger refuses to follow a safety instruction?","A passenger feels unwell during the flight. What do you do?"]},
+  avail:{es:["Este puesto implica turnos rotativos, madrugadas, viajar y a veces cambiar de base. ¿Tenés disponibilidad y cómo lo manejarías?","¿Cómo llevás los turnos rotativos, las madrugadas y estar lejos de casa?"]},
+  close:{es:["¿Por qué deberíamos elegirte a vos entre todos los candidatos?","Si tuvieras que convencerme en dos frases de por qué sos vos, ¿qué me dirías?","¿Qué creés que te diferencia del resto de los candidatos?"]},
+  question:{es:["¿Tenés alguna pregunta para nosotros?"]}
+};
+function rp(a){return a[Math.floor(Math.random()*a.length)];}
+function sampleN(a,n){const c=a.slice(),o=[];while(o.length<n&&c.length)o.push(c.splice(Math.floor(Math.random()*c.length),1)[0]);return o;}
+function buildSequence(mode){
+  const short=mode==="short"; const s=[];
+  s.push({q:rp(BANK.pitch.es),lang:"es",type:"pitch",cat:"personal",pre:"Para arrancar y conocernos."});
+  s.push({q:rp(BANK.why.es),lang:"es",type:"why",cat:"personal",pre:"Gracias por contarme."});
+  if(!short)s.push({q:rp(BANK.know.es),lang:"es",type:"know",cat:"personal",pre:"Bien."});
+  sampleN(BANK.beh.es,short?1:2).forEach((q,i)=>s.push({q,lang:"es",type:"beh",cat:"personal",pre:i===0?"Vamos a un ejemplo concreto de tu experiencia.":""}));
+  s.push({q:rp(BANK.sit.es),lang:"es",type:"sit",cat:"situacional",pre:"Ahora una situación de vuelo, imaginate que ya sos tripulante."});
+  const enPool=[...BANK.pitch.en.map(q=>({q,type:"pitch"})),...BANK.beh.en.map(q=>({q,type:"beh"})),...BANK.sit.en.map(q=>({q,type:"sit"}))];
+  sampleN(enPool,short?1:2).forEach((o,i)=>s.push({q:o.q,lang:"en",type:o.type,cat:"ingles",pre:i===0?"Perfecto. Ahora cambiemos al inglés un rato, como en la entrevista real.":"Good, one more in English."}));
+  if(!short)s.push({q:rp(BANK.sit.grupal),lang:"es",type:"sit",cat:"situacional",pre:"Volvemos al español. Te planteo un escenario de equipo."});
+  if(!short)s.push({q:rp(BANK.avail.es),lang:"es",type:"avail",cat:"personal",pre:""});
+  s.push({q:rp(BANK.close.es),lang:"es",type:"why",cat:"personal",pre:"Para ir cerrando."});
+  s.push({q:rp(BANK.question.es),lang:"es",type:"closing",cat:"personal",pre:"Y una última."});
+  return s;
+}
+const ACHIEVEMENTS=[
+  {id:"first",icon:"🎬",name:"Primer vuelo",desc:"Completaste tu primera simulación."},
+  {id:"eye70",icon:"👁️",name:"Mirada firme",desc:"70%+ de contacto visual promedio."},
+  {id:"eye85",icon:"🦅",name:"Ojos de águila",desc:"85%+ de contacto visual."},
+  {id:"clean",icon:"🧼",name:"Sin muletillas",desc:"2 o menos muletillas en toda la entrevista."},
+  {id:"star",icon:"⭐",name:"Maestro del STAR",desc:"90%+ de cobertura STAR."},
+  {id:"score80",icon:"🏆",name:"Candidato top",desc:"Puntaje general 80+."},
+  {id:"pressure",icon:"😤",name:"A prueba de presión",desc:"Terminaste una simulación en modo presión."},
+  {id:"streak3",icon:"🔥",name:"Constancia",desc:"3 simulaciones completadas."},
+  {id:"english",icon:"🌎",name:"Bilingüe",desc:"70+ en el bloque de inglés."}
 ];
-const FULL_IDX=[0,1,2,3,4,5,6,7,8,9,10,11,12,13];
-const SHORT_IDX=[0,1,3,6,7,12];
 const IDEAL={beh:[45,90],sit:[40,85],why:[30,75],know:[25,60],avail:[25,60],pitch:[30,60],closing:[8,40]};
 
 const FOLLOWUPS={
@@ -450,8 +528,8 @@ function tickCd(){ let d=TARGET-Date.now(); const el=$("cd"); if(!el)return;
 
 /* ===== STORAGE ===== */
 const KEY="jetsmart_sim_v2";
-let store={history:[],aiKey:"",opts:{cam:true,pressure:false,auto:true,silence:true,mode:"full"}};
-try{const r=localStorage.getItem(KEY);if(r){const p=JSON.parse(r);store.history=p.history||[];store.aiKey=p.aiKey||"";store.opts=Object.assign(store.opts,p.opts||{});}}catch(e){}
+let store={history:[],aiKey:"",achievements:[],opts:{cam:true,pressure:false,auto:true,silence:true,record:true,breathe:false,name:"",mode:"full"}};
+try{const r=localStorage.getItem(KEY);if(r){const p=JSON.parse(r);store.history=p.history||[];store.aiKey=p.aiKey||"";store.achievements=p.achievements||[];store.opts=Object.assign(store.opts,p.opts||{});}}catch(e){}
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){}}
 
 /* ===== HELPERS ===== */
@@ -630,7 +708,40 @@ function setEyeUI(state){
 /* ===== SIM STATE ===== */
 const SIM={seq:[],idx:0,results:[],opts:store.opts,camStream:null,camOn:false,eyeActive:false,
   recog:null,listening:false,manualStop:false,startedSpeaking:false,finalText:"",interimText:"",
-  answerStart:0,lastActivity:0,tick:null,fallbackStart:0};
+  answerStart:0,lastActivity:0,tick:null,fallbackStart:0,
+  mediaRec:null,recChunks:[],recBlob:null,recURL:null,recAudio:null,pressureUsed:false};
+/* ===== GRABACIÓN DE SESIÓN ===== */
+async function startRecording(){
+  if(!SIM.opts.record||!SIM.camOn||!window.MediaRecorder||!SIM.camStream)return;
+  let tracks=[]; const vt=SIM.camStream.getVideoTracks()[0]; if(vt)tracks.push(vt);
+  try{SIM.recAudio=await navigator.mediaDevices.getUserMedia({audio:true});const at=SIM.recAudio.getAudioTracks()[0];if(at)tracks.push(at);}catch(e){SIM.recAudio=null;}
+  if(!tracks.length)return;
+  const ms=new MediaStream(tracks);
+  try{SIM.mediaRec=new MediaRecorder(ms);}catch(e){try{SIM.mediaRec=new MediaRecorder(ms,{mimeType:"video/webm"});}catch(e2){return;}}
+  SIM.recChunks=[];
+  SIM.mediaRec.ondataavailable=e=>{if(e.data&&e.data.size>0)SIM.recChunks.push(e.data);};
+  SIM.mediaRec.onstop=()=>{try{SIM.recBlob=new Blob(SIM.recChunks,{type:SIM.mediaRec.mimeType||"video/webm"});SIM.recURL=URL.createObjectURL(SIM.recBlob);}catch(e){}if(SIM.recAudio){SIM.recAudio.getTracks().forEach(t=>t.stop());SIM.recAudio=null;}};
+  try{SIM.mediaRec.start();}catch(e){}
+}
+function stopRecording(){if(SIM.mediaRec&&SIM.mediaRec.state&&SIM.mediaRec.state!=="inactive"){try{SIM.mediaRec.stop();}catch(e){}}}
+/* ===== RESPIRACIÓN 4-7-8 ===== */
+function runBreathing(){
+  return new Promise(resolve=>{
+    const ov=$("breathe"),c=$("bcircle"),ph=$("bphase");let done=false;
+    const fin=()=>{if(done)return;done=true;ov.classList.remove("show");resolve();};
+    $("bskip").onclick=fin; ov.classList.add("show");
+    const seq=[["Inhalá",4000,1.35],["Sostené",4000,1.35],["Exhalá",6000,0.8]];
+    let i=0;
+    function step(){
+      if(done)return;
+      if(i>=seq.length){fin();return;}
+      const [label,dur,scale]=seq[i];
+      ph.textContent=label; c.textContent=label; c.style.transitionDuration=(dur/1000)+"s"; c.style.transform="scale("+scale+")";
+      i++; setTimeout(step,dur);
+    }
+    step();
+  });
+}
 const SILENCE_MS=3000;
 function showScreen(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));$(id).classList.add("active");window.scrollTo(0,0);}
 function renderCaptions(){const el=$("cap-txt");const full=(SIM.finalText+SIM.interimText).trim();
@@ -638,7 +749,7 @@ function renderCaptions(){const el=$("cap-txt");const full=(SIM.finalText+SIM.in
   el.className="cap-txt";el.innerHTML=esc(SIM.finalText)+'<span class="interim">'+esc(SIM.interimText)+'</span>';}
 function setControls(h,s){$("controls").innerHTML=h||"";$("subctrl").innerHTML=s||"";}
 function renderProgress(){const p=$("progress");p.innerHTML="";SIM.seq.forEach((s,i)=>{if(s.kind!=="ask")return;const el=document.createElement("i");if(i<SIM.idx)el.className="done";else if(i===SIM.idx)el.className="cur";p.appendChild(el);});}
-function bindCommon(){const q=$("c-quit");if(q)q.onclick=quitSim;const sk=$("c-skip");if(sk)sk.onclick=()=>{skipSpeak();stopListening();nextStep();};}
+function bindCommon(){const q=$("c-quit");if(q)q.onclick=quitSim;const sk=$("c-skip");if(sk)sk.onclick=()=>{skipSpeak();stopListening();nextStep();};const rq=$("c-repeat");if(rq)rq.onclick=()=>{const st=SIM.seq[SIM.idx];if(st&&st.kind==="ask")speak(st.q,st.lang);};}
 function stepNumber(){let n=0;for(let i=0;i<=SIM.idx;i++){if(SIM.seq[i].kind==="ask")n++;}return n;}
 function questionCount(){return SIM.seq.filter(s=>s.kind==="ask").length;}
 
@@ -650,12 +761,12 @@ async function runStep(){
   $("listenbar").style.display="none";
   $("qtext").textContent=step.kind==="say"?"":step.q;
   $("qmeta").innerHTML=step.kind==="say"?"":("Pregunta "+stepNumber()+" de "+questionCount()+(step.isFollow?" · repregunta":"")+" <span class='flag'>"+(step.lang==="en"?"🇬🇧 English":"🇦🇷 Español")+"</span>");
-  setControls('<button class="btn ghost" id="c-respond">▶ Responder ahora</button>'+(step.kind==="say"?'':'<button class="btn ghost sm" id="c-skip">⏭ Saltar</button>'),'<button id="c-quit">✕ Terminar</button>');
+  setControls('<button class="btn ghost" id="c-respond">▶ Responder ahora</button>'+(step.kind==="say"?'':'<button class="btn ghost sm" id="c-skip">⏭ Saltar</button>'),(step.kind==="ask"?'<button id="c-repeat">🔁 Repetir pregunta</button>':'')+'<button id="c-quit">✕ Terminar</button>');
   bindCommon(); const cr=$("c-respond"); if(cr)cr.onclick=()=>skipSpeak();
   await speak(step.spoken||step.q, step.lang);
   if(step.kind==="say"){SIM.idx++;return runStep();}
   if(SIM.opts.auto)beginListening();
-  else{setControls('<button class="btn ok" id="c-begin">🎙️ Responder</button><button class="btn ghost sm" id="c-skip">⏭ Saltar</button>','<button id="c-quit">✕ Terminar</button>');bindCommon();$("c-begin").onclick=beginListening;}
+  else{setControls('<button class="btn ok" id="c-begin">🎙️ Responder</button><button class="btn ghost sm" id="c-skip">⏭ Saltar</button>','<button id="c-repeat">🔁 Repetir pregunta</button><button id="c-quit">✕ Terminar</button>');bindCommon();$("c-begin").onclick=beginListening;}
 }
 function beginListening(){
   const step=SIM.seq[SIM.idx];
@@ -735,7 +846,7 @@ function showFeedbackCard(res,step){
   $("fb-slot").scrollIntoView({behavior:"smooth",block:"nearest"});
 }
 function nextStep(){skipSpeak();stopListening();SIM.idx++;if(SIM.idx>=SIM.seq.length){endSim();return;}runStep();}
-function quitSim(){stopListening();skipSpeak();Eye.stop();stopCam();if(SIM.results.length>0)endSim();else showScreen("screen-home");}
+function quitSim(){stopListening();skipSpeak();Eye.stop();if(SIM.results.length>0){endSim();}else{stopRecording();stopCam();showScreen("screen-home");}}
 
 /* ===== CÁMARA ===== */
 async function startCam(){
@@ -763,16 +874,17 @@ async function setupMedia(){
   } else {$("camoff").style.display="flex";$("selfvideo").style.display="none";$("camtoggle").textContent="🚫";}
 }
 async function startSim(){
-  const idxs=SIM.opts.mode==="short"?SHORT_IDX:FULL_IDX;
+  const qs=buildSequence(SIM.opts.mode);
   SIM.seq=[{kind:"say",spoken:greetingText(),lang:"es"},{kind:"say",spoken:SIM.opts.pressure?SMALLTALK_.pressure:SMALLTALK_.normal,lang:"es"}];
-  idxs.forEach(i=>{const p=POOL[i];SIM.seq.push({kind:"ask",q:p.q,spoken:(p.pre?p.pre+" ":"")+p.q,lang:p.lang,type:p.type,cat:p.cat});});
-  SIM.idx=0;SIM.results=[];SIM.eyeActive=false; setExpression("neutral");
-  showScreen("screen-sim");
-  // unlock + play ringtone, load media in parallel during the "call"
+  qs.forEach(p=>SIM.seq.push({kind:"ask",q:p.q,spoken:(p.pre?p.pre+" ":"")+p.q,lang:p.lang,type:p.type,cat:p.cat}));
+  SIM.idx=0;SIM.results=[];SIM.eyeActive=false;SIM.recURL=null;SIM.recBlob=null;SIM.pressureUsed=SIM.opts.pressure; setExpression("neutral");
   try{const c=AC();if(c&&c.state==="suspended")await c.resume();}catch(e){}
+  if(SIM.opts.breathe) await runBreathing();
+  showScreen("screen-sim");
   $("calling").classList.add("show"); ring();
   $("eyebadge").classList.remove("show"); $("livedot").style.display="none";
   await Promise.all([ setupMedia(), delay(2800) ]);
+  await startRecording();
   $("calling").classList.remove("show");
   $("livedot").style.display="flex";
   if(SIM.eyeActive){ $("eyebadge-txt").textContent="Mirá a los ojos"; }
@@ -781,7 +893,7 @@ async function startSim(){
 
 /* ===== DEVOLUCIÓN FINAL ===== */
 function endSim(){
-  stopListening();Eye.stop();stopCam();
+  stopListening();Eye.stop();stopRecording();stopCam();
   const answers=SIM.results.filter(r=>r.type!=="closing");
   const scored=answers.length?answers:SIM.results;
   const overall=scored.length?Math.round(scored.reduce((a,r)=>a+r.res.score,0)/scored.length):0;
@@ -817,6 +929,7 @@ function endSim(){
   const cd=(function(){let d=TARGET-Date.now();if(d<=0)return "hoy";const dd=Math.floor(d/86400000);const hh=Math.floor((d-dd*86400000)/3600000);return dd>0?(dd+" día"+(dd>1?"s":"")+" y "+hh+" h"):(hh+" h");})();
   store.history.unshift({date:new Date().toISOString(),score:overall,cats:{personal:cPers,ingles:cIng,situacional:cSit},eye:eyeAvg,mode:SIM.opts.mode});
   store.history=store.history.slice(0,20);persist();
+  const newBadges=checkAchievements({overall,eyeAvg,totFill,starPct,cIng,pressure:SIM.pressureUsed,attempts:store.history.length});
 
   const ovLbl=overall>=75?"¡Estás muy bien encaminado!":overall>=55?"Vas por buen camino, a seguir puliendo":"Todavía hay margen — practicá y vas a mejorar rápido";
   const ovColor=overall>=75?"var(--verde)":overall>=55?"var(--amar)":"var(--naranja)";
@@ -827,14 +940,30 @@ function endSim(){
   h+='<div class="catgrid">'+catBox("👔 Personal",cPers)+catBox("🇬🇧 Inglés",cIng)+catBox("🎭 Situacional",cSit)+'</div>';
   h+='<div class="dsec"><h4>✅ Tus fortalezas</h4><ul>'+strengths.slice(0,3).map(s=>"<li>"+esc(s)+"</li>").join("")+'</ul></div>';
   h+='<div class="dsec"><h4>🎯 A mejorar</h4><ul>'+improves.slice(0,3).map(s=>"<li>"+esc(s)+"</li>").join("")+'</ul></div>';
-  h+='<div class="dsec"><h4>📋 Respuesta por respuesta</h4><div class="qbreak">';
-  SIM.results.forEach((r,i)=>{const c=r.res.score>=75?"var(--verde)":r.res.score>=50?"var(--amar)":"var(--rojo)";h+='<div class="qb-row"><span class="qb-q">'+(i+1)+". "+esc(shortQ(r.q))+(r.isFollow?' <span class="flag">repreg.</span>':'')+(r.type==="closing"?' <span class="flag">cierre</span>':'')+'</span><span class="qb-s" style="color:'+c+'">'+r.res.score+(r.res.eyePct!=null?' · 👁️'+r.res.eyePct+'%':'')+'</span></div>';});
+  h+='<div class="dsec"><h4>📋 Respuesta por respuesta <span style="font-size:.7rem;color:var(--dim2);font-weight:400;">(tocá para ver lo que dijiste)</span></h4><div class="qbreak">';
+  SIM.results.forEach((r,i)=>{const c=r.res.score>=75?"var(--verde)":r.res.score>=50?"var(--amar)":"var(--rojo)";
+    h+='<div class="qb-row qbrow2"><div class="top"><span class="qb-q">'+(i+1)+". "+esc(shortQ(r.q))+(r.isFollow?' <span class="flag">repreg.</span>':'')+(r.type==="closing"?' <span class="flag">cierre</span>':'')+'</span><span class="qb-s" style="color:'+c+'">'+r.res.score+(r.res.eyePct!=null?' · 👁️'+r.res.eyePct+'%':'')+'</span></div>'+
+    (r.transcript?'<details><summary>ver mi respuesta</summary><div class="qb-transcript">'+esc(r.transcript)+'</div></details>':'')+'</div>';});
   h+='</div></div>';
+  // logros
+  if(newBadges.length)h+='<div class="newbanner">🎉 ¡Desbloqueaste '+newBadges.length+' logro'+(newBadges.length>1?'s':'')+'! '+newBadges.map(b=>b.icon).join(" ")+'</div>';
+  h+='<div class="dsec"><h4>🏅 Logros</h4><div class="badges">'+ACHIEVEMENTS.map(a=>{const on=store.achievements.indexOf(a.id)>=0;const isnew=newBadges.some(b=>b.id===a.id);return '<div class="badge'+(on?" on":"")+(isnew?" newone":"")+'"><span class="bic">'+a.icon+'</span><span><span class="bn">'+a.name+'</span><br><span class="bd">'+a.desc+'</span></span></div>';}).join("")+'</div></div>';
+  // progreso
+  if(store.history.length>=2){const sc=store.history.slice(0,10).map(x=>x.score).reverse();h+='<div class="dsec"><h4>📈 Tu progreso</h4>'+spark(sc)+'<div class="spark-lbl"><span>intento '+(store.history.length>10?store.history.length-9:1)+'</span><span>ahora</span></div></div>';}
+  // video
+  if(SIM.opts.record)h+='<div class="dsec"><h4>🎥 Mirate en acción</h4><div class="vidwrap"><video id="rec-video" controls playsinline></video></div><div class="controls"><button class="btn ghost sm" id="c-dl">⬇️ Descargar video</button></div><p class="hint" id="rec-hint">Procesando la grabación…</p></div>';
   h+='<div class="motiv">💙 Tu entrevista real en JetSmart es el <b>martes 1/9 a las 13:00hs</b> (faltan '+cd+').<br>Ya diste el paso más importante: practicar en serio. Llegá temprano, sonreí, <b>mirá a los ojos</b>, hablá con calma y mostrá tus ganas reales. <b>La vas a romper.</b> 🍀✈️</div>';
-  h+='<div id="ai-final"></div><div class="controls" style="margin-top:6px;">';
+  h+='<div id="ai-final"></div>';
+  h+='<div class="controls" style="margin-top:6px;">';
   if((store.aiKey||"").trim())h+='<button class="btn ai" id="c-ai">🤖 Análisis con IA</button>';
-  h+='<button class="btn ok" id="c-again">🔁 Nueva simulación</button></div><div class="subctrl"><button id="c-home2">🏠 Inicio</button></div>';
+  h+='<button class="btn ok" id="c-again">🔁 Nueva simulación</button></div>';
+  h+='<div class="controls" style="margin-top:8px;"><button class="btn ghost sm" id="c-share">📤 Compartir puntaje</button><button class="btn ghost sm" id="c-print">🖨️ Guardar informe (PDF)</button></div>';
+  h+='<div class="subctrl"><button id="c-home2">🏠 Inicio</button></div>';
   $("debrief").innerHTML=h; showScreen("screen-end");
+  // video wiring
+  if(SIM.opts.record){ populateVideo(); }
+  $("c-share")&&($("c-share").onclick=()=>shareScore(overall,eyeAvg));
+  $("c-print")&&($("c-print").onclick=()=>window.print());
   $("c-again").onclick=()=>{showScreen("screen-home");renderHistory();};
   $("c-home2").onclick=()=>{showScreen("screen-home");renderHistory();};
   const cai=$("c-ai");if(cai)cai.onclick=()=>runAiFinal(overall,{cPers,cIng,cSit,eyeAvg});
@@ -843,6 +972,39 @@ function endSim(){
 }
 function catBox(name,val){const v=val==null?"—":val,w=val==null?0:val,c=val==null?"var(--dim)":val>=75?"var(--verde)":val>=50?"var(--amar)":"var(--rojo)";return '<div class="catbox"><div class="cn">'+name+'</div><div class="cv" style="color:'+c+'">'+v+'</div><div class="catbar"><i style="width:'+w+'%;background:'+c+'"></i></div></div>';}
 function shortQ(q){q=q.replace(/\s+/g," ").trim();return q.length>50?q.slice(0,48)+"…":q;}
+function checkAchievements(s){
+  const earned=[];const add=id=>{if(store.achievements.indexOf(id)<0){store.achievements.push(id);const a=ACHIEVEMENTS.find(x=>x.id===id);if(a)earned.push(a);}};
+  add("first");
+  if(s.eyeAvg!=null&&s.eyeAvg>=70)add("eye70");
+  if(s.eyeAvg!=null&&s.eyeAvg>=85)add("eye85");
+  if(s.totFill<=2)add("clean");
+  if(s.starPct!=null&&s.starPct>=90)add("star");
+  if(s.overall>=80)add("score80");
+  if(s.pressure)add("pressure");
+  if(s.attempts>=3)add("streak3");
+  if(s.cIng!=null&&s.cIng>=70)add("english");
+  persist();return earned;
+}
+function spark(vals){
+  const w=280,h=60,pad=7,n=vals.length;if(n<2)return "";
+  const xs=i=>pad+i*((w-2*pad)/(n-1)),ys=v=>h-pad-(v/100)*(h-2*pad);
+  let d="";vals.forEach((v,i)=>{d+=(i?" L":"M")+xs(i).toFixed(1)+" "+ys(v).toFixed(1);});
+  let dots="";vals.forEach((v,i)=>{dots+='<circle cx="'+xs(i).toFixed(1)+'" cy="'+ys(v).toFixed(1)+'" r="3" fill="#4d84ff"/>';});
+  return '<svg class="spark" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none"><line x1="'+pad+'" y1="'+ys(50)+'" x2="'+(w-pad)+'" y2="'+ys(50)+'" stroke="#2a3a60" stroke-dasharray="3 3"/><path d="'+d+'" fill="none" stroke="#4d84ff" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>'+dots+'</svg>';
+}
+function populateVideo(tries){
+  tries=tries||0;const v=$("rec-video"),hint=$("rec-hint");if(!v)return;
+  if(SIM.recURL){v.src=SIM.recURL;if(hint)hint.textContent="Consejo: mirá tu postura, tu expresión y si sostenés la mirada.";const dl=$("c-dl");if(dl)dl.onclick=()=>{const a=document.createElement("a");a.href=SIM.recURL;a.download="entrevista_jetsmart.webm";document.body.appendChild(a);a.click();a.remove();};return;}
+  if(tries<25)setTimeout(()=>populateVideo(tries+1),300);
+  else if(hint)hint.textContent="No se pudo generar el video en este navegador. El resto de tu informe está completo.";
+}
+function shareScore(overall,eyeAvg){
+  const n=firstName();
+  const txt="✈️ Simulación de entrevista JetSmart"+(n?" — "+cap(n):"")+"\nPreparación: "+overall+"/100"+(eyeAvg!=null?" · Contacto visual: "+eyeAvg+"%":"")+"\n¡Practicando para el martes 1/9! 🍀";
+  if(navigator.share)navigator.share({title:"Mi simulación JetSmart",text:txt}).catch(()=>{});
+  else if(navigator.clipboard)navigator.clipboard.writeText(txt).then(()=>alert("Resumen copiado ✅")).catch(()=>alert(txt));
+  else alert(txt);
+}
 
 /* ===== IA FINAL ===== */
 async function runAiFinal(overall,cats){
@@ -868,12 +1030,17 @@ async function gemini(prompt){
 function renderHistory(){
   const card=$("history-card"),list=$("history-list");if(!store.history.length){card.style.display="none";return;}
   card.style.display="block";const best=Math.max(...store.history.map(h=>h.score));
-  list.innerHTML=store.history.slice(0,6).map(h=>{const d=new Date(h.date);const ds=d.toLocaleDateString("es-AR",{day:"2-digit",month:"2-digit"})+" "+d.toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"});return '<div class="h-row"><span>'+ds+(h.eye!=null?' · 👁️'+h.eye+'%':'')+(h.score===best?' 🏆':'')+'</span><b>'+h.score+'/100</b></div>';}).join("")+(store.history.length>1?'<div class="h-row" style="border:none;color:var(--dim2)"><span>Mejor puntaje</span><b style="color:var(--verde)">'+best+'/100</b></div>':'');
+  let chart="";if(store.history.length>=2){const sc=store.history.slice(0,10).map(x=>x.score).reverse();chart=spark(sc);}
+  const rows=store.history.slice(0,6).map(h=>{const d=new Date(h.date);const ds=d.toLocaleDateString("es-AR",{day:"2-digit",month:"2-digit"})+" "+d.toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"});return '<div class="h-row"><span>'+ds+(h.eye!=null?' · 👁️'+h.eye+'%':'')+(h.score===best?' 🏆':'')+'</span><b>'+h.score+'/100</b></div>';}).join("");
+  const earnedN=store.achievements?store.achievements.length:0;
+  list.innerHTML=chart+rows+'<div class="h-row" style="border:none;color:var(--dim2)"><span>Mejor puntaje · 🏅 '+earnedN+' logros</span><b style="color:var(--verde)">'+best+'/100</b></div>';
 }
 
 /* ===== OPCIONES ===== */
-function syncOpts(){$("opt-cam").checked=SIM.opts.cam;$("opt-pressure").checked=SIM.opts.pressure;$("opt-auto").checked=SIM.opts.auto;$("opt-silence").checked=SIM.opts.silence;$("opt-name").value=SIM.opts.name||"";document.querySelectorAll("#seg-mode button").forEach(b=>b.classList.toggle("on",b.dataset.mode===SIM.opts.mode));}
+function syncOpts(){$("opt-cam").checked=SIM.opts.cam;$("opt-pressure").checked=SIM.opts.pressure;$("opt-auto").checked=SIM.opts.auto;$("opt-silence").checked=SIM.opts.silence;$("opt-record").checked=SIM.opts.record;$("opt-breathe").checked=SIM.opts.breathe;$("opt-name").value=SIM.opts.name||"";document.querySelectorAll("#seg-mode button").forEach(b=>b.classList.toggle("on",b.dataset.mode===SIM.opts.mode));}
 $("opt-name").oninput=e=>{SIM.opts.name=e.target.value;persist();};
+$("opt-record").onchange=e=>{SIM.opts.record=e.target.checked;persist();};
+$("opt-breathe").onchange=e=>{SIM.opts.breathe=e.target.checked;persist();};
 $("opt-cam").onchange=e=>{SIM.opts.cam=e.target.checked;persist();};
 $("opt-pressure").onchange=e=>{SIM.opts.pressure=e.target.checked;persist();};
 $("opt-auto").onchange=e=>{SIM.opts.auto=e.target.checked;persist();};
