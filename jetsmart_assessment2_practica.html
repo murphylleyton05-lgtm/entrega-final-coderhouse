@@ -346,6 +346,10 @@
         <div><div class="lbl">📳 Vibrar si perdés la mirada</div><div class="desc">Un toque suave cuando desviás los ojos, para reforzar el hábito.</div></div>
         <label class="sw"><input type="checkbox" id="opt-vibrate" checked><span class="track"></span></label>
       </div>
+      <div class="opt-row">
+        <div><div class="lbl">🔁 Repetir hasta que salga</div><div class="desc">Si una respuesta queda floja, el reclutador te la vuelve a preguntar.</div></div>
+        <label class="sw"><input type="checkbox" id="opt-retry"><span class="track"></span></label>
+      </div>
       <div class="opt-row" style="border-bottom:none;">
         <div style="flex:1;"><div class="lbl">🎙️ Voz del reclutador</div><div class="desc">Elegí la voz con la que te habla Martín.</div></div>
         <select id="opt-voice" class="voicesel"></select>
@@ -373,6 +377,16 @@
     <div class="card" id="history-card" style="display:none;">
       <h3>📈 Tus intentos anteriores</h3>
       <div class="history" id="history-list"></div>
+    </div>
+    <div class="card" style="padding:12px 14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <div><div class="lbl" style="font-size:.9rem;font-weight:700;">💾 Tu progreso</div><div class="desc">Pasalo entre celu y compu.</div></div>
+        <div class="btn-row" style="display:flex;gap:7px;">
+          <button class="btn ghost sm" id="btn-export">⬇️ Exportar</button>
+          <button class="btn ghost sm" id="btn-import">⬆️ Importar</button>
+          <input type="file" id="file-import" accept="application/json,.json" style="display:none;">
+        </div>
+      </div>
     </div>
     <button class="btn big" id="btn-start">🎬 Iniciar simulación</button>
     <button class="btn big study" id="btn-study" style="margin-top:9px;">📚 Repaso rápido (cheat sheet + banco de preguntas)</button>
@@ -644,6 +658,10 @@ const REACT={
     empty:["I couldn't hear you, let's move on.","Seems it cut off, no worries."]
   }
 };
+const CURVEBALLS={
+  es:["Mmm… ¿estás seguro de eso?","No me terminás de convencer, pero sigamos.","Te noto un poco dudando, eh.","¿Eso es todo lo que tenés para decir?","Interesante… aunque esperaba algo más concreto."],
+  en:["Hmm… are you sure about that?","You don't fully convince me, but let's continue.","You seem a bit hesitant.","Is that all you've got?"]
+};
 const EYE_CALLOUT={
   es:[" Y algo importante: tratá de sostenerme la mirada, te noté los ojos un poco esquivos."," Una cosa más: mirame a los ojos, que eso transmite seguridad."],
   en:[" Also, try to keep eye contact with me, it shows confidence."]
@@ -658,7 +676,7 @@ function tickCd(){ let d=TARGET-Date.now(); const el=$("cd"); if(!el)return;
 
 /* ===== STORAGE ===== */
 const KEY="jetsmart_sim_v2";
-let store={history:[],aiKey:"",achievements:[],opts:{cam:true,pressure:false,auto:true,silence:true,record:true,breathe:false,vibrate:true,name:"",voiceURI:"",interviewer:"martin",mode:"full"}};
+let store={history:[],aiKey:"",achievements:[],opts:{cam:true,pressure:false,auto:true,silence:true,record:true,breathe:false,vibrate:true,retry:false,name:"",voiceURI:"",interviewer:"martin",mode:"full"}};
 store.checklist={};
 try{const r=localStorage.getItem(KEY);if(r){const p=JSON.parse(r);store.history=p.history||[];store.aiKey=p.aiKey||"";store.achievements=p.achievements||[];store.checklist=p.checklist||{};store.opts=Object.assign(store.opts,p.opts||{});}}catch(e){}
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){}}
@@ -891,6 +909,14 @@ function energyResult(){
   const cat=avg<0.03?"bajo":avg>0.28?"alto":"bien";
   return {avg,cat};
 }
+function computeConfidence(res){
+  const parts=[];
+  if(res.eyePct!=null)parts.push(res.eyePct);
+  if(res.energyCat)parts.push(res.energyCat==="bajo"?45:res.energyCat==="alto"?92:85);
+  parts.push(Math.max(30,100-res.fillers*12));
+  parts.push(res.paceV==="bien"?90:res.paceV==="—"?75:65);
+  return parts.length?Math.round(parts.reduce((a,b)=>a+b,0)/parts.length):null;
+}
 /* ===== GRABACIÓN DE SESIÓN ===== */
 async function startRecording(){
   if(!SIM.opts.record||!SIM.camOn||!window.MediaRecorder||!SIM.camStream)return;
@@ -989,10 +1015,14 @@ async function finishAnswer(){
   const res=analyze(transcript,secs,step);
   res.base=res.score; res.eyePct=eye?eye.pct:null; res.energyCat=energy?energy.cat:null;
   if(eye) res.score=Math.round(res.base*0.7 + eye.pct*0.3);
+  res.confidence=res.empty?null:computeConfidence(res);
   if(res.energyCat==="bajo"&&!res.empty){res.tips.unshift("Proyectá más la voz: hablar muy bajo transmite inseguridad.");res.tips=res.tips.slice(0,3);}
   SIM.results.push({q:step.q,lang:step.lang,type:step.type,cat:step.cat,isFollow:!!step.isFollow,transcript,secs:Math.round(secs),res});
-  // ¿repregunta?
-  const canFollow = SIM.opts.pressure && !step.isFollow && (step.type==="beh"||step.type==="sit") && !res.empty && res.words>6 && Math.random()<0.5;
+  // ¿repetir la misma (modo "hasta que salga")?
+  const canRetry = SIM.opts.retry && !res.empty && step.type!=="closing" && !step.isFollow && res.score<60 && (step.retry||0)<2;
+  if(canRetry){ const nudge=pick(["Probemos de nuevo, esta vez con más detalle.","Dale otra vez, mejorá lo que te marqué.","Volvé a intentarlo, con un ejemplo más concreto."]); SIM.seq.splice(SIM.idx+1,0,{kind:"ask",q:step.q,spoken:nudge+" "+step.q,lang:step.lang,type:step.type,cat:step.cat,retry:(step.retry||0)+1}); }
+  // ¿repregunta? (solo si no reintentamos)
+  const canFollow = !canRetry && SIM.opts.pressure && !step.isFollow && (step.type==="beh"||step.type==="sit") && !res.empty && res.words>6 && Math.random()<0.5;
   if(canFollow){ const q=pick(FOLLOWUPS[step.lang==="en"?"en":"es"]); SIM.seq.splice(SIM.idx+1,0,{kind:"ask",q,spoken:q,lang:step.lang,type:step.type,cat:step.cat,isFollow:true}); }
   // reacción hablada del reclutador
   const react=buildReaction(res,step,eye,canFollow);
@@ -1004,6 +1034,7 @@ function buildReaction(res,step,eye,willFollow){
   const L=step.lang==="en"?"en":"es";
   const tier=res.empty?"empty":res.score>=72?"hi":res.score>=50?"mid":"lo";
   let t=pick(REACT[L][tier]);
+  if(SIM.opts.pressure && tier!=="hi" && tier!=="empty" && Math.random()<0.45) t=pick(CURVEBALLS[L])+" "+t;
   const n=firstName();
   if(n && L==="es" && Math.random()<0.4) t=cap(n)+", "+t.charAt(0).toLowerCase()+t.slice(1);
   if(eye && eye.pct<55 && Math.random()<0.85) t+=pick(EYE_CALLOUT[L]);
@@ -1028,6 +1059,7 @@ function showFeedbackCard(res,step){
     h+='<div class="metric"><div class="mlabel">Ritmo</div><div class="mval '+res.paceCls+'">'+(res.wpm||"—")+' ppm · '+res.paceV+'</div></div>';
     h+='<div class="metric"><div class="mlabel">Muletillas</div><div class="mval '+(res.fillers<=1?"g":res.fillers<=4?"y":"r")+'">'+res.fillers+(res.fillersTop.length?' ('+res.fillersTop[0]+')':'')+'</div></div>';
     if(res.energyCat)h+='<div class="metric"><div class="mlabel">🔊 Proyección de voz</div><div class="mval '+(res.energyCat==="bajo"?"r":"g")+'">'+(res.energyCat==="bajo"?"Baja — proyectá más":res.energyCat==="alto"?"Fuerte y clara":"Buena")+'</div></div>';
+    if(res.confidence!=null)h+='<div class="metric wide"><div class="mlabel">💪 Confianza (cómo transmitís)</div><div class="mval '+(res.confidence>=70?"g":res.confidence>=50?"y":"r")+'">'+res.confidence+'/100 · '+(res.confidence>=70?"transmitís seguridad":res.confidence>=50?"vas bien":"a reforzar la presencia")+'</div></div>';
     h+='</div>';
     if(res.star){const nmf={s:"Situación",t:"Tarea",a:"Acción",r:"Resultado"};const falt=["s","t","a","r"].filter(k=>!res.star[k]).map(k=>nmf[k]);if(falt.length)h+='<div class="fbhdr">STAR — te faltó</div><ul class="fblist"><li class="warnli">'+falt.join(", ")+'</li></ul>';}
     if(res.tips.length)h+='<div class="fbhdr">Sugerencias</div><ul class="fblist">'+res.tips.map(t=>'<li class="tip">'+esc(t)+'</li>').join("")+'</ul>';
@@ -1102,6 +1134,8 @@ function endSim(){
   const cPers=cavg("personal"),cIng=cavg("ingles"),cSit=cavg("situacional");
   const eyeArr=SIM.results.filter(r=>r.res.eyePct!=null).map(r=>r.res.eyePct);
   const eyeAvg=eyeArr.length?Math.round(eyeArr.reduce((a,b)=>a+b,0)/eyeArr.length):null;
+  const confArr=SIM.results.filter(r=>r.res.confidence!=null).map(r=>r.res.confidence);
+  const confAvg=confArr.length?Math.round(confArr.reduce((a,b)=>a+b,0)/confArr.length):null;
   const behs=SIM.results.filter(r=>r.res.star);let sp=0,st=0;behs.forEach(r=>["s","t","a","r"].forEach(k=>{st++;if(r.res.star[k])sp++;}));
   const starPct=st?Math.round(sp/st*100):null;
   const totFill=SIM.results.reduce((a,r)=>a+r.res.fillers,0);
@@ -1138,10 +1172,12 @@ function endSim(){
   let h='<h2>🎬 Devolución de tu entrevista</h2><div class="dsub">Martín · Reclutador JetSmart</div>';
   h+='<div class="bigscore"><div class="num" style="color:'+ovColor+';">'+overall+'<span style="font-size:1.2rem;color:var(--dim);">/100</span></div><div class="lbl">Nivel de preparación · '+ovLbl+'</div></div>';
   const prevAtt=store.history[1];
-  if(prevAtt){const dd=overall-prevAtt.score;h+='<div style="text-align:center;margin:-6px 0 12px;font-size:.82rem;font-weight:800;color:'+(dd>0?"var(--verde)":dd<0?"var(--rojo)":"var(--dim)")+'">'+(dd>0?"▲ +"+dd:dd<0?"▼ "+dd:"= igual")+' vs tu intento anterior ('+prevAtt.score+')</div>';}
+  if(prevAtt){const dd=overall-prevAtt.score;h+='<div style="text-align:center;margin:-6px 0 8px;font-size:.82rem;font-weight:800;color:'+(dd>0?"var(--verde)":dd<0?"var(--rojo)":"var(--dim)")+'">'+(dd>0?"▲ +"+dd:dd<0?"▼ "+dd:"= igual")+' vs tu intento anterior ('+prevAtt.score+')</div>';}
+  if(confAvg!=null)h+='<div style="text-align:center;margin:0 0 12px;font-size:.85rem;color:var(--dim)">💪 Confianza (cómo transmitís): <b style="color:'+(confAvg>=70?"var(--verde)":confAvg>=50?"var(--amar)":"var(--rojo)")+'">'+confAvg+'/100</b></div>';
   if(eyeAvg!=null){const ec=eyeAvg>=70?"var(--verde)":eyeAvg>=45?"var(--amar)":"var(--rojo)";
     h+='<div class="eyepanel"><div style="font-size:.8rem;color:var(--cyan);text-transform:uppercase;letter-spacing:.8px;">👁️ Contacto visual · lo más importante</div><div class="big" style="color:'+ec+'">'+eyeAvg+'%</div><div style="font-size:.85rem;color:var(--dim)">'+(eyeAvg>=70?"Excelente, transmitís seguridad. Sostenelo así el martes.":eyeAvg>=45?"Aceptable, pero podés mejorar. Mirá más fijo a los ojos.":"Te falta mirada. Es lo primero que se nota — entrená esto sí o sí.")+'</div></div>';}
   h+='<div class="catgrid">'+catBox("👔 Personal",cPers)+catBox("🇬🇧 Inglés",cIng)+catBox("🎭 Situacional",cSit)+'</div>';
+  if(store.history.length>=2){const ck=[["👔 Personal","personal"],["🇬🇧 Inglés","ingles"],["🎭 Situacional","situacional"]];let ev="";ck.forEach(a=>{const vals=store.history.slice(0,8).map(hh=>hh.cats?hh.cats[a[1]]:null).filter(v=>v!=null).reverse();if(vals.length>=2)ev+='<div style="margin-bottom:8px;"><div style="font-size:.76rem;color:var(--dim);margin-bottom:2px;">'+a[0]+'</div>'+spark(vals)+'</div>';});if(ev)h+='<div class="dsec"><h4>📊 Evolución por categoría</h4>'+ev+'</div>';}
   h+='<div class="dsec"><h4>✅ Tus fortalezas</h4><ul>'+strengths.slice(0,3).map(s=>"<li>"+esc(s)+"</li>").join("")+'</ul></div>';
   h+='<div class="dsec"><h4>🎯 A mejorar</h4><ul>'+improves.slice(0,3).map(s=>"<li>"+esc(s)+"</li>").join("")+'</ul></div>';
   h+='<div class="dsec"><h4>📋 Respuesta por respuesta <span style="font-size:.7rem;color:var(--dim2);font-weight:400;">(tocá para ver lo que dijiste)</span></h4><div class="qbreak">';
@@ -1268,6 +1304,16 @@ function buildReportText(overall,c,strengths,improves){
   return t;
 }
 function downloadText(name,text){try{const b=new Blob([text],{type:"text/plain;charset=utf-8"});const u=URL.createObjectURL(b);const a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),3000);}catch(e){}}
+function exportProgress(){downloadText("progreso_jetsmart.json",JSON.stringify(store));}
+function importProgress(file){
+  const rd=new FileReader();
+  rd.onload=()=>{try{const p=JSON.parse(rd.result);
+    if(p.history)store.history=p.history;if(p.achievements)store.achievements=p.achievements;if(p.checklist)store.checklist=p.checklist;if(p.aiKey!=null)store.aiKey=p.aiKey;if(p.opts)store.opts=Object.assign(store.opts,p.opts);SIM.opts=store.opts;persist();
+    syncOpts();renderHistory();refreshAi();applyInterviewer();
+    alert("Progreso importado ✅");
+  }catch(e){alert("No se pudo leer el archivo. ¿Es un export válido?");}};
+  rd.readAsText(file);
+}
 /* ===== HISTORY ===== */
 function renderHistory(){
   const card=$("history-card"),list=$("history-list");if(!store.history.length){card.style.display="none";return;}
@@ -1279,11 +1325,18 @@ function renderHistory(){
 }
 
 /* ===== OPCIONES ===== */
-function syncOpts(){$("opt-cam").checked=SIM.opts.cam;$("opt-pressure").checked=SIM.opts.pressure;$("opt-auto").checked=SIM.opts.auto;$("opt-silence").checked=SIM.opts.silence;$("opt-record").checked=SIM.opts.record;$("opt-breathe").checked=SIM.opts.breathe;$("opt-vibrate").checked=SIM.opts.vibrate;$("opt-name").value=SIM.opts.name||"";populateVoices();document.querySelectorAll("#seg-mode button").forEach(b=>b.classList.toggle("on",b.dataset.mode===SIM.opts.mode));document.querySelectorAll("#seg-interviewer button").forEach(b=>b.classList.toggle("on",b.dataset.int===SIM.opts.interviewer));}
+function syncOpts(){$("opt-cam").checked=SIM.opts.cam;$("opt-pressure").checked=SIM.opts.pressure;$("opt-auto").checked=SIM.opts.auto;$("opt-silence").checked=SIM.opts.silence;$("opt-record").checked=SIM.opts.record;$("opt-breathe").checked=SIM.opts.breathe;$("opt-vibrate").checked=SIM.opts.vibrate;$("opt-retry").checked=SIM.opts.retry;$("opt-name").value=SIM.opts.name||"";populateVoices();document.querySelectorAll("#seg-mode button").forEach(b=>b.classList.toggle("on",b.dataset.mode===SIM.opts.mode));document.querySelectorAll("#seg-interviewer button").forEach(b=>b.classList.toggle("on",b.dataset.int===SIM.opts.interviewer));}
 $("opt-name").oninput=e=>{SIM.opts.name=e.target.value;persist();};
 $("opt-record").onchange=e=>{SIM.opts.record=e.target.checked;persist();};
 $("opt-breathe").onchange=e=>{SIM.opts.breathe=e.target.checked;persist();};
 $("opt-vibrate").onchange=e=>{SIM.opts.vibrate=e.target.checked;persist();};
+$("opt-retry").onchange=e=>{SIM.opts.retry=e.target.checked;persist();};
+$("btn-export").onclick=exportProgress;
+$("btn-import").onclick=()=>$("file-import").click();
+$("file-import").onchange=e=>{if(e.target.files&&e.target.files[0])importProgress(e.target.files[0]);e.target.value="";};
+document.addEventListener("keydown",e=>{
+  if(e.code==="Space"&&SIM.listening&&document.getElementById("screen-sim").classList.contains("active")){e.preventDefault();finishAnswer();}
+});
 $("opt-voice").onchange=e=>{SIM.opts.voiceURI=e.target.value;persist();try{if(e.target.value){const u=new SpeechSynthesisUtterance("Hola, soy Martín. Así te voy a hablar.");const v=voices.find(x=>x.voiceURI===e.target.value);if(v){u.voice=v;u.lang=v.lang;}speechSynthesis.cancel();speechSynthesis.speak(u);}}catch(err){}};
 $("opt-cam").onchange=e=>{SIM.opts.cam=e.target.checked;persist();};
 $("opt-pressure").onchange=e=>{SIM.opts.pressure=e.target.checked;persist();};
