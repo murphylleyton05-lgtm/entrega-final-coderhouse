@@ -330,6 +330,10 @@
         <label class="sw"><input type="checkbox" id="opt-cam" checked><span class="track"></span></label>
       </div>
       <div class="opt-row">
+        <div style="flex:1;"><div class="lbl">👁️ Sensibilidad de la mirada</div><div class="desc">Suave = más permisiva · Estricto = te exige mirar más fijo.</div></div>
+        <select id="opt-eyesens" class="voicesel" style="max-width:120px;"><option value="suave">Suave</option><option value="normal" selected>Normal</option><option value="estricto">Estricto</option></select>
+      </div>
+      <div class="opt-row">
         <div><div class="lbl">😰 Modo presión</div><div class="desc">El reclutador es más exigente y repregunta. Más nervios, más real.</div></div>
         <label class="sw"><input type="checkbox" id="opt-pressure"><span class="track"></span></label>
       </div>
@@ -827,7 +831,7 @@ function tickCd(){ let d=TARGET-Date.now(); const el=$("cd"); if(!el)return;
 
 /* ===== STORAGE ===== */
 const KEY="jetsmart_sim_v2";
-let store={history:[],aiKey:"",achievements:[],streak:{count:0,last:""},opts:{cam:true,pressure:false,auto:true,silence:true,record:true,breathe:false,vibrate:true,retry:false,theme:"azul",rate:1,name:"",voiceURI:"",interviewer:"martin",mode:"full"}};
+let store={history:[],aiKey:"",achievements:[],streak:{count:0,last:""},opts:{cam:true,pressure:false,auto:true,silence:true,record:true,breathe:false,vibrate:true,retry:false,eyeSens:"normal",theme:"azul",rate:1,name:"",voiceURI:"",interviewer:"martin",mode:"full"}};
 store.checklist={};store.stories={};
 try{const r=localStorage.getItem(KEY);if(r){const p=JSON.parse(r);store.history=p.history||[];store.aiKey=p.aiKey||"";store.achievements=p.achievements||[];store.checklist=p.checklist||{};store.streak=p.streak||{count:0,last:""};store.stories=p.stories||{};store.opts=Object.assign(store.opts,p.opts||{});}}catch(e){}
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){}}
@@ -976,6 +980,8 @@ const SR=window.SpeechRecognition||window.webkitSpeechRecognition||null;
 const hasSR=!!SR, hasGUM=!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia);
 
 /* ===== EYE TRACKER (MediaPipe FaceLandmarker) ===== */
+// [umbral para PERDER contacto, umbral para RECUPERARlo] — mayor = más permisivo
+const EYE_SENS={suave:[0.74,0.56],normal:[0.62,0.45],estricto:[0.50,0.34]};
 const Eye={
   available:false, loading:false, fl:null, raf:null, running:false, lastT:0, lastContact:true, smooth:null, missT:0,
   scoring:false, ans:{frames:0,contact:0,present:0},
@@ -1034,8 +1040,9 @@ const Eye={
           // combinamos mirada de ojos + giro de cabeza en un solo "fuera de eje"
           const off=Math.max(gaze, head*0.95);
           this.smooth = (this.smooth==null) ? off : (this.smooth*0.6 + off*0.4);
-          // histéresis: cuesta más "perder" el contacto que recuperarlo (evita parpadeo)
-          contact = this.lastContact ? (this.smooth < 0.60) : (this.smooth < 0.42);
+          // histéresis con sensibilidad ajustable: [perder, recuperar]
+          const th=EYE_SENS[store.opts.eyeSens]||EYE_SENS.normal;
+          contact = this.lastContact ? (this.smooth < th[0]) : (this.smooth < th[1]);
           this.lastContact=contact;
         }
       } else {
@@ -1555,7 +1562,7 @@ function renderHistory(){
 }
 
 /* ===== OPCIONES ===== */
-function syncOpts(){$("opt-cam").checked=SIM.opts.cam;$("opt-pressure").checked=SIM.opts.pressure;$("opt-auto").checked=SIM.opts.auto;$("opt-silence").checked=SIM.opts.silence;$("opt-record").checked=SIM.opts.record;$("opt-breathe").checked=SIM.opts.breathe;$("opt-vibrate").checked=SIM.opts.vibrate;$("opt-retry").checked=SIM.opts.retry;$("opt-rate").value=String(SIM.opts.rate||1);$("opt-theme").value=SIM.opts.theme||"azul";$("opt-name").value=SIM.opts.name||"";populateVoices();document.querySelectorAll("#seg-mode button").forEach(b=>b.classList.toggle("on",b.dataset.mode===SIM.opts.mode));document.querySelectorAll("#seg-interviewer button").forEach(b=>b.classList.toggle("on",b.dataset.int===SIM.opts.interviewer));}
+function syncOpts(){$("opt-cam").checked=SIM.opts.cam;$("opt-pressure").checked=SIM.opts.pressure;$("opt-auto").checked=SIM.opts.auto;$("opt-silence").checked=SIM.opts.silence;$("opt-record").checked=SIM.opts.record;$("opt-breathe").checked=SIM.opts.breathe;$("opt-vibrate").checked=SIM.opts.vibrate;$("opt-retry").checked=SIM.opts.retry;$("opt-rate").value=String(SIM.opts.rate||1);$("opt-eyesens").value=SIM.opts.eyeSens||"normal";$("opt-theme").value=SIM.opts.theme||"azul";$("opt-name").value=SIM.opts.name||"";populateVoices();document.querySelectorAll("#seg-mode button").forEach(b=>b.classList.toggle("on",b.dataset.mode===SIM.opts.mode));document.querySelectorAll("#seg-interviewer button").forEach(b=>b.classList.toggle("on",b.dataset.int===SIM.opts.interviewer));}
 function renderStreak(){const el=$("streakline");if(!el)return;const s=store.streak||{count:0};if(s.count>=2&&s.last){el.style.display="block";el.textContent="🔥 Racha de práctica: "+s.count+" días seguidos. ¡Seguí así!";}else el.style.display="none";}
 $("opt-name").oninput=e=>{SIM.opts.name=e.target.value;persist();};
 $("opt-record").onchange=e=>{SIM.opts.record=e.target.checked;persist();};
@@ -1563,6 +1570,7 @@ $("opt-breathe").onchange=e=>{SIM.opts.breathe=e.target.checked;persist();};
 $("opt-vibrate").onchange=e=>{SIM.opts.vibrate=e.target.checked;persist();};
 $("opt-retry").onchange=e=>{SIM.opts.retry=e.target.checked;persist();};
 $("opt-rate").onchange=e=>{SIM.opts.rate=parseFloat(e.target.value)||1;persist();};
+$("opt-eyesens").onchange=e=>{SIM.opts.eyeSens=e.target.value;persist();};
 $("opt-theme").onchange=e=>{SIM.opts.theme=e.target.value;persist();applyTheme();};
 $("btn-export").onclick=exportProgress;
 $("btn-import").onclick=()=>$("file-import").click();
