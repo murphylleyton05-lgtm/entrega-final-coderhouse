@@ -211,10 +211,8 @@
   .qbank ul{margin:0;padding-left:18px;font-size:.85rem;color:var(--dim);}
   .qbank li{margin-bottom:4px;}
   .frase2{background:#101c33;border-left:3px solid var(--azul2);padding:8px 11px;border-radius:0 8px 8px 0;margin-bottom:8px;font-size:.86rem;font-style:italic;color:var(--txt);}
-  .studychk label{display:flex;align-items:flex-start;gap:9px;padding:7px 0;font-size:.9rem;border-bottom:1px dashed var(--line);cursor:pointer;}
-  .studychk label:last-child{border-bottom:none;}
-  .studychk input{width:20px;height:20px;accent-color:var(--verde);margin-top:1px;flex-shrink:0;}
-  .studychk input:checked + span{text-decoration:line-through;color:var(--dim2);}
+  h4.exq{color:var(--azul2);font-size:.9rem;margin:12px 0 4px;font-style:normal;}
+  h4.exq:first-of-type{margin-top:6px;}
   #hairF{display:none;}
   .modelans{margin-top:6px;}
   .modelans summary{cursor:pointer;color:var(--cyan);font-size:.78rem;font-weight:700;list-style:none;}
@@ -552,28 +550,89 @@
         <li>Exagerar o inventar: se nota y te juega en contra.</li>
       </ul>
     </div>
-    <div class="card"><h3>💬 Respuestas de ejemplo (adaptalas a vos)</h3>
-      <h4 style="color:var(--azul2);font-size:.85rem;margin:8px 0 3px;">"Contame sobre vos"</h4>
-      <div class="frase2">"Soy [nombre], tengo [edad]. Soy una persona de trato con el público, responsable y me adapto rápido a los cambios. Me manejo bien bajo presión y disfruto trabajar en equipo. Siempre me atrajo la aviación y el contacto con la gente, y por eso me presenté para ser tripulante en JetSmart, donde además veo una empresa joven en la que puedo crecer."</div>
-      <h4 style="color:var(--azul2);font-size:.85rem;margin:8px 0 3px;">"¿Por qué JetSmart?"</h4>
-      <div class="frase2">"Porque es una aerolínea en crecimiento, con una propuesta clara de que más gente pueda volar. Me gusta su dinamismo y quiero sumar y crecer a largo plazo. Además, el rol de tripulante combina lo que mejor hago: seguridad, servicio y trabajo en equipo."</div>
-      <h4 style="color:var(--azul2);font-size:.85rem;margin:8px 0 3px;">"Un pasajero agresivo / no respeta seguridad"</h4>
-      <div class="frase2">"Primero mantengo la calma y me acerco con tono firme pero amable. Le explico con claridad por qué la instrucción es importante para su seguridad y la de todos. Escucho su molestia sin discutir, y si no cambia de actitud, sigo el protocolo y aviso al resto de la tripulación y al comandante. La seguridad siempre va primero."</div>
-      <h4 style="color:var(--azul2);font-size:.85rem;margin:8px 0 3px;">"¿Por qué deberíamos elegirte?"</h4>
-      <div class="frase2">"Porque tengo la actitud de servicio, me mantengo tranquilo bajo presión y aprendo rápido. Aunque no tenga experiencia previa como tripulante, tengo muchas ganas, disponibilidad total y compromiso con hacer las cosas bien. Voy a dar lo mejor para representar a JetSmart."</div>
+    <div class="card"><h3>💬 Respuestas de ejemplo en español</h3>
+      <p class="hint" style="margin-top:0;">Modelos completos. <b>No los memorices palabra por palabra</b>: usalos de molde y metí tus datos y ejemplos reales. Cambiá [lo que está entre corchetes].</p>
+
+      <h4 class="exq">"Contame sobre vos"</h4>
+      <div class="frase2">"Soy [nombre], tengo [edad] y soy de [ciudad]. Me considero una persona sociable, responsable y con mucha vocación de servicio: disfruto estar en contacto con la gente y ayudar. En [tu trabajo/estudio/actividad] aprendí a manejarme bajo presión y a trabajar en equipo, incluso cuando las cosas se complican. Siempre me atrajo el mundo de la aviación y la idea de un trabajo dinámico, lejos de la rutina de escritorio. Por eso me presenté como tripulante de cabina en JetSmart: es una empresa joven, en crecimiento, y quiero desarrollar mi carrera acá a largo plazo."</div>
+      <div class="hint" style="margin:0 0 10px">💡 Clave: quién sos → un par de fortalezas de servicio → por qué TCP y por qué JetSmart. Cerralo con energía.</div>
+
+      <h4 class="exq">"¿Por qué querés ser tripulante de cabina?"</h4>
+      <div class="frase2">"Porque combina todo lo que me gusta y se me da bien: el trato con las personas, el trabajo en equipo y la responsabilidad de cuidar a otros. Sé que no es solo servir a bordo; ante todo es un rol de seguridad, y eso me parece un desafío que me motiva. Además me encanta la idea de conocer gente distinta todos los días y de que cada jornada sea diferente."</div>
+      <div class="hint" style="margin:0 0 10px">💡 Clave: mostrá que entendés que el rol es primero seguridad y después servicio. Eso te diferencia.</div>
+
+      <h4 class="exq">"¿Por qué JetSmart?"</h4>
+      <div class="frase2">"Porque es una aerolínea low-cost joven y en plena expansión en la región, con una propuesta clara: que más gente pueda volar pagando menos. Me gusta ese dinamismo y las oportunidades de crecimiento que da una empresa que está creciendo. Comparto sus valores de seguridad, eficiencia y buen trato, y quiero ser parte de ese proyecto y crecer con él."</div>
+      <div class="hint" style="margin:0 0 10px">💡 Clave: demostrá que sabés algo real de la empresa (low-cost, expansión, A320). Evitá el genérico "me gustan los aviones".</div>
+
+      <h4 class="exq">"Contame de un cliente difícil" <span style="color:var(--dim2);font-weight:400;font-size:.72rem;">(STAR)</span></h4>
+      <div class="frase2">"<b>Situación:</b> En [trabajo/lugar], un cliente estaba muy molesto porque [problema, ej: se había demorado su pedido]. <b>Tarea:</b> yo era el responsable de atenderlo y calmar la situación. <b>Acción:</b> lo escuché sin interrumpir, le pedí disculpas por la espera, mantuve la calma y le ofrecí una solución concreta: [ej: resolverlo al instante / una alternativa]. <b>Resultado:</b> terminó tranquilo, agradeció el trato y hasta volvió a elegirnos. Aprendí que escuchar y no ponerse a la defensiva desactiva casi cualquier conflicto."</div>
+      <div class="hint" style="margin:0 0 10px">💡 Clave: nombrá calma + escucha + solución. Cerrá con el resultado y qué aprendiste.</div>
+
+      <h4 class="exq">"Un momento de trabajo bajo presión" <span style="color:var(--dim2);font-weight:400;font-size:.72rem;">(STAR)</span></h4>
+      <div class="frase2">"<b>Situación:</b> una vez tuvimos [mucha demanda / falta un compañero / un imprevisto] y todo se acumuló al mismo tiempo. <b>Tarea:</b> había que salir adelante sin bajar la calidad ni el trato. <b>Acción:</b> respiré, prioricé lo urgente, me organicé y me apoyé en el equipo repartiendo tareas. <b>Resultado:</b> cumplimos, los clientes ni notaron el problema y el equipo quedó unido. Me di cuenta de que trabajo bien cuando las cosas se ponen intensas."</div>
+      <div class="hint" style="margin:0 0 10px">💡 Clave: mostrá que bajo presión organizás y te apoyás en el equipo, sin perder la calma.</div>
+
+      <h4 class="exq">"¿Cómo manejás un conflicto con un compañero?"</h4>
+      <div class="frase2">"Trato de hablarlo en el momento y en privado, sin dramatizar. Escucho su punto de vista, expongo el mío con respeto y busco un acuerdo pensando en el objetivo común, que es que el equipo funcione. [Ejemplo real breve si tenés]. Para mí un buen equipo no es el que nunca discute, sino el que resuelve rápido y sigue trabajando bien."</div>
+      <div class="hint" style="margin:0 0 10px">💡 Clave: comunicación directa + respeto + foco en el objetivo común. Nada de "nunca tuve conflictos".</div>
+
+      <h4 class="exq">"Un pasajero se pone agresivo o no respeta una instrucción de seguridad"</h4>
+      <div class="frase2">"Lo primero es mantener la calma y no responder a la agresión con agresión. Me acerco con un tono firme pero amable y le explico con claridad por qué esa instrucción es importante para su seguridad y la de todos. Escucho su molestia, muestro empatía, pero soy clara en que la norma no se negocia. Si aun así no colabora, sigo el protocolo y aviso al resto de la tripulación y al comandante. A bordo, la seguridad siempre está primero."</div>
+      <div class="hint" style="margin:0 0 10px">💡 Clave: calma → explicar el porqué → empatía → firmeza → protocolo y equipo. Ese orden es lo que buscan.</div>
+
+      <h4 class="exq">"Un pasajero se descompensa en pleno vuelo"</h4>
+      <div class="frase2">"Mantengo la calma para transmitir seguridad. Evalúo rápido cómo está, le hablo con tranquilidad y aviso de inmediato al resto de la tripulación para asistirlo entre todos. Sigo los procedimientos: pregunto si viaja con alguien, consulto si hay personal médico a bordo y le informo al comandante. La prioridad es la persona, sin descuidar al resto de la cabina."</div>
+      <div class="hint" style="margin:0 0 10px">💡 Clave: calma, avisar al equipo, seguir procedimiento, y cuidar a la persona y a la cabina a la vez.</div>
+
+      <h4 class="exq">"¿Tenés disponibilidad? (turnos, madrugadas, viajar)"</h4>
+      <div class="frase2">"Sí, disponibilidad total. Sé que el puesto implica turnos rotativos, madrugadas, viajar y hasta cambiar de base, y estoy totalmente dispuesta. Me organizo para descansar bien y llegar siempre en horario y con buena energía. Es más, esa variedad es una de las cosas que más me atrae del trabajo."</div>
+      <div class="hint" style="margin:0 0 10px">💡 Clave: decí SÍ con seguridad. La disponibilidad es de lo más importante para que te elijan.</div>
+
+      <h4 class="exq">"¿Por qué deberíamos elegirte a vos?"</h4>
+      <div class="frase2">"Porque tengo la actitud que este trabajo necesita: vocación de servicio, calma bajo presión y compromiso con hacer las cosas bien. Aprendo rápido y me adapto fácil. Puede que no tenga experiencia previa como tripulante, pero tengo muchísimas ganas, disponibilidad total y responsabilidad de sobra. Voy a dar lo mejor para representar a JetSmart y para que el pasajero se sienta cuidado."</div>
+      <div class="hint" style="margin:0 0 4px">💡 Clave: convertí la falta de experiencia en actitud + ganas + disponibilidad. Terminá con convicción.</div>
     </div>
-    <div class="card"><h3>🇬🇧 Inglés esencial (frases listas)</h3>
-      <ul style="margin:0;padding-left:18px;font-size:.87rem;">
-        <li><b>Tell me about yourself:</b> "I'm [name]. I'm a friendly, responsible person, good with people and calm under pressure. I really enjoy customer service and teamwork, and I'd love to work as cabin crew for JetSmart."</li>
-        <li><b>Why JetSmart:</b> "Because it's a growing airline and I want to grow with it. I like the dynamic environment and the focus on safety and good service."</li>
-        <li><b>Customer service:</b> "Once, a customer was upset. I stayed calm, listened, and offered a solution. In the end they left happy."</li>
-        <li><b>Teamwork:</b> "For me teamwork means communication and supporting each other to reach a common goal."</li>
-        <li><b>Five years:</b> "I see myself as an experienced cabin crew member, having grown within the company."</li>
-        <li><b>Si no entendés:</b> "Sorry, could you repeat that, please?" — sin nervios, es totalmente válido.</li>
-      </ul>
-      <p class="hint" style="margin-bottom:0;">Tip: hablá lento y claro. Mejor simple y bien pronunciado que complejo y trabado.</p>
+
+    <div class="card"><h3>🇬🇧 Respuestas de ejemplo en inglés</h3>
+      <p class="hint" style="margin-top:0;">Respuestas completas y con palabras simples. Practicalas <b>en voz alta, lento y claro</b>. Debajo de cada una tenés la idea en español.</p>
+
+      <h4 class="exq">"Tell me about yourself"</h4>
+      <div class="frase2">"My name is [name], I'm [age] years old and I'm from [city]. I'm a friendly and responsible person, and I really enjoy working with people. In my previous experiences I learned to stay calm under pressure and to work well in a team. I've always been interested in aviation and I like the idea of a dynamic job. That's why I applied to be a cabin crew member at JetSmart — it's a young, growing airline and I'd love to build my career here."</div>
+      <div class="hint" style="margin:0 0 10px">🗣️ Quién sos + rasgos de servicio + por qué TCP y por qué JetSmart. <b>Tricky:</b> "crew" = "cru", "aviation" = "ei-vi-éi-shon".</div>
+
+      <h4 class="exq">"Why do you want to work for JetSmart?"</h4>
+      <div class="frase2">"Because JetSmart is a young, low-cost airline that is growing fast in the region, and I want to grow with it. I like the dynamic environment and the focus on safety and good service. I share those values, and I believe I can give my best here and develop a long-term career."</div>
+      <div class="hint" style="margin:0 0 10px">🗣️ Aerolínea joven, low-cost, en crecimiento; querés crecer con ella; compartís sus valores.</div>
+
+      <h4 class="exq">"Why do you want to be a flight attendant?"</h4>
+      <div class="frase2">"Because it brings together the things I'm good at: working with people, teamwork, and taking care of others. I know the main role is safety, and after that, great service. I also love that every day is different and I get to meet new people all the time."</div>
+      <div class="hint" style="margin:0 0 10px">🗣️ Combina lo que te gusta; es primero seguridad, después servicio; cada día es distinto.</div>
+
+      <h4 class="exq">"Describe a time you gave excellent customer service"</h4>
+      <div class="frase2">"Once, a customer was upset because [reason, e.g. their order was late]. I stayed calm, listened to them carefully, and apologized. Then I offered a clear solution [e.g. I fixed it right away]. In the end, the customer felt happy and even thanked me. I learned that listening and staying calm is the best way to solve a problem."</div>
+      <div class="hint" style="margin:0 0 10px">🗣️ Es STAR en inglés: situación → qué hiciste (calma, escuchar, solución) → resultado (quedó conforme).</div>
+
+      <h4 class="exq">"How do you handle stress and pressure?"</h4>
+      <div class="frase2">"I stay calm and I focus on what's most important first. I take a breath, organize my tasks, and if I'm working with a team, we support each other. I actually work well under pressure — it helps me stay focused and get things done."</div>
+      <div class="hint" style="margin:0 0 10px">🗣️ Mantenés la calma, priorizás, te apoyás en el equipo, y hasta rendís bien bajo presión.</div>
+
+      <h4 class="exq">"What would you do if a passenger refuses to follow a safety instruction?"</h4>
+      <div class="frase2">"First, I would stay calm. I'd approach the passenger politely but firmly and explain why the instruction is important for their safety and everyone's safety. I would listen to them, but I'd be clear that the safety rule is not optional. If they still refuse, I would follow the procedure and inform the rest of the crew and the captain. Safety always comes first."</div>
+      <div class="hint" style="margin:0 0 10px">🗣️ Calma → explicar el porqué → empatía pero firmeza → protocolo y avisar al equipo/comandante.</div>
+
+      <h4 class="exq">"What does teamwork mean to you?"</h4>
+      <div class="frase2">"For me, teamwork means good communication and supporting each other to reach a common goal. On a plane, the crew has to trust each other and work together, especially in difficult moments. I really enjoy being part of a team and helping my coworkers."</div>
+      <div class="hint" style="margin:0 0 10px">🗣️ Comunicación + apoyarse + objetivo común; en un avión, confianza entre la tripulación.</div>
+
+      <h4 class="exq">"Where do you see yourself in five years?"</h4>
+      <div class="frase2">"In five years, I see myself as an experienced cabin crew member who has grown within JetSmart. I'd like to keep learning, maybe take on more responsibility, and be someone the team and the passengers can rely on."</div>
+      <div class="hint" style="margin:0 0 10px">🗣️ Tripulante con experiencia, crecida dentro de JetSmart, con más responsabilidad.</div>
+
+      <h4 class="exq">Frases salvavidas</h4>
+      <div class="frase2">• Si no entendés: <b>"Sorry, could you repeat that, please?"</b><br>• Para ganar un segundo: <b>"That's a good question. Let me think for a moment."</b><br>• Si te trabás: <b>"What I mean is…"</b> y retomás más simple.</div>
+      <div class="hint" style="margin:0 0 0">🗣️ Pedir que repitan NO es un error, es totalmente normal y válido. Hablá lento: mejor simple y claro que complejo y trabado.</div>
     </div>
-    <div class="card"><h3>✅ Checklist última hora</h3><div class="studychk" id="studychk"></div></div>
     <div class="card"><h3>📋 Banco de preguntas para estudiar</h3><div class="qbank" id="qbank"></div></div>
     <button class="btn big study" id="study-back2">← Volver al inicio</button>
   </section>
@@ -1361,11 +1420,7 @@ const TIPS=["👁️ El contacto visual es lo primero que evalúan: mirá a los 
 let _tipi=0;
 function startTips(){const el=$("tipbar");if(!el)return;el.textContent="💡 "+TIPS[0];setInterval(()=>{_tipi=(_tipi+1)%TIPS.length;el.style.opacity="0";setTimeout(()=>{el.textContent="💡 "+TIPS[_tipi];el.style.opacity="1";},300);},5500);}
 /* ===== REPASO ===== */
-const STUDY_CHECK=["Llegar 30–40 min antes.","Documentación: DNI, CV, títulos/certificados.","Presentación impecable: prolijo/a, sobrio/a.","Celular en silencio y guardado.","Respirar hondo antes de entrar.","Sonreír y saludar con firmeza.","Contacto visual y escucha activa.","Repasar mi 'contame sobre vos' y 2-3 ejemplos STAR.","Tener listo 'qué sé de JetSmart'.","Agradecer al final y mostrar ganas reales."];
 function renderStudy(){
-  const chk=$("studychk");
-  chk.innerHTML=STUDY_CHECK.map((t,i)=>'<label><input type="checkbox" data-ci="'+i+'"'+(store.checklist[i]?" checked":"")+'><span>'+esc(t)+'</span></label>').join("");
-  chk.querySelectorAll("input").forEach(cb=>cb.onchange=()=>{store.checklist[cb.dataset.ci]=cb.checked;persist();});
   const G=[
     ["🗣️ Personales / motivación",[...BANK.pitch.es.map(q=>({q,type:"pitch"})),...BANK.why.es.map(q=>({q,type:"why"})),...BANK.close.es.map(q=>({q,type:"why"}))],"es","personal"],
     ["💙 Sobre JetSmart",BANK.know.es.map(q=>({q,type:"know"})),"es","personal"],
