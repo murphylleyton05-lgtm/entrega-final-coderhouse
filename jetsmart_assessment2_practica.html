@@ -858,18 +858,19 @@ function setEyeUI(state){
 const SIM={seq:[],idx:0,results:[],opts:store.opts,camStream:null,camOn:false,eyeActive:false,
   recog:null,listening:false,manualStop:false,startedSpeaking:false,finalText:"",interimText:"",
   answerStart:0,lastActivity:0,tick:null,fallbackStart:0,active:false,
+  micStream:null,recogInstance:null,
   mediaRec:null,recChunks:[],recBlob:null,recURL:null,recAudio:null,pressureUsed:false};
 /* ===== GRABACIÓN DE SESIÓN ===== */
 async function startRecording(){
   if(!SIM.opts.record||!SIM.camOn||!window.MediaRecorder||!SIM.camStream)return;
   let tracks=[]; const vt=SIM.camStream.getVideoTracks()[0]; if(vt)tracks.push(vt);
-  try{SIM.recAudio=await navigator.mediaDevices.getUserMedia({audio:true});const at=SIM.recAudio.getAudioTracks()[0];if(at)tracks.push(at);}catch(e){SIM.recAudio=null;}
+  if(SIM.micStream){const at=SIM.micStream.getAudioTracks()[0];if(at)tracks.push(at);}
   if(!tracks.length)return;
   const ms=new MediaStream(tracks);
   try{SIM.mediaRec=new MediaRecorder(ms);}catch(e){try{SIM.mediaRec=new MediaRecorder(ms,{mimeType:"video/webm"});}catch(e2){return;}}
   SIM.recChunks=[];
   SIM.mediaRec.ondataavailable=e=>{if(e.data&&e.data.size>0)SIM.recChunks.push(e.data);};
-  SIM.mediaRec.onstop=()=>{try{SIM.recBlob=new Blob(SIM.recChunks,{type:SIM.mediaRec.mimeType||"video/webm"});SIM.recURL=URL.createObjectURL(SIM.recBlob);}catch(e){}if(SIM.recAudio){SIM.recAudio.getTracks().forEach(t=>t.stop());SIM.recAudio=null;}};
+  SIM.mediaRec.onstop=()=>{try{SIM.recBlob=new Blob(SIM.recChunks,{type:SIM.mediaRec.mimeType||"video/webm"});SIM.recURL=URL.createObjectURL(SIM.recBlob);}catch(e){}};
   try{SIM.mediaRec.start();}catch(e){}
 }
 function stopRecording(){if(SIM.mediaRec&&SIM.mediaRec.state&&SIM.mediaRec.state!=="inactive"){try{SIM.mediaRec.stop();}catch(e){}}}
@@ -917,6 +918,14 @@ async function runStep(){
   if(SIM.opts.auto)beginListening();
   else{setControls('<button class="btn ok" id="c-begin">🎙️ Responder</button><button class="btn ghost sm" id="c-skip">⏭ Saltar</button>','<button id="c-repeat">🔁 Repetir pregunta</button><button id="c-quit">✕ Terminar</button>');bindCommon();$("c-begin").onclick=beginListening;}
 }
+function ensureRecog(){
+  if(SIM.recogInstance) return SIM.recogInstance;
+  const r=new SR(); r.continuous=true; r.interimResults=true;
+  r.onresult=ev=>{if(!SIM.listening)return;let interim="";for(let i=ev.resultIndex;i<ev.results.length;i++){const x=ev.results[i];if(x.isFinal)SIM.finalText+=x[0].transcript+" ";else interim+=x[0].transcript;}SIM.interimText=interim;const full=(SIM.finalText+interim).trim();if(full){SIM.lastActivity=Date.now();SIM.startedSpeaking=true;$("listentxt").textContent="Te escucho…";}renderCaptions();};
+  r.onerror=ev=>{if(ev.error==="not-allowed"||ev.error==="service-not-allowed")$("listentxt").textContent="🚫 Micrófono bloqueado";};
+  r.onend=()=>{if(SIM.listening&&!SIM.manualStop){try{r.start();}catch(e){}}};
+  SIM.recogInstance=r; return r;
+}
 function beginListening(){
   const step=SIM.seq[SIM.idx];
   SIM.finalText="";SIM.interimText="";renderCaptions();
@@ -928,11 +937,8 @@ function beginListening(){
   if(!hasSR){$("typedfb").style.display="block";$("cap-label").textContent="✍️ Escribí tu respuesta";SIM.fallbackStart=Date.now();$("typed-input").value="";$("typed-input").focus();return;}
   SIM.listening=true;SIM.manualStop=false;SIM.startedSpeaking=false;SIM.answerStart=Date.now();SIM.lastActivity=Date.now();
   try{
-    SIM.recog=new SR();SIM.recog.lang=step.lang==="en"?"en-US":"es-AR";SIM.recog.continuous=true;SIM.recog.interimResults=true;
-    SIM.recog.onresult=ev=>{let interim="";for(let i=ev.resultIndex;i<ev.results.length;i++){const r=ev.results[i];if(r.isFinal)SIM.finalText+=r[0].transcript+" ";else interim+=r[0].transcript;}SIM.interimText=interim;const full=(SIM.finalText+interim).trim();if(full){SIM.lastActivity=Date.now();SIM.startedSpeaking=true;$("listentxt").textContent="Te escucho…";}renderCaptions();};
-    SIM.recog.onerror=ev=>{if(ev.error==="not-allowed"||ev.error==="service-not-allowed")$("listentxt").textContent="🚫 Micrófono bloqueado";};
-    SIM.recog.onend=()=>{if(SIM.listening&&!SIM.manualStop){try{SIM.recog.start();}catch(e){}}};
-    SIM.recog.start();
+    const r=ensureRecog(); r.lang=step.lang==="en"?"en-US":"es-AR";
+    try{r.start();}catch(e){ if((""+e).indexOf("already")>=0){ try{r.stop();}catch(e2){} setTimeout(()=>{try{r.start();}catch(e3){}},250); } }
   }catch(e){}
   clearInterval(SIM.tick);
   const ideal=IDEAL[step.type]||[30,75];
@@ -940,7 +946,7 @@ function beginListening(){
     const pill=$("listenpill");if(pill){pill.classList.remove("good","over");if(s>=ideal[0]&&s<=ideal[1])pill.classList.add("good");else if(s>ideal[1]*1.3)pill.classList.add("over");}
     if(SIM.opts.silence&&SIM.startedSpeaking&&(Date.now()-SIM.lastActivity)>SILENCE_MS)finishAnswer();},250);
 }
-function stopListening(){SIM.listening=false;SIM.manualStop=true;clearInterval(SIM.tick);SIM.tick=null;if(SIM.recog){try{SIM.recog.stop();}catch(e){}SIM.recog=null;}}
+function stopListening(){SIM.listening=false;SIM.manualStop=true;clearInterval(SIM.tick);SIM.tick=null;if(SIM.recogInstance){try{SIM.recogInstance.stop();}catch(e){}}}
 async function finishAnswer(){
   const step=SIM.seq[SIM.idx]; let secs,transcript;
   if(!hasSR){transcript=($("typed-input").value||"").trim();secs=(Date.now()-SIM.fallbackStart)/1000;$("typedfb").style.display="none";}
@@ -1000,7 +1006,7 @@ function showFeedbackCard(res,step){
   $("fb-slot").scrollIntoView({behavior:"smooth",block:"nearest"});
 }
 function nextStep(){skipSpeak();stopListening();SIM.idx++;if(SIM.idx>=SIM.seq.length){endSim();return;}runStep();}
-function quitSim(){SIM.active=false;releaseWake();stopListening();skipSpeak();Eye.stop();if(SIM.results.length>0){endSim();}else{stopRecording();stopCam();showScreen("screen-home");}}
+function quitSim(){SIM.active=false;releaseWake();stopListening();skipSpeak();Eye.stop();if(SIM.results.length>0){endSim();}else{stopRecording();stopCam();stopMic();showScreen("screen-home");}}
 
 /* ===== CÁMARA ===== */
 async function startCam(){
@@ -1012,6 +1018,7 @@ async function startCam(){
   }catch(e){SIM.camOn=false;$("camoff").style.display="flex";$("camoff").innerHTML="📷<br>Sin cámara";}
 }
 function stopCam(){if(SIM.camStream){SIM.camStream.getTracks().forEach(t=>t.stop());SIM.camStream=null;}SIM.camOn=false;}
+function stopMic(){if(SIM.recogInstance){try{SIM.recogInstance.abort?SIM.recogInstance.abort():SIM.recogInstance.stop();}catch(e){}SIM.recogInstance=null;}if(SIM.micStream){SIM.micStream.getTracks().forEach(t=>t.stop());SIM.micStream=null;}}
 function toggleCam(){
   if(SIM.camOn){stopCam();$("camoff").style.display="flex";$("camoff").innerHTML="📷<br>Cámara<br>apagada";$("selfvideo").style.display="none";$("camtoggle").textContent="🚫";setEyeUI("none");}
   else{startCam();}
@@ -1021,7 +1028,9 @@ $("camtoggle").onclick=toggleCam;
 /* ===== INICIO ===== */
 function delay(ms){return new Promise(r=>setTimeout(r,ms));}
 async function setupMedia(){
-  if(hasGUM){try{const s=await navigator.mediaDevices.getUserMedia({audio:true});s.getTracks().forEach(t=>t.stop());}catch(e){}}
+  // Pedimos el micrófono UNA sola vez y lo dejamos abierto toda la entrevista,
+  // así el reconocimiento de voz no vuelve a pedir permiso en cada respuesta.
+  if(hasGUM && !SIM.micStream){try{SIM.micStream=await navigator.mediaDevices.getUserMedia({audio:true});}catch(e){SIM.micStream=null;}}
   if(SIM.opts.cam){
     await startCam();
     if(SIM.camOn){ const ok=await Eye.init(); if(ok){SIM.eyeActive=true;Eye.start();} else {SIM.eyeActive=false;} }
@@ -1048,7 +1057,7 @@ async function startSim(){
 /* ===== DEVOLUCIÓN FINAL ===== */
 function endSim(){
   SIM.active=false;releaseWake();
-  stopListening();Eye.stop();stopRecording();stopCam();
+  stopListening();Eye.stop();stopRecording();stopCam();stopMic();
   const answers=SIM.results.filter(r=>r.type!=="closing");
   const scored=answers.length?answers:SIM.results;
   const overall=scored.length?Math.round(scored.reduce((a,r)=>a+r.res.score,0)/scored.length):0;
