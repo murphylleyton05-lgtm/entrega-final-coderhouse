@@ -114,6 +114,8 @@
   .listenpill{background:rgba(255,77,94,.16);border:1px solid var(--rojo);color:#ffd0d5;border-radius:22px;padding:7px 15px;font-size:.82rem;font-weight:700;display:flex;align-items:center;gap:9px;pointer-events:auto;}
   .listenpill .dot{width:10px;height:10px;border-radius:50%;background:var(--rojo);animation:blinkdot 1s infinite;}
   .listenpill .tmr{font-variant-numeric:tabular-nums;}
+  .miclvl{width:34px;height:8px;background:rgba(255,255,255,.15);border-radius:5px;overflow:hidden;display:inline-block;vertical-align:middle;}
+  .miclvl i{display:block;height:100%;width:0%;background:var(--verde);transition:width .06s linear,background .1s;}
   .listenpill.good{background:rgba(47,212,122,.16);border-color:var(--verde);color:#bff5d4;}
   .listenpill.good .dot{background:var(--verde);}
   .listenpill.over{background:rgba(255,207,77,.16);border-color:var(--amar);color:#ffe9ad;}
@@ -463,7 +465,7 @@
         <div class="eyelive-bar"><i id="eyelive-fill"></i></div>
       </div>
       <div class="listenbar" id="listenbar" style="display:none;">
-        <div class="listenpill" id="listenpill"><span class="dot"></span><span id="listentxt">Escuchando…</span> <span class="tmr" id="listentmr">0:00</span></div>
+        <div class="listenpill" id="listenpill"><span class="dot"></span><span id="listentxt">Escuchando…</span> <span class="miclvl"><i id="miclvl-fill"></i></span> <span class="tmr" id="listentmr">0:00</span></div>
       </div>
     </div>
     <div class="captions"><div class="cap-label" id="cap-label">💬 Tu respuesta</div><div class="cap-txt empty" id="cap-txt">Los subtítulos van a aparecer acá…</div></div>
@@ -859,7 +861,36 @@ const SIM={seq:[],idx:0,results:[],opts:store.opts,camStream:null,camOn:false,ey
   recog:null,listening:false,manualStop:false,startedSpeaking:false,finalText:"",interimText:"",
   answerStart:0,lastActivity:0,tick:null,fallbackStart:0,active:false,
   micStream:null,recogInstance:null,
+  analyser:null,micSource:null,levelBuf:null,levelRAF:null,energySum:0,energyCount:0,speakSum:0,speakCount:0,energyPeak:0,
   mediaRec:null,recChunks:[],recBlob:null,recURL:null,recAudio:null,pressureUsed:false};
+/* ===== ANÁLISIS DE VOZ (volumen/energía) ===== */
+function ensureAnalyser(){
+  if(SIM.analyser||!SIM.micStream)return SIM.analyser;
+  try{const c=AC();if(!c)return null;SIM.micSource=c.createMediaStreamSource(SIM.micStream);SIM.analyser=c.createAnalyser();SIM.analyser.fftSize=512;SIM.micSource.connect(SIM.analyser);SIM.levelBuf=new Uint8Array(SIM.analyser.fftSize);}catch(e){SIM.analyser=null;}
+  return SIM.analyser;
+}
+function startLevelMeter(){
+  if(!ensureAnalyser())return;
+  SIM.energySum=0;SIM.energyCount=0;SIM.speakSum=0;SIM.speakCount=0;SIM.energyPeak=0;
+  const loop=()=>{
+    if(!SIM.listening){SIM.levelRAF=null;const el=$("miclvl-fill");if(el)el.style.width="0%";return;}
+    SIM.levelRAF=requestAnimationFrame(loop);
+    const a=SIM.analyser;if(!a)return;
+    a.getByteTimeDomainData(SIM.levelBuf);
+    let sum=0;for(let i=0;i<SIM.levelBuf.length;i++){const d=(SIM.levelBuf[i]-128)/128;sum+=d*d;}
+    const rms=Math.sqrt(sum/SIM.levelBuf.length);
+    SIM.energySum+=rms;SIM.energyCount++;if(rms>0.015){SIM.speakSum+=rms;SIM.speakCount++;}if(rms>SIM.energyPeak)SIM.energyPeak=rms;
+    const el=$("miclvl-fill");if(el){const pct=Math.min(100,Math.round(rms*420));el.style.width=pct+"%";el.style.background=pct<12?"var(--rojo)":pct<70?"var(--verde)":"var(--amar)";}
+  };
+  loop();
+}
+function stopLevelMeter(){if(SIM.levelRAF){cancelAnimationFrame(SIM.levelRAF);SIM.levelRAF=null;}}
+function energyResult(){
+  if(!SIM.analyser||SIM.energyCount<3)return null;
+  const avg=SIM.speakCount?SIM.speakSum/SIM.speakCount:(SIM.energySum/SIM.energyCount);
+  const cat=avg<0.03?"bajo":avg>0.28?"alto":"bien";
+  return {avg,cat};
+}
 /* ===== GRABACIÓN DE SESIÓN ===== */
 async function startRecording(){
   if(!SIM.opts.record||!SIM.camOn||!window.MediaRecorder||!SIM.camStream)return;
@@ -936,6 +967,7 @@ function beginListening(){
   if(SIM.eyeActive){ Eye.startAnswer(); $("eyelive").classList.add("show"); const f=$("eyelive-fill"); if(f)f.style.width="0%"; $("eyelive-pct").textContent="0%"; }
   if(!hasSR){$("typedfb").style.display="block";$("cap-label").textContent="✍️ Escribí tu respuesta";SIM.fallbackStart=Date.now();$("typed-input").value="";$("typed-input").focus();return;}
   SIM.listening=true;SIM.manualStop=false;SIM.startedSpeaking=false;SIM.answerStart=Date.now();SIM.lastActivity=Date.now();
+  startLevelMeter();
   try{
     const r=ensureRecog(); r.lang=step.lang==="en"?"en-US":"es-AR";
     try{r.start();}catch(e){ if((""+e).indexOf("already")>=0){ try{r.stop();}catch(e2){} setTimeout(()=>{try{r.start();}catch(e3){}},250); } }
@@ -946,16 +978,18 @@ function beginListening(){
     const pill=$("listenpill");if(pill){pill.classList.remove("good","over");if(s>=ideal[0]&&s<=ideal[1])pill.classList.add("good");else if(s>ideal[1]*1.3)pill.classList.add("over");}
     if(SIM.opts.silence&&SIM.startedSpeaking&&(Date.now()-SIM.lastActivity)>SILENCE_MS)finishAnswer();},250);
 }
-function stopListening(){SIM.listening=false;SIM.manualStop=true;clearInterval(SIM.tick);SIM.tick=null;if(SIM.recogInstance){try{SIM.recogInstance.stop();}catch(e){}}}
+function stopListening(){SIM.listening=false;SIM.manualStop=true;clearInterval(SIM.tick);SIM.tick=null;stopLevelMeter();if(SIM.recogInstance){try{SIM.recogInstance.stop();}catch(e){}}}
 async function finishAnswer(){
   const step=SIM.seq[SIM.idx]; let secs,transcript;
   if(!hasSR){transcript=($("typed-input").value||"").trim();secs=(Date.now()-SIM.fallbackStart)/1000;$("typedfb").style.display="none";}
   else{if(!SIM.listening)return;secs=(Date.now()-SIM.answerStart)/1000;transcript=(SIM.finalText+SIM.interimText).trim();stopListening();}
+  const energy=energyResult(); stopLevelMeter();
   $("listenbar").style.display="none"; $("eyelive").classList.remove("show"); $("recface").classList.remove("listening");
   const eye=SIM.eyeActive?Eye.endAnswer():null;
   const res=analyze(transcript,secs,step);
-  res.base=res.score; res.eyePct=eye?eye.pct:null;
+  res.base=res.score; res.eyePct=eye?eye.pct:null; res.energyCat=energy?energy.cat:null;
   if(eye) res.score=Math.round(res.base*0.7 + eye.pct*0.3);
+  if(res.energyCat==="bajo"&&!res.empty){res.tips.unshift("Proyectá más la voz: hablar muy bajo transmite inseguridad.");res.tips=res.tips.slice(0,3);}
   SIM.results.push({q:step.q,lang:step.lang,type:step.type,cat:step.cat,isFollow:!!step.isFollow,transcript,secs:Math.round(secs),res});
   // ¿repregunta?
   const canFollow = SIM.opts.pressure && !step.isFollow && (step.type==="beh"||step.type==="sit") && !res.empty && res.words>6 && Math.random()<0.5;
@@ -993,6 +1027,7 @@ function showFeedbackCard(res,step){
     h+='<div class="metric"><div class="mlabel">Ideal ('+step.type.toUpperCase()+')</div><div class="mval">'+IDEAL[step.type][0]+'–'+IDEAL[step.type][1]+' s</div></div>';
     h+='<div class="metric"><div class="mlabel">Ritmo</div><div class="mval '+res.paceCls+'">'+(res.wpm||"—")+' ppm · '+res.paceV+'</div></div>';
     h+='<div class="metric"><div class="mlabel">Muletillas</div><div class="mval '+(res.fillers<=1?"g":res.fillers<=4?"y":"r")+'">'+res.fillers+(res.fillersTop.length?' ('+res.fillersTop[0]+')':'')+'</div></div>';
+    if(res.energyCat)h+='<div class="metric"><div class="mlabel">🔊 Proyección de voz</div><div class="mval '+(res.energyCat==="bajo"?"r":"g")+'">'+(res.energyCat==="bajo"?"Baja — proyectá más":res.energyCat==="alto"?"Fuerte y clara":"Buena")+'</div></div>';
     h+='</div>';
     if(res.star){const nmf={s:"Situación",t:"Tarea",a:"Acción",r:"Resultado"};const falt=["s","t","a","r"].filter(k=>!res.star[k]).map(k=>nmf[k]);if(falt.length)h+='<div class="fbhdr">STAR — te faltó</div><ul class="fblist"><li class="warnli">'+falt.join(", ")+'</li></ul>';}
     if(res.tips.length)h+='<div class="fbhdr">Sugerencias</div><ul class="fblist">'+res.tips.map(t=>'<li class="tip">'+esc(t)+'</li>').join("")+'</ul>';
@@ -1071,6 +1106,7 @@ function endSim(){
   const starPct=st?Math.round(sp/st*100):null;
   const totFill=SIM.results.reduce((a,r)=>a+r.res.fillers,0);
   const paces=SIM.results.filter(r=>r.res.wpm>0).map(r=>r.res.wpm);const avgWpm=paces.length?Math.round(paces.reduce((a,b)=>a+b,0)/paces.length):0;
+  const eCats=SIM.results.map(r=>r.res.energyCat).filter(Boolean);const eLow=eCats.filter(c=>c==="bajo").length;
 
   const strengths=[],improves=[];
   const best=[...scored].sort((a,b)=>b.res.score-a.res.score)[0];
@@ -1080,6 +1116,7 @@ function endSim(){
   if(starPct!=null&&starPct>=70)strengths.push("Buena estructura STAR: cubriste el "+starPct+"% de las partes en tus ejemplos.");
   if(totFill<=3)strengths.push("Hablás limpio, con muy pocas muletillas ("+totFill+" en toda la entrevista).");
   if(cIng!=null&&cIng>=60)strengths.push("Te defendiste bien en inglés ("+cIng+"/100).");
+  if(eCats.length&&eLow===0)strengths.push("Buena proyección de voz: sonaste con volumen y seguridad.");
   while(strengths.length<2)strengths.push("Completaste toda la simulación de punta a punta. La constancia es lo que más suma.");
 
   if(eyeAvg!=null&&eyeAvg<70)improves.push("⭐ Lo más importante: el contacto visual. Mantuviste la mirada solo el "+eyeAvg+"% del tiempo. Practicá mirar fijo a los ojos del reclutador (cerca de la cámara), aunque estés nervioso.");
@@ -1088,6 +1125,7 @@ function endSim(){
   if(worst&&worst.res.score<60)improves.push("La pregunta «"+shortQ(worst.q)+"» quedó floja ("+worst.res.score+"/100). Preparate un ejemplo puntual.");
   if(totFill>=6)improves.push("Bajá las muletillas ("+totFill+" en total): reemplazalas por una pausa en silencio.");
   if(avgWpm>170)improves.push("Vas un poco rápido ("+avgWpm+" ppm). Respirá y bajá el ritmo.");
+  if(eCats.length&&eLow>=Math.ceil(eCats.length/2))improves.push("Proyectá más la voz: en varias respuestas sonaste bajo. Hablar con volumen transmite seguridad y ganas.");
   while(improves.length<2)improves.push("Repetí la simulación 2-3 veces más antes del martes para ganar soltura.");
 
   const cd=(function(){let d=TARGET-Date.now();if(d<=0)return "hoy";const dd=Math.floor(d/86400000);const hh=Math.floor((d-dd*86400000)/3600000);return dd>0?(dd+" día"+(dd>1?"s":"")+" y "+hh+" h"):(hh+" h");})();
@@ -1099,6 +1137,8 @@ function endSim(){
   const ovColor=overall>=75?"var(--verde)":overall>=55?"var(--amar)":"var(--naranja)";
   let h='<h2>🎬 Devolución de tu entrevista</h2><div class="dsub">Martín · Reclutador JetSmart</div>';
   h+='<div class="bigscore"><div class="num" style="color:'+ovColor+';">'+overall+'<span style="font-size:1.2rem;color:var(--dim);">/100</span></div><div class="lbl">Nivel de preparación · '+ovLbl+'</div></div>';
+  const prevAtt=store.history[1];
+  if(prevAtt){const dd=overall-prevAtt.score;h+='<div style="text-align:center;margin:-6px 0 12px;font-size:.82rem;font-weight:800;color:'+(dd>0?"var(--verde)":dd<0?"var(--rojo)":"var(--dim)")+'">'+(dd>0?"▲ +"+dd:dd<0?"▼ "+dd:"= igual")+' vs tu intento anterior ('+prevAtt.score+')</div>';}
   if(eyeAvg!=null){const ec=eyeAvg>=70?"var(--verde)":eyeAvg>=45?"var(--amar)":"var(--rojo)";
     h+='<div class="eyepanel"><div style="font-size:.8rem;color:var(--cyan);text-transform:uppercase;letter-spacing:.8px;">👁️ Contacto visual · lo más importante</div><div class="big" style="color:'+ec+'">'+eyeAvg+'%</div><div style="font-size:.85rem;color:var(--dim)">'+(eyeAvg>=70?"Excelente, transmitís seguridad. Sostenelo así el martes.":eyeAvg>=45?"Aceptable, pero podés mejorar. Mirá más fijo a los ojos.":"Te falta mirada. Es lo primero que se nota — entrená esto sí o sí.")+'</div></div>';}
   h+='<div class="catgrid">'+catBox("👔 Personal",cPers)+catBox("🇬🇧 Inglés",cIng)+catBox("🎭 Situacional",cSit)+'</div>';
