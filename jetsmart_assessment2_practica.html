@@ -977,7 +977,7 @@ const hasSR=!!SR, hasGUM=!!(navigator.mediaDevices&&navigator.mediaDevices.getUs
 
 /* ===== EYE TRACKER (MediaPipe FaceLandmarker) ===== */
 const Eye={
-  available:false, loading:false, fl:null, raf:null, running:false, lastT:0, lastContact:true,
+  available:false, loading:false, fl:null, raf:null, running:false, lastT:0, lastContact:true, smooth:null, missT:0,
   scoring:false, ans:{frames:0,contact:0,present:0},
   async init(){
     if(this.fl||this.loading) return this.available;
@@ -987,36 +987,61 @@ const Eye={
       const fileset=await vision.FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.12/wasm");
       const mk=async(delegate)=>vision.FaceLandmarker.createFromOptions(fileset,{
         baseOptions:{modelAssetPath:"https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",delegate},
-        outputFaceBlendshapes:true,runningMode:"VIDEO",numFaces:1});
+        outputFaceBlendshapes:true,outputFacialTransformationMatrixes:true,runningMode:"VIDEO",numFaces:1});
       try{this.fl=await mk("GPU");}catch(e){this.fl=await mk("CPU");}
       this.available=true;
     }catch(e){ this.available=false; }
     this.loading=false; return this.available;
   },
-  start(){ if(!this.available)return; this.running=true; this.lastContact=true; this._loop(); },
+  start(){ if(!this.available)return; this.running=true; this.lastContact=true; this.smooth=null; this._loop(); },
   stop(){ this.running=false; if(this.raf)cancelAnimationFrame(this.raf); this.raf=null; },
   startAnswer(){ this.ans={frames:0,contact:0,present:0}; this.scoring=true; },
   endAnswer(){ this.scoring=false; const a=this.ans; if(a.frames<4)return null; return {pct:Math.round(a.contact/a.frames*100), present:Math.round(a.present/a.frames*100)}; },
   _gaze(bs){ const g=n=>{const o=bs.find(x=>x.categoryName===n);return o?o.score:0;};
+    // gaze horizontal/vertical de los ojos (independiente de la cabeza)
     const h=Math.max(g("eyeLookOutLeft"),g("eyeLookInLeft"),g("eyeLookOutRight"),g("eyeLookInRight"));
     const v=Math.max(g("eyeLookUpLeft"),g("eyeLookDownLeft"),g("eyeLookUpRight"),g("eyeLookDownRight"));
     const blink=Math.max(g("eyeBlinkLeft"),g("eyeBlinkRight"));
-    return {gaze:Math.max(h,v*0.9),blink}; },
+    const squint=Math.max(g("eyeSquintLeft"),g("eyeSquintRight"));
+    return {gaze:Math.max(h,v*0.95),blink,squint}; },
+  _headOff(M){ // desviación de la cabeza respecto al frente (0 = mirando de frente)
+    if(!M||!M.data)return 0;
+    const m=M.data; // 4x4 column-major; 3ra columna ~ vector "hacia adelante" de la cara
+    const fx=m[8],fy=m[9],fz=m[10]||1;
+    const yaw=Math.abs(Math.atan2(fx,Math.abs(fz)));   // giro izq/der
+    const pitch=Math.abs(Math.atan2(fy,Math.abs(fz))); // arriba/abajo
+    return Math.max(yaw,pitch)/0.52; // ~30° => 1.0
+  },
   _loop(){
     if(!this.running)return;
     this.raf=requestAnimationFrame(()=>this._loop());
     const v=$("selfvideo"); const now=performance.now();
-    if(now-this.lastT<90) return; this.lastT=now;
+    if(now-this.lastT<66) return; this.lastT=now;
     if(!SIM.camOn||!v||v.readyState<2){ setEyeUI("none"); return; }
     let has=false, contact=false;
     try{
       const res=this.fl.detectForVideo(v,now);
       has=res.faceLandmarks&&res.faceLandmarks.length>0;
       if(has){
+        this.missT=0;
         const bs=(res.faceBlendshapes&&res.faceBlendshapes[0])?res.faceBlendshapes[0].categories:[];
         const {gaze,blink}=this._gaze(bs);
-        contact = blink>0.5 ? this.lastContact : (gaze<0.5);
-        this.lastContact=contact;
+        const head=this._headOff(res.facialTransformationMatrixes&&res.facialTransformationMatrixes[0]);
+        if(blink>0.55){
+          // durante un parpadeo no juzgamos: mantenemos el estado anterior
+          contact=this.lastContact;
+        } else {
+          // combinamos mirada de ojos + giro de cabeza en un solo "fuera de eje"
+          const off=Math.max(gaze, head*0.95);
+          this.smooth = (this.smooth==null) ? off : (this.smooth*0.6 + off*0.4);
+          // histéresis: cuesta más "perder" el contacto que recuperarlo (evita parpadeo)
+          contact = this.lastContact ? (this.smooth < 0.60) : (this.smooth < 0.42);
+          this.lastContact=contact;
+        }
+      } else {
+        // sin cara: toleramos ~200ms antes de marcar "perdido" (evita cortes por detección intermitente)
+        this.missT=this.missT||now;
+        if(now-this.missT<200 && this.scoring){ has=true; contact=this.lastContact; }
       }
     }catch(e){}
     setEyeUI(has?(contact?"ok":"bad"):"none");
