@@ -114,6 +114,10 @@
   .listenpill{background:rgba(255,77,94,.16);border:1px solid var(--rojo);color:#ffd0d5;border-radius:22px;padding:7px 15px;font-size:.82rem;font-weight:700;display:flex;align-items:center;gap:9px;pointer-events:auto;}
   .listenpill .dot{width:10px;height:10px;border-radius:50%;background:var(--rojo);animation:blinkdot 1s infinite;}
   .listenpill .tmr{font-variant-numeric:tabular-nums;}
+  .listenpill.good{background:rgba(47,212,122,.16);border-color:var(--verde);color:#bff5d4;}
+  .listenpill.good .dot{background:var(--verde);}
+  .listenpill.over{background:rgba(255,207,77,.16);border-color:var(--amar);color:#ffe9ad;}
+  .listenpill.over .dot{background:var(--amar);}
   .captions{background:rgba(6,10,20,.72);border:1px solid var(--line);border-radius:14px;margin-top:12px;padding:12px 14px;min-height:56px;font-size:.95rem;line-height:1.5;backdrop-filter:blur(4px);}
   .captions .cap-label{font-size:.66rem;color:var(--dim2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;}
   .captions .cap-txt{color:#fff;}
@@ -189,6 +193,11 @@
   .fb-badge-ai{display:inline-block;background:linear-gradient(135deg,#7b3ff2,#b13ff2);color:#fff;font-size:.62rem;font-weight:700;padding:2px 9px;border-radius:20px;}
   .hint{font-size:.76rem;color:var(--dim2);}
   .nameinput{width:100%;background:#0c1526;border:1px solid var(--line);border-radius:10px;color:var(--txt);padding:11px;font-size:.92rem;margin-top:8px;}
+  .voicesel{background:#0c1526;border:1px solid var(--line);border-radius:9px;color:var(--txt);padding:8px;font-size:.8rem;max-width:150px;}
+  .modelans{margin-top:6px;}
+  .modelans summary{cursor:pointer;color:var(--cyan);font-size:.78rem;font-weight:700;list-style:none;}
+  .modelans summary::-webkit-details-marker{display:none;}
+  .modelans .ma-body{font-size:.83rem;color:var(--txt);background:linear-gradient(135deg,rgba(37,201,208,.08),#101c33);border:1px solid rgba(37,201,208,.3);border-radius:10px;padding:10px;margin-top:6px;line-height:1.5;}
   /* connecting / calling overlay */
   .calling{position:absolute;inset:0;z-index:12;background:linear-gradient(160deg,#12244c,#080f1f);display:none;flex-direction:column;align-items:center;justify-content:center;gap:8px;animation:fade .3s ease;}
   .calling.show{display:flex;}
@@ -304,6 +313,14 @@
         <label class="sw"><input type="checkbox" id="opt-breathe"><span class="track"></span></label>
       </div>
       <div class="opt-row">
+        <div><div class="lbl">📳 Vibrar si perdés la mirada</div><div class="desc">Un toque suave cuando desviás los ojos, para reforzar el hábito.</div></div>
+        <label class="sw"><input type="checkbox" id="opt-vibrate" checked><span class="track"></span></label>
+      </div>
+      <div class="opt-row" style="border-bottom:none;">
+        <div style="flex:1;"><div class="lbl">🎙️ Voz del reclutador</div><div class="desc">Elegí la voz con la que te habla Martín.</div></div>
+        <select id="opt-voice" class="voicesel"></select>
+      </div>
+      <div class="opt-row">
         <div><div class="lbl">🎙️ Activar mic automáticamente</div><div class="desc">Empieza a escucharte apenas termina de hablar.</div></div>
         <label class="sw"><input type="checkbox" id="opt-auto" checked><span class="track"></span></label>
       </div>
@@ -405,7 +422,7 @@
         <div class="eyelive-bar"><i id="eyelive-fill"></i></div>
       </div>
       <div class="listenbar" id="listenbar" style="display:none;">
-        <div class="listenpill"><span class="dot"></span><span id="listentxt">Escuchando…</span> <span class="tmr" id="listentmr">0:00</span></div>
+        <div class="listenpill" id="listenpill"><span class="dot"></span><span id="listentxt">Escuchando…</span> <span class="tmr" id="listentmr">0:00</span></div>
       </div>
     </div>
     <div class="captions"><div class="cap-label" id="cap-label">💬 Tu respuesta</div><div class="cap-txt empty" id="cap-txt">Los subtítulos van a aparecer acá…</div></div>
@@ -494,6 +511,31 @@ const ACHIEVEMENTS=[
   {id:"streak3",icon:"🔥",name:"Constancia",desc:"3 simulaciones completadas."},
   {id:"english",icon:"🌎",name:"Bilingüe",desc:"70+ en el bloque de inglés."}
 ];
+const MODELANS={
+  es:{
+    pitch:"Nombre + edad + un rasgo fuerte orientado al servicio + por qué encajás. Ej: «Soy [nombre], tengo X. Me manejo muy bien con el público, soy responsable y me adapto rápido. Siempre me atrajo la aviación y el trato con la gente, por eso me presenté para tripulante en JetSmart». Cerralo en ~1 minuto.",
+    why:"Conectá tu motivación (servicio, gente, seguridad) con algo concreto de JetSmart (aerolínea low-cost joven y en expansión, ganas de crecer con ella) y algo tuyo real. Evitá el genérico «porque me gustan los aviones».",
+    know:"Mencioná: modelo low-cost / ultra low-cost, opera en Argentina, Chile y Perú y está en expansión, flota moderna Airbus A320, y foco en la seguridad y en que más gente pueda volar pagando menos.",
+    beh:"Contá un caso real con STAR: Situación breve (dónde/cuándo) → Tarea (tu responsabilidad) → Acción concreta que tomaste VOS (lo más importante) → Resultado con un dato o aprendizaje. Ej: «Un cliente estaba muy enojado (S). Yo tenía que resolverlo (T). Lo escuché, mantuve la calma y le ofrecí una solución (A). Se fue conforme y agradeció (R)».",
+    sit:"Priorizá SIEMPRE en este orden: mantené la calma, la seguridad y el protocolo primero, escuchá con empatía, comunicá firme y claro, y apoyate en el equipo y el comandante. Nunca respondas con agresividad.",
+    avail:"Mostrá disponibilidad total: turnos rotativos, madrugadas, viajar y hasta cambiar de base. Contá cómo te organizás para llevarlo sin problema. La disponibilidad es clave para que te elijan.",
+    closing:"Nunca digas «no, ninguna». Tené 1-2 preguntas listas: sobre la capacitación inicial, cómo sigue el proceso de selección, o cómo es un día típico a bordo."
+  },
+  en:{
+    pitch:"Name + a strong service trait + why you fit, in ~1 min. Keep it simple and well pronounced.",
+    why:"Link your motivation (service, people, safety) to something concrete about JetSmart, plus something real about you.",
+    beh:"Use STAR: brief Situation → your Task → the Action YOU took → Result. Speak slowly and clearly.",
+    sit:"Always prioritize: stay calm, safety and protocol first, empathy, clear communication, rely on the crew.",
+    know:"Mention: low-cost model, operates in Argentina/Chile/Peru, Airbus A320 fleet, strong focus on safety.",
+    avail:"Show full availability (shifts, early mornings, travel) and how you organize to handle it.",
+    closing:"Always have 1-2 questions ready — training, next steps, or a typical day on board."
+  }
+};
+/* ===== WAKE LOCK (que no se apague la pantalla) ===== */
+let wakeLock=null;
+async function acquireWake(){try{if("wakeLock" in navigator){wakeLock=await navigator.wakeLock.request("screen");}}catch(e){}}
+function releaseWake(){try{wakeLock&&wakeLock.release&&wakeLock.release();}catch(e){}wakeLock=null;}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&SIM.active)acquireWake();});
 const IDEAL={beh:[45,90],sit:[40,85],why:[30,75],know:[25,60],avail:[25,60],pitch:[30,60],closing:[8,40]};
 
 const FOLLOWUPS={
@@ -528,7 +570,7 @@ function tickCd(){ let d=TARGET-Date.now(); const el=$("cd"); if(!el)return;
 
 /* ===== STORAGE ===== */
 const KEY="jetsmart_sim_v2";
-let store={history:[],aiKey:"",achievements:[],opts:{cam:true,pressure:false,auto:true,silence:true,record:true,breathe:false,name:"",mode:"full"}};
+let store={history:[],aiKey:"",achievements:[],opts:{cam:true,pressure:false,auto:true,silence:true,record:true,breathe:false,vibrate:true,name:"",voiceURI:"",mode:"full"}};
 try{const r=localStorage.getItem(KEY);if(r){const p=JSON.parse(r);store.history=p.history||[];store.aiKey=p.aiKey||"";store.achievements=p.achievements||[];store.opts=Object.assign(store.opts,p.opts||{});}}catch(e){}
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){}}
 
@@ -620,9 +662,19 @@ function analyze(text,secs,step){
 
 /* ===== TTS ===== */
 const hasTTS="speechSynthesis" in window; let voices=[];
-function loadVoices(){try{voices=speechSynthesis.getVoices()||[];}catch(e){voices=[];}}
+function loadVoices(){try{voices=speechSynthesis.getVoices()||[];}catch(e){voices=[];}populateVoices();}
 if(hasTTS){loadVoices();speechSynthesis.onvoiceschanged=loadVoices;}
-function pickVoice(lang){const pref=lang==="en"?["en-us","en-gb","en"]:["es-ar","es-419","es-mx","es-us","es-es","es"];for(const p of pref){const v=voices.find(v=>v.lang&&v.lang.toLowerCase().startsWith(p));if(v)return v;}return null;}
+function pickVoice(lang){
+  if(lang!=="en"&&store.opts.voiceURI){const sv=voices.find(v=>v.voiceURI===store.opts.voiceURI);if(sv)return sv;}
+  const pref=lang==="en"?["en-us","en-gb","en"]:["es-ar","es-419","es-mx","es-us","es-es","es"];
+  for(const p of pref){const v=voices.find(v=>v.lang&&v.lang.toLowerCase().startsWith(p));if(v)return v;}return null;}
+function populateVoices(){
+  const sel=document.getElementById("opt-voice");if(!sel)return;
+  const es=voices.filter(v=>v.lang&&v.lang.toLowerCase().startsWith("es"));
+  if(!es.length){sel.innerHTML='<option value="">Automática</option>';return;}
+  sel.innerHTML='<option value="">Automática</option>'+es.map(v=>'<option value="'+v.voiceURI+'">'+(v.name||v.lang).replace(/Microsoft |Google /g,"")+' ('+v.lang+')</option>').join("");
+  sel.value=store.opts.voiceURI||"";
+}
 let speakResolve=null;
 function setSpeaking(on){$("stage").classList.toggle("speaking",on);}
 function speak(text,lang){return new Promise(resolve=>{
@@ -694,21 +746,24 @@ const Eye={
     }
   }
 };
+let _lastEye="";
 function setEyeUI(state){
   const st=$("stage"), b=$("eyebadge"), t=$("eyebadge-txt");
   st.classList.remove("eye-ok","eye-bad");
   b.classList.remove("ok","bad","show");
-  if(!SIM.eyeActive)return;
+  if(!SIM.eyeActive){_lastEye="";return;}
   b.classList.add("show");
   if(state==="ok"){ st.classList.add("eye-ok"); b.classList.add("ok"); t.textContent="Buen contacto visual"; }
   else if(state==="bad"){ st.classList.add("eye-bad"); b.classList.add("bad"); t.textContent="¡Mirá a los ojos!"; }
   else { t.textContent="No te veo en cámara"; }
+  if(state==="bad"&&_lastEye!=="bad"&&Eye.scoring&&SIM.opts.vibrate){ try{navigator.vibrate&&navigator.vibrate(70);}catch(e){} }
+  _lastEye=state;
 }
 
 /* ===== SIM STATE ===== */
 const SIM={seq:[],idx:0,results:[],opts:store.opts,camStream:null,camOn:false,eyeActive:false,
   recog:null,listening:false,manualStop:false,startedSpeaking:false,finalText:"",interimText:"",
-  answerStart:0,lastActivity:0,tick:null,fallbackStart:0,
+  answerStart:0,lastActivity:0,tick:null,fallbackStart:0,active:false,
   mediaRec:null,recChunks:[],recBlob:null,recURL:null,recAudio:null,pressureUsed:false};
 /* ===== GRABACIÓN DE SESIÓN ===== */
 async function startRecording(){
@@ -786,7 +841,10 @@ function beginListening(){
     SIM.recog.start();
   }catch(e){}
   clearInterval(SIM.tick);
-  SIM.tick=setInterval(()=>{const s=(Date.now()-SIM.answerStart)/1000;$("listentmr").textContent=fmt(s);if(SIM.opts.silence&&SIM.startedSpeaking&&(Date.now()-SIM.lastActivity)>SILENCE_MS)finishAnswer();},250);
+  const ideal=IDEAL[step.type]||[30,75];
+  SIM.tick=setInterval(()=>{const s=(Date.now()-SIM.answerStart)/1000;$("listentmr").textContent=fmt(s);
+    const pill=$("listenpill");if(pill){pill.classList.remove("good","over");if(s>=ideal[0]&&s<=ideal[1])pill.classList.add("good");else if(s>ideal[1]*1.3)pill.classList.add("over");}
+    if(SIM.opts.silence&&SIM.startedSpeaking&&(Date.now()-SIM.lastActivity)>SILENCE_MS)finishAnswer();},250);
 }
 function stopListening(){SIM.listening=false;SIM.manualStop=true;clearInterval(SIM.tick);SIM.tick=null;if(SIM.recog){try{SIM.recog.stop();}catch(e){}SIM.recog=null;}}
 async function finishAnswer(){
@@ -839,6 +897,8 @@ function showFeedbackCard(res,step){
     if(res.star){const nmf={s:"Situación",t:"Tarea",a:"Acción",r:"Resultado"};const falt=["s","t","a","r"].filter(k=>!res.star[k]).map(k=>nmf[k]);if(falt.length)h+='<div class="fbhdr">STAR — te faltó</div><ul class="fblist"><li class="warnli">'+falt.join(", ")+'</li></ul>';}
     if(res.tips.length)h+='<div class="fbhdr">Sugerencias</div><ul class="fblist">'+res.tips.map(t=>'<li class="tip">'+esc(t)+'</li>').join("")+'</ul>';
   } else if(res.tips.length)h+='<ul class="fblist">'+res.tips.map(t=>'<li class="tip">'+esc(t)+'</li>').join("")+'</ul>';
+  const ma=(MODELANS[isES?"es":"en"]||{})[step.type];
+  if(ma)h+='<details class="modelans"><summary>💡 Cómo respondería un candidato fuerte</summary><div class="ma-body">'+esc(ma)+'</div></details>';
   h+='</div>';
   $("fb-slot").innerHTML=h;
   setControls((isLastQ?'<button class="btn ok" id="c-next">🏁 Ver mi devolución final</button>':'<button class="btn ok" id="c-next">➡️ Siguiente</button>')+'<button class="btn ghost sm" id="c-retry">🔁 Reintentar</button>','<button id="c-quit">✕ Terminar</button>');
@@ -846,7 +906,7 @@ function showFeedbackCard(res,step){
   $("fb-slot").scrollIntoView({behavior:"smooth",block:"nearest"});
 }
 function nextStep(){skipSpeak();stopListening();SIM.idx++;if(SIM.idx>=SIM.seq.length){endSim();return;}runStep();}
-function quitSim(){stopListening();skipSpeak();Eye.stop();if(SIM.results.length>0){endSim();}else{stopRecording();stopCam();showScreen("screen-home");}}
+function quitSim(){SIM.active=false;releaseWake();stopListening();skipSpeak();Eye.stop();if(SIM.results.length>0){endSim();}else{stopRecording();stopCam();showScreen("screen-home");}}
 
 /* ===== CÁMARA ===== */
 async function startCam(){
@@ -880,7 +940,7 @@ async function startSim(){
   SIM.idx=0;SIM.results=[];SIM.eyeActive=false;SIM.recURL=null;SIM.recBlob=null;SIM.pressureUsed=SIM.opts.pressure; setExpression("neutral");
   try{const c=AC();if(c&&c.state==="suspended")await c.resume();}catch(e){}
   if(SIM.opts.breathe) await runBreathing();
-  showScreen("screen-sim");
+  showScreen("screen-sim"); SIM.active=true; acquireWake();
   $("calling").classList.add("show"); ring();
   $("eyebadge").classList.remove("show"); $("livedot").style.display="none";
   await Promise.all([ setupMedia(), delay(2800) ]);
@@ -893,6 +953,7 @@ async function startSim(){
 
 /* ===== DEVOLUCIÓN FINAL ===== */
 function endSim(){
+  SIM.active=false;releaseWake();
   stopListening();Eye.stop();stopRecording();stopCam();
   const answers=SIM.results.filter(r=>r.type!=="closing");
   const scored=answers.length?answers:SIM.results;
@@ -1037,10 +1098,12 @@ function renderHistory(){
 }
 
 /* ===== OPCIONES ===== */
-function syncOpts(){$("opt-cam").checked=SIM.opts.cam;$("opt-pressure").checked=SIM.opts.pressure;$("opt-auto").checked=SIM.opts.auto;$("opt-silence").checked=SIM.opts.silence;$("opt-record").checked=SIM.opts.record;$("opt-breathe").checked=SIM.opts.breathe;$("opt-name").value=SIM.opts.name||"";document.querySelectorAll("#seg-mode button").forEach(b=>b.classList.toggle("on",b.dataset.mode===SIM.opts.mode));}
+function syncOpts(){$("opt-cam").checked=SIM.opts.cam;$("opt-pressure").checked=SIM.opts.pressure;$("opt-auto").checked=SIM.opts.auto;$("opt-silence").checked=SIM.opts.silence;$("opt-record").checked=SIM.opts.record;$("opt-breathe").checked=SIM.opts.breathe;$("opt-vibrate").checked=SIM.opts.vibrate;$("opt-name").value=SIM.opts.name||"";populateVoices();document.querySelectorAll("#seg-mode button").forEach(b=>b.classList.toggle("on",b.dataset.mode===SIM.opts.mode));}
 $("opt-name").oninput=e=>{SIM.opts.name=e.target.value;persist();};
 $("opt-record").onchange=e=>{SIM.opts.record=e.target.checked;persist();};
 $("opt-breathe").onchange=e=>{SIM.opts.breathe=e.target.checked;persist();};
+$("opt-vibrate").onchange=e=>{SIM.opts.vibrate=e.target.checked;persist();};
+$("opt-voice").onchange=e=>{SIM.opts.voiceURI=e.target.value;persist();try{if(e.target.value){const u=new SpeechSynthesisUtterance("Hola, soy Martín. Así te voy a hablar.");const v=voices.find(x=>x.voiceURI===e.target.value);if(v){u.voice=v;u.lang=v.lang;}speechSynthesis.cancel();speechSynthesis.speak(u);}}catch(err){}};
 $("opt-cam").onchange=e=>{SIM.opts.cam=e.target.checked;persist();};
 $("opt-pressure").onchange=e=>{SIM.opts.pressure=e.target.checked;persist();};
 $("opt-auto").onchange=e=>{SIM.opts.auto=e.target.checked;persist();};
