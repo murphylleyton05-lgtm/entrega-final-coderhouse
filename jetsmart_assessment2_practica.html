@@ -302,6 +302,7 @@
       <h1>Simulación de Entrevista <span class="tag">JETSMART</span></h1>
       <p class="sub">Una videollamada con un reclutador real: te habla, te reacciona, te presiona un poco. Miralo a los ojos — te va a avisar cuando desvíes la mirada.</p>
       <div class="tipbar" id="tipbar">💡 Cargá los tips…</div>
+      <div id="streakline" style="margin-top:8px;font-size:.82rem;font-weight:700;color:var(--amar);display:none;"></div>
     </div>
     <div class="card">
       <h3>¿Cómo funciona?</h3>
@@ -350,9 +351,17 @@
         <div><div class="lbl">🔁 Repetir hasta que salga</div><div class="desc">Si una respuesta queda floja, el reclutador te la vuelve a preguntar.</div></div>
         <label class="sw"><input type="checkbox" id="opt-retry"><span class="track"></span></label>
       </div>
-      <div class="opt-row" style="border-bottom:none;">
-        <div style="flex:1;"><div class="lbl">🎙️ Voz del reclutador</div><div class="desc">Elegí la voz con la que te habla Martín.</div></div>
+      <div class="opt-row">
+        <div style="flex:1;"><div class="lbl">🎙️ Voz del reclutador</div><div class="desc">Elegí la voz con la que te habla.</div></div>
         <select id="opt-voice" class="voicesel"></select>
+      </div>
+      <div class="opt-row">
+        <div style="flex:1;"><div class="lbl">⏩ Velocidad de voz</div><div class="desc">Qué tan rápido habla el reclutador.</div></div>
+        <select id="opt-rate" class="voicesel" style="max-width:120px;"><option value="0.85">Lenta</option><option value="1" selected>Normal</option><option value="1.15">Rápida</option></select>
+      </div>
+      <div class="opt-row" style="border-bottom:none;">
+        <div style="flex:1;"><div class="lbl">🎨 Tema de color</div><div class="desc">El color de acento de la app.</div></div>
+        <select id="opt-theme" class="voicesel" style="max-width:120px;"><option value="azul">Azul</option><option value="violeta">Violeta</option><option value="esmeralda">Esmeralda</option><option value="rojo">Rojo</option></select>
       </div>
       <div class="opt-row">
         <div><div class="lbl">🎙️ Activar mic automáticamente</div><div class="desc">Empieza a escucharte apenas termina de hablar.</div></div>
@@ -676,9 +685,9 @@ function tickCd(){ let d=TARGET-Date.now(); const el=$("cd"); if(!el)return;
 
 /* ===== STORAGE ===== */
 const KEY="jetsmart_sim_v2";
-let store={history:[],aiKey:"",achievements:[],opts:{cam:true,pressure:false,auto:true,silence:true,record:true,breathe:false,vibrate:true,retry:false,name:"",voiceURI:"",interviewer:"martin",mode:"full"}};
+let store={history:[],aiKey:"",achievements:[],streak:{count:0,last:""},opts:{cam:true,pressure:false,auto:true,silence:true,record:true,breathe:false,vibrate:true,retry:false,theme:"azul",rate:1,name:"",voiceURI:"",interviewer:"martin",mode:"full"}};
 store.checklist={};
-try{const r=localStorage.getItem(KEY);if(r){const p=JSON.parse(r);store.history=p.history||[];store.aiKey=p.aiKey||"";store.achievements=p.achievements||[];store.checklist=p.checklist||{};store.opts=Object.assign(store.opts,p.opts||{});}}catch(e){}
+try{const r=localStorage.getItem(KEY);if(r){const p=JSON.parse(r);store.history=p.history||[];store.aiKey=p.aiKey||"";store.achievements=p.achievements||[];store.checklist=p.checklist||{};store.streak=p.streak||{count:0,last:""};store.opts=Object.assign(store.opts,p.opts||{});}}catch(e){}
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){}}
 
 /* ===== HELPERS ===== */
@@ -686,6 +695,23 @@ function $(id){return document.getElementById(id);}
 function fmt(s){s=Math.max(0,Math.round(s));const m=Math.floor(s/60),x=s%60;return m+":"+String(x).padStart(2,"0");}
 function esc(s){return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
 function pick(a){return a[Math.floor(Math.random()*a.length)];}
+/* ===== TEMA ===== */
+const THEMES={azul:{azul:"#2f6bff",azul2:"#4d84ff",cyan:"#25c9d0"},violeta:{azul:"#7b48ff",azul2:"#9a6bff",cyan:"#c07bff"},esmeralda:{azul:"#12a670",azul2:"#25c98a",cyan:"#2fd4b0"},rojo:{azul:"#e4032e",azul2:"#ff4d5e",cyan:"#ff8a4d"}};
+function applyTheme(){const t=THEMES[store.opts.theme]||THEMES.azul;const r=document.documentElement.style;r.setProperty("--azul",t.azul);r.setProperty("--azul2",t.azul2);r.setProperty("--cyan",t.cyan);const m=document.querySelector('meta[name=theme-color]');}
+/* ===== RACHA ===== */
+function todayStr(){return new Date().toISOString().slice(0,10);}
+function bumpStreak(){const t=todayStr();const s=store.streak||{count:0,last:""};if(s.last===t)return;const y=new Date(Date.now()-86400000).toISOString().slice(0,10);s.count=(s.last===y)?s.count+1:1;s.last=t;store.streak=s;persist();}
+/* ===== CONFETI ===== */
+function confetti(){
+  try{
+    const cv=document.createElement("canvas");cv.style.cssText="position:fixed;inset:0;z-index:80;pointer-events:none;";cv.width=innerWidth;cv.height=innerHeight;document.body.appendChild(cv);
+    const ctx=cv.getContext("2d");const cols=["#2f6bff","#4d84ff","#25c9d0","#2fd47a","#ffcf4d","#ff4d5e","#9a6bff"];
+    const P=[];for(let i=0;i<130;i++)P.push({x:Math.random()*cv.width,y:-20-Math.random()*cv.height*0.4,r:4+Math.random()*5,c:pick(cols),vy:2+Math.random()*3.5,vx:-1.5+Math.random()*3,rot:Math.random()*6,vr:-0.2+Math.random()*0.4});
+    let t0=performance.now();
+    (function fr(now){const el=now-t0;ctx.clearRect(0,0,cv.width,cv.height);P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.fillStyle=p.c;ctx.fillRect(-p.r,-p.r,p.r*2,p.r*1.4);ctx.restore();});
+      if(el<2600)requestAnimationFrame(fr);else cv.remove();})(t0);
+  }catch(e){}
+}
 function firstName(){return (store.opts.name||"").trim().split(/\s+/)[0]||"";}
 function cap(s){return s?s.charAt(0).toUpperCase()+s.slice(1):s;}
 const RECRUITERS={martin:{name:"Martín Rey",first:"Martín"},lucia:{name:"Lucía Fernández",first:"Lucía"}};
@@ -795,7 +821,7 @@ function speak(text,lang){return new Promise(resolve=>{
   if(!hasTTS){resolve();return;}
   try{speechSynthesis.cancel();}catch(e){}
   const u=new SpeechSynthesisUtterance(text); const v=pickVoice(lang); if(v)u.voice=v;
-  u.lang=v?v.lang:(lang==="en"?"en-US":"es-ES"); u.rate=lang==="en"?0.95:1.0; u.pitch=1;
+  u.lang=v?v.lang:(lang==="en"?"en-US":"es-ES"); u.rate=(lang==="en"?0.95:1.0)*(store.opts.rate||1); u.pitch=1;
   let done=false; const finish=()=>{if(done)return;done=true;setSpeaking(false);if(speakResolve===resolve)speakResolve=null;resolve();};
   u.onend=finish; u.onerror=finish; speakResolve=resolve; setSpeaking(true);
   setTimeout(()=>{if(!done)finish();},1500+text.length*72+4000);
@@ -1103,9 +1129,11 @@ async function setupMedia(){
     if(SIM.camOn){ const ok=await Eye.init(); if(ok){SIM.eyeActive=true;Eye.start();} else {SIM.eyeActive=false;} }
   } else {$("camoff").style.display="flex";$("selfvideo").style.display="none";$("camtoggle").textContent="🚫";}
 }
-async function startSim(){
-  const qs=buildSequence(SIM.opts.mode);
-  SIM.seq=[{kind:"say",spoken:greetingText(),lang:"es"},{kind:"say",spoken:SIM.opts.pressure?SMALLTALK_.pressure:SMALLTALK_.normal,lang:"es"}];
+async function startSim(custom){
+  bumpStreak();
+  const qs=custom||buildSequence(SIM.opts.mode);
+  if(custom){SIM.seq=[{kind:"say",spoken:"Dale, practiquemos esta pregunta puntual. Cuando termine de hablar, respondé.",lang:"es"}];}
+  else{SIM.seq=[{kind:"say",spoken:greetingText(),lang:"es"},{kind:"say",spoken:SIM.opts.pressure?SMALLTALK_.pressure:SMALLTALK_.normal,lang:"es"}];}
   qs.forEach(p=>SIM.seq.push({kind:"ask",q:p.q,spoken:(p.pre?p.pre+" ":"")+p.q,lang:p.lang,type:p.type,cat:p.cat}));
   SIM.idx=0;SIM.results=[];SIM.eyeActive=false;SIM.recURL=null;SIM.recBlob=null;SIM.pressureUsed=SIM.opts.pressure; setExpression("neutral"); applyInterviewer();
   try{const c=AC();if(c&&c.state==="suspended")await c.resume();}catch(e){}
@@ -1206,13 +1234,15 @@ function endSim(){
   $("c-share")&&($("c-share").onclick=()=>shareScore(overall,eyeAvg));
   $("c-txt")&&($("c-txt").onclick=()=>downloadText("informe_entrevista_jetsmart.txt",reportText));
   $("c-print")&&($("c-print").onclick=()=>window.print());
-  $("c-again").onclick=()=>{showScreen("screen-home");renderHistory();};
-  $("c-home2").onclick=()=>{showScreen("screen-home");renderHistory();};
+  $("c-again").onclick=()=>{showScreen("screen-home");renderHistory();renderStreak();};
+  $("c-home2").onclick=()=>{showScreen("screen-home");renderHistory();renderStreak();};
   const cai=$("c-ai");if(cai)cai.onclick=()=>runAiFinal(overall,{cPers,cIng,cSit,eyeAvg});
+  if(overall>=80||newBadges.length)confetti();
   const nn=firstName(); endTone(); setExpression("happy");
   let spk="Bueno "+(nn?cap(nn)+", ":"")+"te doy la devolución. Tu nivel de preparación es "+overall+" sobre 100. ";
   spk+= overall>=75?"Estuviste muy bien. ":overall>=55?"Vas por buen camino, seguí puliendo. ":"Todavía hay cosas para mejorar, pero con práctica lo vas a lograr. ";
   if(eyeAvg!=null) spk+= eyeAvg>=70?"Muy buen contacto visual, eso transmite seguridad. ":"Trabajá el contacto visual, que es lo más importante. ";
+  if(confAvg!=null&&confAvg<60) spk+= "Y proyectá más seguridad al hablar. ";
   spk+= "Nos vemos el martes. Mucha suerte, la vas a romper.";
   speak(spk,"es").then(()=>setExpression("neutral"));
 }
@@ -1282,8 +1312,16 @@ function renderStudy(){
   const chk=$("studychk");
   chk.innerHTML=STUDY_CHECK.map((t,i)=>'<label><input type="checkbox" data-ci="'+i+'"'+(store.checklist[i]?" checked":"")+'><span>'+esc(t)+'</span></label>').join("");
   chk.querySelectorAll("input").forEach(cb=>cb.onchange=()=>{store.checklist[cb.dataset.ci]=cb.checked;persist();});
-  const groups=[["🗣️ Personales / motivación",[...BANK.pitch.es,...BANK.why.es,...BANK.close.es]],["💙 Sobre JetSmart",BANK.know.es],["🎬 Comportamiento (STAR)",BANK.beh.es],["🎭 Situacionales / grupales",[...BANK.sit.es,...BANK.sit.grupal]],["🧳 Disponibilidad",BANK.avail.es],["🇬🇧 En inglés",[...BANK.pitch.en,...BANK.beh.en,...BANK.sit.en]]];
-  $("qbank").innerHTML=groups.map(g=>'<h4>'+g[0]+'</h4><ul>'+g[1].map(q=>'<li>'+esc(q)+'</li>').join("")+'</ul>').join("");
+  const G=[
+    ["🗣️ Personales / motivación",[...BANK.pitch.es.map(q=>({q,type:"pitch"})),...BANK.why.es.map(q=>({q,type:"why"})),...BANK.close.es.map(q=>({q,type:"why"}))],"es","personal"],
+    ["💙 Sobre JetSmart",BANK.know.es.map(q=>({q,type:"know"})),"es","personal"],
+    ["🎬 Comportamiento (STAR)",BANK.beh.es.map(q=>({q,type:"beh"})),"es","personal"],
+    ["🎭 Situacionales / grupales",[...BANK.sit.es.map(q=>({q,type:"sit"})),...BANK.sit.grupal.map(q=>({q,type:"sit"}))],"es","situacional"],
+    ["🧳 Disponibilidad",BANK.avail.es.map(q=>({q,type:"avail"})),"es","personal"],
+    ["🇬🇧 En inglés",[...BANK.pitch.en.map(q=>({q,type:"pitch"})),...BANK.beh.en.map(q=>({q,type:"beh"})),...BANK.sit.en.map(q=>({q,type:"sit"}))],"en","ingles"]
+  ];
+  $("qbank").innerHTML='<p class="hint" style="margin-top:0;">Tocá cualquier pregunta para practicarla sola con el reclutador 👇</p>'+G.map((g,gi)=>'<h4>'+g[0]+'</h4><ul>'+g[1].map((o,qi)=>'<li data-g="'+gi+'" data-q="'+qi+'" style="cursor:pointer;color:var(--azul2);">▶ '+esc(o.q)+'</li>').join("")+'</ul>').join("");
+  $("qbank").querySelectorAll("li[data-g]").forEach(li=>li.onclick=()=>{const g=G[+li.dataset.g],o=g[1][+li.dataset.q];startSim([{q:o.q,lang:g[2],type:o.type,cat:g[3]}]);});
 }
 /* ===== HIGHLIGHT MULETILLAS ===== */
 function highlightFillers(text,lang){
@@ -1325,17 +1363,22 @@ function renderHistory(){
 }
 
 /* ===== OPCIONES ===== */
-function syncOpts(){$("opt-cam").checked=SIM.opts.cam;$("opt-pressure").checked=SIM.opts.pressure;$("opt-auto").checked=SIM.opts.auto;$("opt-silence").checked=SIM.opts.silence;$("opt-record").checked=SIM.opts.record;$("opt-breathe").checked=SIM.opts.breathe;$("opt-vibrate").checked=SIM.opts.vibrate;$("opt-retry").checked=SIM.opts.retry;$("opt-name").value=SIM.opts.name||"";populateVoices();document.querySelectorAll("#seg-mode button").forEach(b=>b.classList.toggle("on",b.dataset.mode===SIM.opts.mode));document.querySelectorAll("#seg-interviewer button").forEach(b=>b.classList.toggle("on",b.dataset.int===SIM.opts.interviewer));}
+function syncOpts(){$("opt-cam").checked=SIM.opts.cam;$("opt-pressure").checked=SIM.opts.pressure;$("opt-auto").checked=SIM.opts.auto;$("opt-silence").checked=SIM.opts.silence;$("opt-record").checked=SIM.opts.record;$("opt-breathe").checked=SIM.opts.breathe;$("opt-vibrate").checked=SIM.opts.vibrate;$("opt-retry").checked=SIM.opts.retry;$("opt-rate").value=String(SIM.opts.rate||1);$("opt-theme").value=SIM.opts.theme||"azul";$("opt-name").value=SIM.opts.name||"";populateVoices();document.querySelectorAll("#seg-mode button").forEach(b=>b.classList.toggle("on",b.dataset.mode===SIM.opts.mode));document.querySelectorAll("#seg-interviewer button").forEach(b=>b.classList.toggle("on",b.dataset.int===SIM.opts.interviewer));}
+function renderStreak(){const el=$("streakline");if(!el)return;const s=store.streak||{count:0};if(s.count>=2&&s.last){el.style.display="block";el.textContent="🔥 Racha de práctica: "+s.count+" días seguidos. ¡Seguí así!";}else el.style.display="none";}
 $("opt-name").oninput=e=>{SIM.opts.name=e.target.value;persist();};
 $("opt-record").onchange=e=>{SIM.opts.record=e.target.checked;persist();};
 $("opt-breathe").onchange=e=>{SIM.opts.breathe=e.target.checked;persist();};
 $("opt-vibrate").onchange=e=>{SIM.opts.vibrate=e.target.checked;persist();};
 $("opt-retry").onchange=e=>{SIM.opts.retry=e.target.checked;persist();};
+$("opt-rate").onchange=e=>{SIM.opts.rate=parseFloat(e.target.value)||1;persist();};
+$("opt-theme").onchange=e=>{SIM.opts.theme=e.target.value;persist();applyTheme();};
 $("btn-export").onclick=exportProgress;
 $("btn-import").onclick=()=>$("file-import").click();
 $("file-import").onchange=e=>{if(e.target.files&&e.target.files[0])importProgress(e.target.files[0]);e.target.value="";};
 document.addEventListener("keydown",e=>{
-  if(e.code==="Space"&&SIM.listening&&document.getElementById("screen-sim").classList.contains("active")){e.preventDefault();finishAnswer();}
+  const inSim=document.getElementById("screen-sim").classList.contains("active");
+  if(e.code==="Space"&&SIM.listening&&inSim){e.preventDefault();finishAnswer();}
+  else if((e.code==="Enter"||e.code==="NumpadEnter")&&inSim){const nx=$("c-next");if(nx){e.preventDefault();nx.click();}}
 });
 $("opt-voice").onchange=e=>{SIM.opts.voiceURI=e.target.value;persist();try{if(e.target.value){const u=new SpeechSynthesisUtterance("Hola, soy Martín. Así te voy a hablar.");const v=voices.find(x=>x.voiceURI===e.target.value);if(v){u.voice=v;u.lang=v.lang;}speechSynthesis.cancel();speechSynthesis.speak(u);}}catch(err){}};
 $("opt-cam").onchange=e=>{SIM.opts.cam=e.target.checked;persist();};
@@ -1366,7 +1409,7 @@ $("ai-save").onclick=()=>{store.aiKey=($("ai-key").value||"").trim();persist();r
 $("ai-clear").onclick=()=>{store.aiKey="";$("ai-key").value="";persist();refreshAi();};
 
 /* ===== INIT ===== */
-setInterval(tickCd,30000);tickCd();syncOpts();renderHistory();refreshAi();applyInterviewer();startTips();
+setInterval(tickCd,30000);tickCd();applyTheme();syncOpts();renderHistory();refreshAi();applyInterviewer();startTips();renderStreak();
 </script>
 </body>
 </html>
