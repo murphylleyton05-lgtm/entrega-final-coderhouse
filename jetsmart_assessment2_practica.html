@@ -194,6 +194,26 @@
   .hint{font-size:.76rem;color:var(--dim2);}
   .nameinput{width:100%;background:#0c1526;border:1px solid var(--line);border-radius:10px;color:var(--txt);padding:11px;font-size:.92rem;margin-top:8px;}
   .voicesel{background:#0c1526;border:1px solid var(--line);border-radius:9px;color:var(--txt);padding:8px;font-size:.8rem;max-width:150px;}
+  .tipbar{background:rgba(37,201,208,.1);border:1px solid rgba(37,201,208,.3);border-radius:12px;padding:9px 12px;font-size:.8rem;color:#bfeff2;margin:14px auto 0;max-width:470px;min-height:2.4em;display:flex;align-items:center;justify-content:center;text-align:center;transition:opacity .3s;}
+  .miniseg{display:flex;gap:6px;margin-top:8px;}
+  .miniseg button{flex:1;background:#131f38;border:1px solid var(--line);color:var(--dim);font-weight:700;font-size:.82rem;padding:9px 4px;border-radius:10px;}
+  .miniseg button.on{background:var(--azul);color:#fff;border-color:var(--azul);}
+  .hl-filler{background:rgba(255,77,94,.28);color:#ffd0d5;border-radius:3px;padding:0 2px;}
+  .installtip{font-size:.74rem;color:var(--dim2);text-align:center;margin-top:10px;}
+  .btn.study{background:#182c4e;color:var(--cyan);border:1px solid rgba(37,201,208,.3);}
+  #screen-study .card h3{color:var(--cyan);display:flex;align-items:center;gap:7px;}
+  .studytop{display:flex;align-items:center;gap:10px;margin:2px 0 12px;}
+  .studytop .back{background:#22304f;color:#fff;border-radius:10px;padding:9px 13px;font-weight:700;}
+  .studytop h2{font-size:1.15rem;margin:0;}
+  .qbank h4{margin:12px 0 4px;font-size:.85rem;color:var(--azul2);}
+  .qbank ul{margin:0;padding-left:18px;font-size:.85rem;color:var(--dim);}
+  .qbank li{margin-bottom:4px;}
+  .frase2{background:#101c33;border-left:3px solid var(--azul2);padding:8px 11px;border-radius:0 8px 8px 0;margin-bottom:8px;font-size:.86rem;font-style:italic;color:var(--txt);}
+  .studychk label{display:flex;align-items:flex-start;gap:9px;padding:7px 0;font-size:.9rem;border-bottom:1px dashed var(--line);cursor:pointer;}
+  .studychk label:last-child{border-bottom:none;}
+  .studychk input{width:20px;height:20px;accent-color:var(--verde);margin-top:1px;flex-shrink:0;}
+  .studychk input:checked + span{text-decoration:line-through;color:var(--dim2);}
+  #hairF{display:none;}
   .modelans{margin-top:6px;}
   .modelans summary{cursor:pointer;color:var(--cyan);font-size:.78rem;font-weight:700;list-style:none;}
   .modelans summary::-webkit-details-marker{display:none;}
@@ -279,6 +299,7 @@
       <div class="logo">✈️</div>
       <h1>Simulación de Entrevista <span class="tag">JETSMART</span></h1>
       <p class="sub">Una videollamada con un reclutador real: te habla, te reacciona, te presiona un poco. Miralo a los ojos — te va a avisar cuando desvíes la mirada.</p>
+      <div class="tipbar" id="tipbar">💡 Cargá los tips…</div>
     </div>
     <div class="card">
       <h3>¿Cómo funciona?</h3>
@@ -296,6 +317,13 @@
         <div style="flex:1;"><div class="lbl">🙋 Tu nombre <span style="color:var(--dim2);font-weight:400;">(opcional)</span></div><div class="desc">Para que el reclutador te hable por tu nombre.</div></div>
       </div>
       <input id="opt-name" class="nameinput" type="text" placeholder="Ej: Lucía" maxlength="20" style="margin-bottom:8px;">
+      <div class="opt-row" style="border-bottom:none;padding-bottom:2px;">
+        <div style="flex:1;"><div class="lbl">🧑‍✈️ Entrevistador</div><div class="desc">Elegí quién te toma la entrevista.</div></div>
+      </div>
+      <div class="miniseg" id="seg-interviewer" style="margin-bottom:6px;">
+        <button data-int="martin" class="on">👨 Martín</button>
+        <button data-int="lucia">👩 Lucía</button>
+      </div>
       <div class="opt-row">
         <div><div class="lbl">📷 Cámara + contacto visual</div><div class="desc">Detecta cuándo mirás a los ojos. Necesita internet la 1ª vez.</div></div>
         <label class="sw"><input type="checkbox" id="opt-cam" checked><span class="track"></span></label>
@@ -332,9 +360,12 @@
         <div style="flex:1;"><div class="lbl">Duración</div><div class="desc">Cantidad de preguntas.</div></div>
       </div>
       <div class="seg" id="seg-mode">
-        <button data-mode="full" class="on">Completa (~13)</button>
-        <button data-mode="short">Corta (6)</button>
+        <button data-mode="full" class="on">Completa</button>
+        <button data-mode="short">Corta</button>
+        <button data-mode="eng">🇬🇧 Inglés</button>
+        <button data-mode="sit">🎭 Situac.</button>
       </div>
+      <div class="desc" style="margin-top:6px;">Completa ~13 · Corta 6 · Inglés y Situacional: práctica enfocada.</div>
       <div class="warnbox" id="compat-warn" style="display:none;"></div>
     </div>
     <div class="card" id="history-card" style="display:none;">
@@ -342,7 +373,9 @@
       <div class="history" id="history-list"></div>
     </div>
     <button class="btn big" id="btn-start">🎬 Iniciar simulación</button>
+    <button class="btn big study" id="btn-study" style="margin-top:9px;">📚 Repaso rápido (cheat sheet + banco de preguntas)</button>
     <p class="hint" style="text-align:center;margin-top:10px;">Al iniciar, el navegador pedirá permiso de micrófono y cámara. Todo el análisis corre en tu dispositivo.</p>
+    <p class="installtip" id="installtip">📲 Tip: en Chrome tocá ⋮ → «Agregar a pantalla de inicio» para usarla como app a pantalla completa.</p>
   </section>
 
   <!-- SIM -->
@@ -381,9 +414,17 @@
             <ellipse cx="100" cy="86" rx="42" ry="46" fill="url(#skin)"/>
             <!-- ears -->
             <circle cx="59" cy="88" r="7" fill="#e0b492"/><circle cx="141" cy="88" r="7" fill="#e0b492"/>
-            <!-- hair -->
-            <path d="M58 78 C56 40 92 30 100 30 C108 30 144 40 142 78 C140 60 128 50 100 50 C72 50 60 60 58 78 Z" fill="#2b2118"/>
-            <path d="M58 80 C54 62 66 48 66 48 C60 60 62 74 62 82 Z" fill="#2b2118"/>
+            <!-- hair (masculino) -->
+            <g id="hairM">
+              <path d="M58 78 C56 40 92 30 100 30 C108 30 144 40 142 78 C140 60 128 50 100 50 C72 50 60 60 58 78 Z" fill="#2b2118"/>
+              <path d="M58 80 C54 62 66 48 66 48 C60 60 62 74 62 82 Z" fill="#2b2118"/>
+            </g>
+            <!-- hair (femenino): copete + mechones a los lados -->
+            <g id="hairF">
+              <path d="M52 116 C46 78 50 44 100 42 C150 44 154 78 148 116 C146 100 140 84 138 74 C132 60 120 52 100 52 C80 52 68 60 62 74 C60 84 54 100 52 116 Z" fill="#3a281c"/>
+              <path d="M56 76 C56 42 92 32 100 32 C108 32 144 42 144 76 C138 58 126 50 100 50 C74 50 62 58 56 76 Z" fill="#2f1f16"/>
+              <ellipse cx="100" cy="86" rx="42" ry="46" fill="url(#skin)"/>
+            </g>
             <!-- eyebrows -->
             <rect id="browL" x="72" y="70" width="20" height="5" rx="2.5" fill="#3a2c20"/>
             <rect id="browR" x="108" y="70" width="20" height="5" rx="2.5" fill="#3a2c20"/>
@@ -434,6 +475,37 @@
 
   <!-- END -->
   <section class="screen" id="screen-end"><div class="debrief" id="debrief"></div></section>
+
+  <!-- STUDY / REPASO -->
+  <section class="screen" id="screen-study">
+    <div class="studytop"><button class="back" id="study-back">←</button><h2>📚 Repaso rápido</h2></div>
+    <div class="card"><h3>⭐ Metodología STAR</h3>
+      <ul style="margin:0;padding-left:18px;font-size:.9rem;">
+        <li><b>S</b>ituación — contexto corto: dónde, cuándo, qué pasaba.</li>
+        <li><b>T</b>area — tu responsabilidad o el objetivo.</li>
+        <li><b>A</b>cción — qué hiciste VOS concretamente (lo más importante).</li>
+        <li><b>R</b>esultado — cómo terminó + qué aprendiste (mejor con un dato).</li>
+      </ul>
+    </div>
+    <div class="card"><h3>🗣️ Frases fuertes para "contame sobre vos"</h3>
+      <div class="frase2">"Soy una persona de trato con el público, me manejo bien bajo presión y disfruto trabajar en equipo."</div>
+      <div class="frase2">"Busco un trabajo dinámico, con contacto humano, donde la seguridad y el buen servicio sean prioridad — por eso me veo como tripulante."</div>
+      <div class="frase2">"Me adapto rápido a cambios y turnos, soy responsable con los protocolos y mantengo la calma cuando las cosas se complican."</div>
+      <div class="frase2">"Elijo JetSmart porque es una empresa joven y en crecimiento, y quiero crecer con ella a largo plazo."</div>
+    </div>
+    <div class="card"><h3>💙 Puntos clave de JetSmart</h3>
+      <ul style="margin:0;padding-left:18px;font-size:.9rem;">
+        <li>Aerolínea <b>low-cost / ultra low-cost</b>: precios bajos, servicios opcionales.</li>
+        <li>Opera en <b>Argentina, Chile y Perú</b> + rutas regionales, en expansión.</li>
+        <li>Flota moderna <b>Airbus A320</b>.</li>
+        <li>Valores: <b>seguridad</b>, eficiencia, buena onda, democratizar el volar.</li>
+      </ul>
+      <p class="hint" style="margin-bottom:0;">⚠️ Verificá datos actualizados en la web oficial antes de la entrevista.</p>
+    </div>
+    <div class="card"><h3>✅ Checklist última hora</h3><div class="studychk" id="studychk"></div></div>
+    <div class="card"><h3>📋 Banco de preguntas para estudiar</h3><div class="qbank" id="qbank"></div></div>
+    <button class="btn big study" id="study-back2">← Volver al inicio</button>
+  </section>
 </div>
 
 <!-- BREATHING -->
@@ -486,6 +558,20 @@ const BANK={
 function rp(a){return a[Math.floor(Math.random()*a.length)];}
 function sampleN(a,n){const c=a.slice(),o=[];while(o.length<n&&c.length)o.push(c.splice(Math.floor(Math.random()*c.length),1)[0]);return o;}
 function buildSequence(mode){
+  if(mode==="eng"){const s=[];
+    s.push({q:rp(BANK.pitch.en),lang:"en",type:"pitch",cat:"ingles",pre:"Let's do this whole interview in English. Take your time to start."});
+    const enPool=[...BANK.beh.en.map(q=>({q,type:"beh"})),...BANK.sit.en.map(q=>({q,type:"sit"}))];
+    sampleN(enPool,4).forEach((o,i)=>s.push({q:o.q,lang:"en",type:o.type,cat:"ingles",pre:i===0?"Great.":pick(["Alright.","Okay.","Good.","Thank you."])}));
+    s.push({q:rp(BANK.close.es),lang:"es",type:"why",cat:"personal",pre:"Volvemos al español para cerrar."});
+    s.push({q:rp(BANK.question.es),lang:"es",type:"closing",cat:"personal",pre:"Y una última."});
+    return s;}
+  if(mode==="sit"){const s=[];
+    s.push({q:rp(BANK.pitch.es),lang:"es",type:"pitch",cat:"personal",pre:"Para arrancar, contame rápido quién sos."});
+    const sitPool=[...BANK.sit.es,...BANK.sit.grupal];
+    sampleN(sitPool,4).forEach((q,i)=>s.push({q,lang:"es",type:"sit",cat:"situacional",pre:i===0?"Vamos directo a los escenarios. Imaginate que ya sos tripulante.":pick(["Otra situación.","Siguiente escenario.","Bien, ahora esta.","Vamos con otra."])}));
+    s.push({q:rp(BANK.close.es),lang:"es",type:"why",cat:"personal",pre:"Para cerrar."});
+    s.push({q:rp(BANK.question.es),lang:"es",type:"closing",cat:"personal",pre:"Y una última."});
+    return s;}
   const short=mode==="short"; const s=[];
   s.push({q:rp(BANK.pitch.es),lang:"es",type:"pitch",cat:"personal",pre:"Para arrancar y conocernos."});
   s.push({q:rp(BANK.why.es),lang:"es",type:"why",cat:"personal",pre:"Gracias por contarme."});
@@ -570,8 +656,9 @@ function tickCd(){ let d=TARGET-Date.now(); const el=$("cd"); if(!el)return;
 
 /* ===== STORAGE ===== */
 const KEY="jetsmart_sim_v2";
-let store={history:[],aiKey:"",achievements:[],opts:{cam:true,pressure:false,auto:true,silence:true,record:true,breathe:false,vibrate:true,name:"",voiceURI:"",mode:"full"}};
-try{const r=localStorage.getItem(KEY);if(r){const p=JSON.parse(r);store.history=p.history||[];store.aiKey=p.aiKey||"";store.achievements=p.achievements||[];store.opts=Object.assign(store.opts,p.opts||{});}}catch(e){}
+let store={history:[],aiKey:"",achievements:[],opts:{cam:true,pressure:false,auto:true,silence:true,record:true,breathe:false,vibrate:true,name:"",voiceURI:"",interviewer:"martin",mode:"full"}};
+store.checklist={};
+try{const r=localStorage.getItem(KEY);if(r){const p=JSON.parse(r);store.history=p.history||[];store.aiKey=p.aiKey||"";store.achievements=p.achievements||[];store.checklist=p.checklist||{};store.opts=Object.assign(store.opts,p.opts||{});}}catch(e){}
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){}}
 
 /* ===== HELPERS ===== */
@@ -581,7 +668,14 @@ function esc(s){return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":
 function pick(a){return a[Math.floor(Math.random()*a.length)];}
 function firstName(){return (store.opts.name||"").trim().split(/\s+/)[0]||"";}
 function cap(s){return s?s.charAt(0).toUpperCase()+s.slice(1):s;}
-function greetingText(){const n=firstName();return "¡Hola"+(n?" "+cap(n):"")+"! ¿Qué tal? Bienvenido a esta entrevista para Tripulante de Cabina en JetSmart. Soy Martín, del equipo de selección. Ponete cómodo.";}
+const RECRUITERS={martin:{name:"Martín Rey",first:"Martín"},lucia:{name:"Lucía Fernández",first:"Lucía"}};
+function recr(){return RECRUITERS[store.opts.interviewer]||RECRUITERS.martin;}
+function applyInterviewer(){
+  const r=recr();const nm=document.getElementById("rec-name");if(nm)nm.innerHTML=r.name+' <span class="role">Reclutador · JetSmart Argentina</span>';
+  const hf=document.getElementById("hairF"),hm=document.getElementById("hairM");
+  if(hf&&hm){const luc=store.opts.interviewer==="lucia";hf.style.display=luc?"":"none";hm.style.display=luc?"none":"";}
+}
+function greetingText(){const n=firstName();return "¡Hola"+(n?" "+cap(n):"")+"! ¿Qué tal? Bienvenido a esta entrevista para Tripulante de Cabina en JetSmart. Soy "+recr().first+", del equipo de selección. Ponete cómodo.";}
 /* ===== AUDIO ===== */
 let actx=null;
 function AC(){if(!actx){try{actx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}return actx;}
@@ -937,7 +1031,7 @@ async function startSim(){
   const qs=buildSequence(SIM.opts.mode);
   SIM.seq=[{kind:"say",spoken:greetingText(),lang:"es"},{kind:"say",spoken:SIM.opts.pressure?SMALLTALK_.pressure:SMALLTALK_.normal,lang:"es"}];
   qs.forEach(p=>SIM.seq.push({kind:"ask",q:p.q,spoken:(p.pre?p.pre+" ":"")+p.q,lang:p.lang,type:p.type,cat:p.cat}));
-  SIM.idx=0;SIM.results=[];SIM.eyeActive=false;SIM.recURL=null;SIM.recBlob=null;SIM.pressureUsed=SIM.opts.pressure; setExpression("neutral");
+  SIM.idx=0;SIM.results=[];SIM.eyeActive=false;SIM.recURL=null;SIM.recBlob=null;SIM.pressureUsed=SIM.opts.pressure; setExpression("neutral"); applyInterviewer();
   try{const c=AC();if(c&&c.state==="suspended")await c.resume();}catch(e){}
   if(SIM.opts.breathe) await runBreathing();
   showScreen("screen-sim"); SIM.active=true; acquireWake();
@@ -1004,7 +1098,7 @@ function endSim(){
   h+='<div class="dsec"><h4>📋 Respuesta por respuesta <span style="font-size:.7rem;color:var(--dim2);font-weight:400;">(tocá para ver lo que dijiste)</span></h4><div class="qbreak">';
   SIM.results.forEach((r,i)=>{const c=r.res.score>=75?"var(--verde)":r.res.score>=50?"var(--amar)":"var(--rojo)";
     h+='<div class="qb-row qbrow2"><div class="top"><span class="qb-q">'+(i+1)+". "+esc(shortQ(r.q))+(r.isFollow?' <span class="flag">repreg.</span>':'')+(r.type==="closing"?' <span class="flag">cierre</span>':'')+'</span><span class="qb-s" style="color:'+c+'">'+r.res.score+(r.res.eyePct!=null?' · 👁️'+r.res.eyePct+'%':'')+'</span></div>'+
-    (r.transcript?'<details><summary>ver mi respuesta</summary><div class="qb-transcript">'+esc(r.transcript)+'</div></details>':'')+'</div>';});
+    (r.transcript?'<details><summary>ver mi respuesta (muletillas en rojo)</summary><div class="qb-transcript">'+highlightFillers(r.transcript,r.lang)+'</div></details>':'')+'</div>';});
   h+='</div></div>';
   // logros
   if(newBadges.length)h+='<div class="newbanner">🎉 ¡Desbloqueaste '+newBadges.length+' logro'+(newBadges.length>1?'s':'')+'! '+newBadges.map(b=>b.icon).join(" ")+'</div>';
@@ -1018,18 +1112,24 @@ function endSim(){
   h+='<div class="controls" style="margin-top:6px;">';
   if((store.aiKey||"").trim())h+='<button class="btn ai" id="c-ai">🤖 Análisis con IA</button>';
   h+='<button class="btn ok" id="c-again">🔁 Nueva simulación</button></div>';
-  h+='<div class="controls" style="margin-top:8px;"><button class="btn ghost sm" id="c-share">📤 Compartir puntaje</button><button class="btn ghost sm" id="c-print">🖨️ Guardar informe (PDF)</button></div>';
+  h+='<div class="controls" style="margin-top:8px;"><button class="btn ghost sm" id="c-share">📤 Compartir</button><button class="btn ghost sm" id="c-txt">⬇️ Informe .txt</button><button class="btn ghost sm" id="c-print">🖨️ PDF</button></div>';
   h+='<div class="subctrl"><button id="c-home2">🏠 Inicio</button></div>';
   $("debrief").innerHTML=h; showScreen("screen-end");
   // video wiring
   if(SIM.opts.record){ populateVideo(); }
+  const reportText=buildReportText(overall,{cPers,cIng,cSit,eyeAvg},strengths,improves);
   $("c-share")&&($("c-share").onclick=()=>shareScore(overall,eyeAvg));
+  $("c-txt")&&($("c-txt").onclick=()=>downloadText("informe_entrevista_jetsmart.txt",reportText));
   $("c-print")&&($("c-print").onclick=()=>window.print());
   $("c-again").onclick=()=>{showScreen("screen-home");renderHistory();};
   $("c-home2").onclick=()=>{showScreen("screen-home");renderHistory();};
   const cai=$("c-ai");if(cai)cai.onclick=()=>runAiFinal(overall,{cPers,cIng,cSit,eyeAvg});
   const nn=firstName(); endTone(); setExpression("happy");
-  speak((nn?"Gracias "+cap(nn)+". ":"")+CLOSING_LINE,"es").then(()=>setExpression("neutral"));
+  let spk="Bueno "+(nn?cap(nn)+", ":"")+"te doy la devolución. Tu nivel de preparación es "+overall+" sobre 100. ";
+  spk+= overall>=75?"Estuviste muy bien. ":overall>=55?"Vas por buen camino, seguí puliendo. ":"Todavía hay cosas para mejorar, pero con práctica lo vas a lograr. ";
+  if(eyeAvg!=null) spk+= eyeAvg>=70?"Muy buen contacto visual, eso transmite seguridad. ":"Trabajá el contacto visual, que es lo más importante. ";
+  spk+= "Nos vemos el martes. Mucha suerte, la vas a romper.";
+  speak(spk,"es").then(()=>setExpression("neutral"));
 }
 function catBox(name,val){const v=val==null?"—":val,w=val==null?0:val,c=val==null?"var(--dim)":val>=75?"var(--verde)":val>=50?"var(--amar)":"var(--rojo)";return '<div class="catbox"><div class="cn">'+name+'</div><div class="cv" style="color:'+c+'">'+v+'</div><div class="catbar"><i style="width:'+w+'%;background:'+c+'"></i></div></div>';}
 function shortQ(q){q=q.replace(/\s+/g," ").trim();return q.length>50?q.slice(0,48)+"…":q;}
@@ -1087,6 +1187,38 @@ async function gemini(prompt){
   throw last||new Error("fail");
 }
 
+/* ===== TIPS ===== */
+const TIPS=["👁️ El contacto visual es lo primero que evalúan: mirá a los ojos aunque estés nervioso.","🗣️ Usá STAR en las de comportamiento: Situación, Tarea, Acción, Resultado.","😊 Sonreí y mostrá energía: es un puesto de servicio.","⏱️ Respuestas de ~1 minuto: ni muy cortas ni interminables.","🧘 Respirá antes de responder. Una pausa en silencio queda mejor que un «eh».","💙 Mostrá disponibilidad total: turnos, madrugadas, viajar.","🇬🇧 En inglés hablá lento y claro; si no entendés: «Could you repeat that, please?».","👗 Presentación impecable y llegá 30 minutos antes.","❓ Al final, siempre tené 1-2 preguntas para hacer."];
+let _tipi=0;
+function startTips(){const el=$("tipbar");if(!el)return;el.textContent="💡 "+TIPS[0];setInterval(()=>{_tipi=(_tipi+1)%TIPS.length;el.style.opacity="0";setTimeout(()=>{el.textContent="💡 "+TIPS[_tipi];el.style.opacity="1";},300);},5500);}
+/* ===== REPASO ===== */
+const STUDY_CHECK=["Llegar 30–40 min antes.","Documentación: DNI, CV, títulos/certificados.","Presentación impecable: prolijo/a, sobrio/a.","Celular en silencio y guardado.","Respirar hondo antes de entrar.","Sonreír y saludar con firmeza.","Contacto visual y escucha activa.","Repasar mi 'contame sobre vos' y 2-3 ejemplos STAR.","Tener listo 'qué sé de JetSmart'.","Agradecer al final y mostrar ganas reales."];
+function renderStudy(){
+  const chk=$("studychk");
+  chk.innerHTML=STUDY_CHECK.map((t,i)=>'<label><input type="checkbox" data-ci="'+i+'"'+(store.checklist[i]?" checked":"")+'><span>'+esc(t)+'</span></label>').join("");
+  chk.querySelectorAll("input").forEach(cb=>cb.onchange=()=>{store.checklist[cb.dataset.ci]=cb.checked;persist();});
+  const groups=[["🗣️ Personales / motivación",[...BANK.pitch.es,...BANK.why.es,...BANK.close.es]],["💙 Sobre JetSmart",BANK.know.es],["🎬 Comportamiento (STAR)",BANK.beh.es],["🎭 Situacionales / grupales",[...BANK.sit.es,...BANK.sit.grupal]],["🧳 Disponibilidad",BANK.avail.es],["🇬🇧 En inglés",[...BANK.pitch.en,...BANK.beh.en,...BANK.sit.en]]];
+  $("qbank").innerHTML=groups.map(g=>'<h4>'+g[0]+'</h4><ul>'+g[1].map(q=>'<li>'+esc(q)+'</li>').join("")+'</ul>').join("");
+}
+/* ===== HIGHLIGHT MULETILLAS ===== */
+function highlightFillers(text,lang){
+  const fl=FILLERS[lang!=="en"?"es":"en"];let out=esc(text);
+  fl.forEach(f=>{const re=new RegExp("(^|\\s)("+f.replace(/[.*+?^${}()|[\\]\\\\]/g,"\\$&")+")(?=\\s|$|[.,;!?])","gi");out=out.replace(re,(m,p1,p2)=>p1+'<span class="hl-filler">'+p2+'</span>');});
+  return out;
+}
+/* ===== INFORME .txt ===== */
+function buildReportText(overall,c,strengths,improves){
+  const n=firstName(),d=new Date().toLocaleString("es-AR");
+  let t="SIMULACIÓN DE ENTREVISTA — JETSMART TCP\n"+(n?"Candidato/a: "+cap(n)+"\n":"")+"Fecha: "+d+"\n\n";
+  t+="NIVEL DE PREPARACIÓN: "+overall+"/100\n";
+  t+="Personal: "+(c.cPers??"-")+" | Inglés: "+(c.cIng??"-")+" | Situacional: "+(c.cSit??"-")+(c.eyeAvg!=null?" | Contacto visual: "+c.eyeAvg+"%":"")+"\n\n";
+  t+="FORTALEZAS:\n"+strengths.slice(0,3).map(s=>"- "+s).join("\n")+"\n\nA MEJORAR:\n"+improves.slice(0,3).map(s=>"- "+s).join("\n")+"\n\n";
+  t+="RESPUESTA POR RESPUESTA:\n";
+  SIM.results.forEach((r,i)=>{t+=(i+1)+". "+r.q+"\n   Puntaje: "+r.res.score+"/100"+(r.res.eyePct!=null?" · Mirada "+r.res.eyePct+"%":"")+"\n   Dijiste: "+(r.transcript||"(vacío)")+"\n";});
+  t+="\n¡Entrevista real: martes 1/9 13:00hs. Mucha suerte! ✈️";
+  return t;
+}
+function downloadText(name,text){try{const b=new Blob([text],{type:"text/plain;charset=utf-8"});const u=URL.createObjectURL(b);const a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),3000);}catch(e){}}
 /* ===== HISTORY ===== */
 function renderHistory(){
   const card=$("history-card"),list=$("history-list");if(!store.history.length){card.style.display="none";return;}
@@ -1098,7 +1230,7 @@ function renderHistory(){
 }
 
 /* ===== OPCIONES ===== */
-function syncOpts(){$("opt-cam").checked=SIM.opts.cam;$("opt-pressure").checked=SIM.opts.pressure;$("opt-auto").checked=SIM.opts.auto;$("opt-silence").checked=SIM.opts.silence;$("opt-record").checked=SIM.opts.record;$("opt-breathe").checked=SIM.opts.breathe;$("opt-vibrate").checked=SIM.opts.vibrate;$("opt-name").value=SIM.opts.name||"";populateVoices();document.querySelectorAll("#seg-mode button").forEach(b=>b.classList.toggle("on",b.dataset.mode===SIM.opts.mode));}
+function syncOpts(){$("opt-cam").checked=SIM.opts.cam;$("opt-pressure").checked=SIM.opts.pressure;$("opt-auto").checked=SIM.opts.auto;$("opt-silence").checked=SIM.opts.silence;$("opt-record").checked=SIM.opts.record;$("opt-breathe").checked=SIM.opts.breathe;$("opt-vibrate").checked=SIM.opts.vibrate;$("opt-name").value=SIM.opts.name||"";populateVoices();document.querySelectorAll("#seg-mode button").forEach(b=>b.classList.toggle("on",b.dataset.mode===SIM.opts.mode));document.querySelectorAll("#seg-interviewer button").forEach(b=>b.classList.toggle("on",b.dataset.int===SIM.opts.interviewer));}
 $("opt-name").oninput=e=>{SIM.opts.name=e.target.value;persist();};
 $("opt-record").onchange=e=>{SIM.opts.record=e.target.checked;persist();};
 $("opt-breathe").onchange=e=>{SIM.opts.breathe=e.target.checked;persist();};
@@ -1109,7 +1241,11 @@ $("opt-pressure").onchange=e=>{SIM.opts.pressure=e.target.checked;persist();};
 $("opt-auto").onchange=e=>{SIM.opts.auto=e.target.checked;persist();};
 $("opt-silence").onchange=e=>{SIM.opts.silence=e.target.checked;persist();};
 document.querySelectorAll("#seg-mode button").forEach(b=>{b.onclick=()=>{SIM.opts.mode=b.dataset.mode;persist();syncOpts();};});
+document.querySelectorAll("#seg-interviewer button").forEach(b=>{b.onclick=()=>{SIM.opts.interviewer=b.dataset.int;persist();syncOpts();applyInterviewer();};});
 $("btn-start").onclick=startSim;
+$("btn-study").onclick=()=>{renderStudy();showScreen("screen-study");};
+$("study-back").onclick=()=>showScreen("screen-home");
+$("study-back2").onclick=()=>showScreen("screen-home");
 
 /* ===== COMPAT ===== */
 (function(){let m=[];
@@ -1128,7 +1264,7 @@ $("ai-save").onclick=()=>{store.aiKey=($("ai-key").value||"").trim();persist();r
 $("ai-clear").onclick=()=>{store.aiKey="";$("ai-key").value="";persist();refreshAi();};
 
 /* ===== INIT ===== */
-setInterval(tickCd,30000);tickCd();syncOpts();renderHistory();refreshAi();
+setInterval(tickCd,30000);tickCd();syncOpts();renderHistory();refreshAi();applyInterviewer();startTips();
 </script>
 </body>
 </html>
