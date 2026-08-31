@@ -1334,10 +1334,11 @@ function nextStep(){skipSpeak();stopListening();SIM.idx++;if(SIM.idx>=SIM.seq.le
 function quitSim(){SIM.active=false;releaseWake();stopListening();skipSpeak();Eye.stop();if(SIM.results.length>0){endSim();}else{stopRecording();stopCam();stopMic();showScreen("screen-home");}}
 
 /* ===== CÁMARA ===== */
+function withTimeout(p,ms){return Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(new Error("timeout")),ms))]);}
 async function startCam(){
   if(!hasGUM)return;
   try{
-    SIM.camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user"},audio:false});
+    SIM.camStream=await withTimeout(navigator.mediaDevices.getUserMedia({video:{facingMode:"user"},audio:false}),10000);
     $("selfvideo").srcObject=SIM.camStream;SIM.camOn=true;
     $("camoff").style.display="none";$("selfvideo").style.display="block";$("camtoggle").textContent="📷";
   }catch(e){SIM.camOn=false;$("camoff").style.display="flex";$("camoff").innerHTML="📷<br>Sin cámara";}
@@ -1353,12 +1354,12 @@ $("camtoggle").onclick=toggleCam;
 /* ===== INICIO ===== */
 function delay(ms){return new Promise(r=>setTimeout(r,ms));}
 async function setupMedia(){
-  // Pedimos el micrófono UNA sola vez y lo dejamos abierto toda la entrevista,
-  // así el reconocimiento de voz no vuelve a pedir permiso en cada respuesta.
-  if(hasGUM && !SIM.micStream){try{SIM.micStream=await navigator.mediaDevices.getUserMedia({audio:true});}catch(e){SIM.micStream=null;}}
+  // Pedimos el micrófono UNA sola vez y lo dejamos abierto toda la entrevista.
+  if(hasGUM && !SIM.micStream){try{SIM.micStream=await withTimeout(navigator.mediaDevices.getUserMedia({audio:true}),8000);}catch(e){SIM.micStream=null;}}
   if(SIM.opts.cam){
     await startCam();
-    if(SIM.camOn){ const ok=await Eye.init(); if(ok){SIM.eyeActive=true;Eye.start();} else {SIM.eyeActive=false;} }
+    // La detección de mirada carga EN SEGUNDO PLANO: no bloquea el arranque de la simulación.
+    if(SIM.camOn){ Eye.init().then(ok=>{ if(ok){SIM.eyeActive=true;Eye.start();const t=$("eyebadge-txt");if(t)t.textContent="Mirá a los ojos";} }).catch(()=>{}); }
   } else {$("camoff").style.display="flex";$("selfvideo").style.display="none";$("camtoggle").textContent="🚫";}
 }
 async function startSim(custom){
@@ -1373,8 +1374,9 @@ async function startSim(custom){
   showScreen("screen-sim"); SIM.active=true; acquireWake();
   $("calling").classList.add("show"); ring();
   $("eyebadge").classList.remove("show"); $("livedot").style.display="none";
-  await Promise.all([ setupMedia(), delay(2800) ]);
-  await startRecording();
+  // Nunca quedarse trabado en "Conectando…": arranca sí o sí a los ~9s como máximo.
+  try{ await Promise.race([ Promise.all([ setupMedia(), delay(2600) ]), delay(9000) ]); }catch(e){}
+  try{ await startRecording(); }catch(e){}
   $("calling").classList.remove("show");
   $("livedot").style.display="flex";
   if(SIM.eyeActive){ $("eyebadge-txt").textContent="Mirá a los ojos"; }
