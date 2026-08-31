@@ -1363,7 +1363,8 @@ async function setupMedia(){
   } else {$("camoff").style.display="flex";$("selfvideo").style.display="none";$("camtoggle").textContent="🚫";}
 }
 async function startSim(custom){
-  bumpStreak();
+  custom = Array.isArray(custom) ? custom : null; // el botón pasa el evento del click: ignorarlo
+  try{bumpStreak();}catch(e){}
   const qs=custom||buildSequence(SIM.opts.mode);
   if(custom){SIM.seq=[{kind:"say",spoken:"Dale, practiquemos esta pregunta puntual. Cuando termine de hablar, respondé.",lang:"es"}];}
   else{SIM.seq=[{kind:"say",spoken:greetingText(),lang:"es"},{kind:"say",spoken:SIM.opts.pressure?SMALLTALK_.pressure:SMALLTALK_.normal,lang:"es"}];}
@@ -1647,7 +1648,7 @@ $("opt-auto").onchange=e=>{SIM.opts.auto=e.target.checked;persist();};
 $("opt-silence").onchange=e=>{SIM.opts.silence=e.target.checked;persist();};
 document.querySelectorAll("#seg-mode button").forEach(b=>{b.onclick=()=>{SIM.opts.mode=b.dataset.mode;persist();syncOpts();};});
 document.querySelectorAll("#seg-interviewer button").forEach(b=>{b.onclick=()=>{SIM.opts.interviewer=b.dataset.int;persist();syncOpts();applyInterviewer();};});
-$("btn-start").onclick=startSim;
+$("btn-start").onclick=()=>startSim();
 $("btn-study").onclick=()=>{renderStudy();showScreen("screen-study");};
 $("study-back").onclick=()=>showScreen("screen-home");
 $("study-back2").onclick=()=>showScreen("screen-home");
