@@ -293,6 +293,10 @@
 </head>
 <body>
 
+<div id="errbar" style="display:none;position:fixed;top:0;left:0;right:0;z-index:999;background:#e4032e;color:#fff;font-size:12px;line-height:1.35;padding:8px 30px 8px 10px;white-space:pre-wrap;font-family:monospace;">
+  <button onclick="this.parentElement.style.display='none'" style="position:absolute;right:6px;top:6px;background:rgba(0,0,0,.3);color:#fff;border:none;border-radius:6px;width:22px;height:22px;">✕</button>
+  <span id="errtxt"></span>
+</div>
 <button class="gearbtn" id="btn-gear" title="IA opcional">⚙️</button>
 <div class="cd-chip">🎯 Mar 1/9 13:00 · faltan <b id="cd">--</b></div>
 
@@ -779,6 +783,9 @@
 
 <script>
 "use strict";
+function _showErr(msg){try{var b=document.getElementById("errbar"),t=document.getElementById("errtxt");if(b&&t){b.style.display="block";t.textContent=(t.textContent?t.textContent+"\n":"")+msg;}}catch(_){ }}
+window.addEventListener("error",function(e){_showErr("⚠️ "+(e.message||e.error||"error")+"  @"+(e.lineno||"?"));});
+window.addEventListener("unhandledrejection",function(e){_showErr("⚠️ promesa: "+((e.reason&&e.reason.message)||e.reason||"?"));});
 
 /* ===== BANCO ===== */
 const GREETING = "¡Hola! ¿Qué tal? Bienvenido a esta entrevista para Tripulante de Cabina en JetSmart. Soy Martín, del equipo de selección. Poné­te cómodo.";
@@ -1382,17 +1389,22 @@ async function setupMedia(){
 }
 async function startSim(custom){
   custom = Array.isArray(custom) ? custom : null; // el botón pasa el evento del click: ignorarlo
+  // 1) Cambiar de pantalla YA, antes que nada, para que se note que responde.
+  showScreen("screen-sim"); SIM.active=true;
+  $("calling").classList.add("show");
+  $("eyebadge").classList.remove("show"); $("livedot").style.display="none";
+  // 2) Armar la entrevista.
   try{bumpStreak();}catch(e){}
   const qs=custom||buildSequence(SIM.opts.mode);
   if(custom){SIM.seq=[{kind:"say",spoken:"Dale, practiquemos esta pregunta puntual. Cuando termine de hablar, respondé.",lang:"es"}];}
   else{SIM.seq=[{kind:"say",spoken:greetingText(),lang:"es"},{kind:"say",spoken:SIM.opts.pressure?SMALLTALK_.pressure:SMALLTALK_.normal,lang:"es"}];}
   qs.forEach(p=>SIM.seq.push({kind:"ask",q:p.q,spoken:(p.pre?p.pre+" ":"")+p.q,lang:p.lang,type:p.type,cat:p.cat}));
-  SIM.idx=0;SIM.results=[];SIM.eyeActive=false;SIM.recURL=null;SIM.recBlob=null;SIM.pressureUsed=SIM.opts.pressure; setExpression("neutral"); applyInterviewer();
+  SIM.idx=0;SIM.results=[];SIM.eyeActive=false;SIM.recURL=null;SIM.recBlob=null;SIM.pressureUsed=SIM.opts.pressure;
+  try{setExpression("neutral");applyInterviewer();}catch(e){}
   try{const c=AC();if(c&&c.state==="suspended")c.resume();}catch(e){}
+  try{ring();}catch(e){}
+  try{acquireWake();}catch(e){}
   if(SIM.opts.breathe){ try{ await runBreathing(); }catch(e){} }
-  showScreen("screen-sim"); SIM.active=true; try{acquireWake();}catch(e){}
-  $("calling").classList.add("show"); try{ring();}catch(e){}
-  $("eyebadge").classList.remove("show"); $("livedot").style.display="none";
   // Cámara/mic/grabación cargan en segundo plano: NO bloquean el arranque.
   setupMedia().then(()=>{ try{startRecording();}catch(e){} }).catch(()=>{});
   // Empieza con el botón "Empezar ahora" o solo a los 2.6s — lo que pase primero.
