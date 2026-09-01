@@ -420,6 +420,7 @@
         <div class="call-sub">Reclutador · JetSmart Argentina</div>
         <div class="call-status">📞 Conectando<span class="d">.</span><span class="d">.</span><span class="d">.</span></div>
         <div class="call-bars"><span></span><span></span><span></span><span></span></div>
+        <button class="btn ok" id="calling-begin" style="margin-top:18px;">▶ Empezar ahora</button>
       </div>
       <div class="livedot" id="livedot" style="display:none;"><span class="d"></span>EN VIVO</div>
       <div class="eyebadge" id="eyebadge"><span class="ed"></span><span id="eyebadge-txt">Mirá a los ojos</span></div>
@@ -1387,18 +1388,18 @@ async function startSim(custom){
   else{SIM.seq=[{kind:"say",spoken:greetingText(),lang:"es"},{kind:"say",spoken:SIM.opts.pressure?SMALLTALK_.pressure:SMALLTALK_.normal,lang:"es"}];}
   qs.forEach(p=>SIM.seq.push({kind:"ask",q:p.q,spoken:(p.pre?p.pre+" ":"")+p.q,lang:p.lang,type:p.type,cat:p.cat}));
   SIM.idx=0;SIM.results=[];SIM.eyeActive=false;SIM.recURL=null;SIM.recBlob=null;SIM.pressureUsed=SIM.opts.pressure; setExpression("neutral"); applyInterviewer();
-  try{const c=AC();if(c&&c.state==="suspended")await c.resume();}catch(e){}
-  if(SIM.opts.breathe) await runBreathing();
-  showScreen("screen-sim"); SIM.active=true; acquireWake();
-  $("calling").classList.add("show"); ring();
+  try{const c=AC();if(c&&c.state==="suspended")c.resume();}catch(e){}
+  if(SIM.opts.breathe){ try{ await runBreathing(); }catch(e){} }
+  showScreen("screen-sim"); SIM.active=true; try{acquireWake();}catch(e){}
+  $("calling").classList.add("show"); try{ring();}catch(e){}
   $("eyebadge").classList.remove("show"); $("livedot").style.display="none";
-  // Nunca quedarse trabado en "Conectando…": arranca sí o sí a los ~9s como máximo.
-  try{ await Promise.race([ Promise.all([ setupMedia(), delay(2600) ]), delay(9000) ]); }catch(e){}
-  try{ await startRecording(); }catch(e){}
-  $("calling").classList.remove("show");
-  $("livedot").style.display="flex";
-  if(SIM.eyeActive){ $("eyebadge-txt").textContent="Mirá a los ojos"; }
-  runStep();
+  // Cámara/mic/grabación cargan en segundo plano: NO bloquean el arranque.
+  setupMedia().then(()=>{ try{startRecording();}catch(e){} }).catch(()=>{});
+  // Empieza con el botón "Empezar ahora" o solo a los 2.6s — lo que pase primero.
+  SIM._began=false;
+  const begin=()=>{ if(SIM._began)return; SIM._began=true; $("calling").classList.remove("show"); $("livedot").style.display="flex"; try{runStep();}catch(e){} };
+  const cb=$("calling-begin"); if(cb) cb.onclick=begin;
+  setTimeout(begin,2600);
 }
 
 /* ===== DEVOLUCIÓN FINAL ===== */
