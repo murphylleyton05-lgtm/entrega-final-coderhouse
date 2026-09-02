@@ -61,7 +61,8 @@ CREATE TABLE clientes (
     id_cliente      INTEGER       NOT NULL,
     nombre          VARCHAR(100)  NOT NULL,
     email           VARCHAR(100),
-    ciudad          VARCHAR(50),
+    ciudad          VARCHAR(50),                 -- dimension GEOGRAFICA (para agrupar/filtrar)
+    segmento        VARCHAR(20),                 -- dimension de SEGMENTACION (Consumo / PyME / Corporativo)
     fecha_registro  DATE          NOT NULL,
     CONSTRAINT pk_clientes    PRIMARY KEY (id_cliente),
     CONSTRAINT uq_clientes_email UNIQUE (email)
@@ -111,21 +112,29 @@ INSERT INTO categorias (id_categoria, nombre_categoria, descripcion) VALUES (2, 
 INSERT INTO categorias (id_categoria, nombre_categoria, descripcion) VALUES (3, 'Audio',          'Auriculares y parlantes');
 INSERT INTO categorias (id_categoria, nombre_categoria, descripcion) VALUES (4, 'Almacenamiento', 'Discos y memorias');
 
--- CLIENTES — 5 registros ------------------------------------------------------
-INSERT INTO clientes (id_cliente, nombre, email, ciudad, fecha_registro) VALUES (1, 'Maria Lopez',   'maria@mail.com',  'Buenos Aires', '2024-01-05');
-INSERT INTO clientes (id_cliente, nombre, email, ciudad, fecha_registro) VALUES (2, 'Carlos Ruiz',   'carlos@mail.com', 'Cordoba',      '2024-01-10');
-INSERT INTO clientes (id_cliente, nombre, email, ciudad, fecha_registro) VALUES (3, 'Ana Gomez',     'ana@mail.com',    'Rosario',      '2024-02-01');
-INSERT INTO clientes (id_cliente, nombre, email, ciudad, fecha_registro) VALUES (4, 'Pedro Sanz',    'pedro@mail.com',  'Mendoza',      '2024-02-15');
-INSERT INTO clientes (id_cliente, nombre, email, ciudad, fecha_registro) VALUES (5, 'Laura Torres',  'laura@mail.com',  'Tucuman',      '2024-03-01');
+-- CLIENTES — 7 registros ------------------------------------------------------
+--  Los clientes 6 y 7 se registraron pero AUN NO COMPRARON: son el caso que
+--  aisla la Consulta 2 de M5 (LEFT JOIN + WHERE ... IS NULL — clientes sin ventas).
+INSERT INTO clientes (id_cliente, nombre, email, ciudad, segmento, fecha_registro) VALUES (1, 'Maria Lopez',    'maria@mail.com',   'Buenos Aires', 'Consumo',     '2024-01-05');
+INSERT INTO clientes (id_cliente, nombre, email, ciudad, segmento, fecha_registro) VALUES (2, 'Carlos Ruiz',    'carlos@mail.com',  'Cordoba',      'PyME',        '2024-01-10');
+INSERT INTO clientes (id_cliente, nombre, email, ciudad, segmento, fecha_registro) VALUES (3, 'Ana Gomez',      'ana@mail.com',     'Rosario',      'Consumo',     '2024-02-01');
+INSERT INTO clientes (id_cliente, nombre, email, ciudad, segmento, fecha_registro) VALUES (4, 'Pedro Sanz',     'pedro@mail.com',   'Mendoza',      'Corporativo', '2024-02-15');
+INSERT INTO clientes (id_cliente, nombre, email, ciudad, segmento, fecha_registro) VALUES (5, 'Laura Torres',   'laura@mail.com',   'Tucuman',      'PyME',        '2024-03-01');
+INSERT INTO clientes (id_cliente, nombre, email, ciudad, segmento, fecha_registro) VALUES (6, 'Diego Fernandez','diego@mail.com',   'La Plata',     'Consumo',     '2024-03-20');
+INSERT INTO clientes (id_cliente, nombre, email, ciudad, segmento, fecha_registro) VALUES (7, 'Sofia Ramirez',  'sofia@mail.com',   'Salta',        'Corporativo', '2024-03-25');
 
--- PRODUCTOS — 6 registros -----------------------------------------------------
+-- PRODUCTOS — 8 registros -----------------------------------------------------
 --  (id_producto, nombre_producto, id_categoria, precio, stock, activo)
+--  Los productos 7 y 8 estan en el catalogo pero NO REGISTRAN VENTAS: son el
+--  caso que aisla la Consulta 3 de M5 (LEFT JOIN + WHERE ... IS NULL).
 INSERT INTO productos (id_producto, nombre_producto, id_categoria, precio, stock, activo) VALUES (1, 'Laptop Pro 15',      1, 1200.00, 15, 1);
 INSERT INTO productos (id_producto, nombre_producto, id_categoria, precio, stock, activo) VALUES (2, 'Mouse Inalambrico',  2,   28.00, 80, 1);
 INSERT INTO productos (id_producto, nombre_producto, id_categoria, precio, stock, activo) VALUES (3, 'Monitor 4K 27"',     1,  450.00, 12, 1);
 INSERT INTO productos (id_producto, nombre_producto, id_categoria, precio, stock, activo) VALUES (4, 'Auriculares BT Pro', 3,  120.00, 35, 1);
 INSERT INTO productos (id_producto, nombre_producto, id_categoria, precio, stock, activo) VALUES (5, 'SSD Externo 1TB',    4,  130.00, 18, 1);
 INSERT INTO productos (id_producto, nombre_producto, id_categoria, precio, stock, activo) VALUES (6, 'Teclado Mecanico',   2,   95.00, 40, 1);
+INSERT INTO productos (id_producto, nombre_producto, id_categoria, precio, stock, activo) VALUES (7, 'Webcam Full HD',     2,   65.00, 25, 1);
+INSERT INTO productos (id_producto, nombre_producto, id_categoria, precio, stock, activo) VALUES (8, 'Parlante BT Mini',   3,   45.00, 30, 1);
 
 -- VENTAS — 10 registros -------------------------------------------------------
 --  (id_venta, id_cliente, id_producto, cantidad, precio_unitario, fecha_venta)
@@ -146,8 +155,8 @@ INSERT INTO ventas (id_venta, id_cliente, id_producto, cantidad, precio_unitario
 --  Ejecutar estas consultas tras el script para confirmar la carga de datos.
 -- =============================================================================
 -- SELECT * FROM categorias;   -- esperado: 4 filas
--- SELECT * FROM clientes;     -- esperado: 5 filas
--- SELECT * FROM productos;    -- esperado: 6 filas
+-- SELECT * FROM clientes;     -- esperado: 7 filas (2 sin ventas: clientes 6 y 7)
+-- SELECT * FROM productos;    -- esperado: 8 filas (2 sin ventas: productos 7 y 8)
 -- SELECT * FROM ventas;       -- esperado: 10 filas
 
 -- Bonus (Modulo 5): cruce con JOIN para ver la venta con nombre de cliente/producto:
