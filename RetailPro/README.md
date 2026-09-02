@@ -15,6 +15,9 @@ extraen de ella las metricas del brief.
   3. **DML** — carga inicial de datos.
 - [`m4_consultas_negocio.sql`](./m4_consultas_negocio.sql) — **M4**: consultas de
   agregacion que responden las preguntas de negocio del brief (ver mas abajo).
+- [`m5_consultas_joins.sql`](./m5_consultas_joins.sql) — **M5**: consultas con
+  `JOIN` (INNER / LEFT) y `UNION ALL` que cruzan las tablas para armar la vista
+  enriquecida del dashboard (ver mas abajo).
 
 ## Modelo de datos
 
@@ -33,7 +36,11 @@ Precios en `DECIMAL(10,2)` (nunca texto ni `FLOAT`) para poder usar `SUM`/`AVG`.
 
 ## Datos cargados
 
-- 4 categorias · 5 clientes · 6 productos · **10 ventas**.
+- 4 categorias · 7 clientes · 8 productos · **10 ventas**.
+- A proposito, **2 clientes** (6 y 7) y **2 productos** (7 y 8) quedan **sin ventas**:
+  son los casos que aislan las consultas `LEFT JOIN ... IS NULL` del M5.
+- La tabla `clientes` incluye dos dimensiones para el dashboard: `ciudad`
+  (geografica) y `segmento` (Consumo / PyME / Corporativo).
 
 ## Como ejecutarlo (PostgreSQL)
 
@@ -46,6 +53,9 @@ psql -U postgres -d ventas_tech_db -f ventas_tech_db.sql
 
 # 3) M4 — consultas de negocio sobre la base ya cargada
 psql -U postgres -d ventas_tech_db -f m4_consultas_negocio.sql
+
+# 4) M5 — consultas con JOINs / UNION ALL sobre la base ya cargada
+psql -U postgres -d ventas_tech_db -f m5_consultas_joins.sql
 ```
 
 ## M4 — Consultas de negocio (`m4_consultas_negocio.sql`)
@@ -68,11 +78,31 @@ Al final del archivo hay un bloque de comentarios con los **3 hallazgos** del an
 El script fue ejecutado en **PostgreSQL 16** con `ON_ERROR_STOP=1`: las 5 consultas
 devuelven resultados sin errores.
 
+## M5 — Consultas con JOINs (`m5_consultas_joins.sql`)
+
+Las consultas de M4 trabajaban sobre tablas individuales; en M5 las **cruzamos**
+para armar la vista enriquecida que consume Power BI y responder tres preguntas
+de negocio, mas una consolidacion por canal con `UNION ALL`.
+
+| # | Consulta | Tecnica | Resultado sobre los datos cargados |
+|---|----------|---------|------------------------------------|
+| 1 | Vista base del proyecto | `INNER JOIN` de las 4 tablas | 10 ventas enriquecidas (fecha, cliente, region, segmento, producto, categoria, cantidad, precio, total) |
+| 2 | Clientes sin ventas | `LEFT JOIN` + `WHERE ... IS NULL` | 2 clientes: Diego Fernandez y Sofia Ramirez |
+| 3 | Productos sin ventas | `LEFT JOIN` + `WHERE ... IS NULL` | 2 productos: Webcam Full HD y Parlante BT Mini |
+| 4 | Consolidado por canal | `UNION ALL` + `GROUP BY` (columna `canal` literal) | Online USD 3.620 (5 ventas) · Presencial USD 2.824 (5 ventas) |
+
+En la Consulta 4 la columna `canal` **no se consulta, se crea**: es un texto fijo
+(`'Online'` / `'Presencial'`) dentro de cada `SELECT`. Se usa `UNION ALL` y no
+`UNION` para que **no** se eliminen filas repetidas (cada venta se cuenta una vez).
+Al final del archivo hay un bloque con los **4 hallazgos** del analisis.
+
 ## Verificacion realizada
 
-El script fue probado en **PostgreSQL 16** con `ON_ERROR_STOP=1`:
+Los tres scripts fueron probados en **PostgreSQL 16** con `ON_ERROR_STOP=1`:
 
-- Se ejecuta **sin errores** y es **repetible** (corrido dos veces seguidas, OK).
-- Conteos correctos: `categorias=4`, `clientes=5`, `productos=6`, `ventas=10`.
+- Se ejecutan **sin errores** y M3 es **repetible** (corrido dos veces seguidas, OK).
+- Conteos correctos: `categorias=4`, `clientes=7`, `productos=8`, `ventas=10`.
 - Las **foreign keys** rechazan una venta con `id_producto` inexistente.
 - El **`NOT NULL`** rechaza un producto con `precio` nulo.
+- M5 corre sobre la base ya cargada: las 4 consultas devuelven los resultados de
+  la tabla de arriba sin errores.
