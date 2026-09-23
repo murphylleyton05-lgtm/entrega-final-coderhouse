@@ -1,0 +1,221 @@
+{
+  "name": "Cerebros conectados — Claude + ChatGPT",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cerebros",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "name": "Webhook — Cerebros",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        300
+      ],
+      "webhookId": "cerebros-conectados"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Arma los mensajes para ChatGPT a partir de lo que mando la pagina\nconst body = $input.first().json.body || {};\nconst pregunta = String(body.pregunta || '').slice(0, 1500);\nconst modo = body.modo === 'debate' ? 'debate' : 'comparar';\nif (!pregunta) throw new Error('Falta la pregunta');\nconst REGLAS = \"Estas dentro de una visualizacion 3D de dos \\\"cerebros\\\" de IA conectados por un puente: el tuyo y el de otra IA. Es una metafora: ninguna de las dos tiene lobulos. Las regiones de la metafora son:\\n- razonamiento: planificar, logica, descomponer problemas\\n- atencion: decidir que partes del mensaje importan\\n- lenguaje: entender y escribir texto, tono, idiomas\\n- vision: imagenes, graficos, cosas visuales\\n- codigo: programacion, precision tecnica, datos\\n- valores: honestidad, cuidado, no causar dano\\n- memoria: el contexto de la conversacion\\n\\nResponde siempre en espanol, en este formato EXACTO y sin nada mas:\\nPrimero entre 3 y 5 lineas de pasos de pensamiento, cada una asi:\\n[id] frase corta (maximo 12 palabras) sobre que hace esa region con este mensaje\\nUsa solo los ids de arriba. Luego una linea que diga solo:\\n---\\nDespues tu respuesta: breve (maximo 110 palabras), en texto plano sin markdown.\";\nreturn [{ json: {\n  pregunta, modo,\n  gptMessages: [\n    { role: 'system', content: 'Eres ChatGPT. ' + REGLAS },\n    { role: 'user', content: 'Mensaje: «' + pregunta + '»' },\n  ],\n} }];"
+      },
+      "name": "Preparar prompts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$env.OPENAI_API_KEY}}"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: $env.OPENAI_MODEL || 'gpt-4o', messages: $json.gptMessages, max_tokens: 700 }) }}",
+        "options": {
+          "timeout": 90000
+        }
+      },
+      "name": "ChatGPT — Responder",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Toma la respuesta de ChatGPT y arma el turno de Claude\nconst prev = $('Preparar prompts').first().json;\nconst gptText = $input.first().json.choices?.[0]?.message?.content || '';\nconst REGLAS = \"Estas dentro de una visualizacion 3D de dos \\\"cerebros\\\" de IA conectados por un puente: el tuyo y el de otra IA. Es una metafora: ninguna de las dos tiene lobulos. Las regiones de la metafora son:\\n- razonamiento: planificar, logica, descomponer problemas\\n- atencion: decidir que partes del mensaje importan\\n- lenguaje: entender y escribir texto, tono, idiomas\\n- vision: imagenes, graficos, cosas visuales\\n- codigo: programacion, precision tecnica, datos\\n- valores: honestidad, cuidado, no causar dano\\n- memoria: el contexto de la conversacion\\n\\nResponde siempre en espanol, en este formato EXACTO y sin nada mas:\\nPrimero entre 3 y 5 lineas de pasos de pensamiento, cada una asi:\\n[id] frase corta (maximo 12 palabras) sobre que hace esa region con este mensaje\\nUsa solo los ids de arriba. Luego una linea que diga solo:\\n---\\nDespues tu respuesta: breve (maximo 110 palabras), en texto plano sin markdown.\";\nlet content = 'Mensaje: «' + prev.pregunta + '»';\nif (prev.modo === 'debate') {\n  content += '\\n\\nChatGPT ya respondió esto:\\n«' + gptText.slice(0, 3000) + '»\\n\\n' +\n    'Es un debate amistoso: da tu propia respuesta y di con respeto en qué coincides y en qué no.';\n}\nreturn [{ json: {\n  pregunta: prev.pregunta, modo: prev.modo, gptText,\n  claudeBody: { system: 'Eres Claude. ' + REGLAS, messages: [{ role: 'user', content }] },\n} }];"
+      },
+      "name": "Preparar turno de Claude",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{$env.ANTHROPIC_API_KEY}}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: $env.CLAUDE_MODEL || 'claude-sonnet-5', max_tokens: 700, system: $json.claudeBody.system, messages: $json.claudeBody.messages }) }}",
+        "options": {
+          "timeout": 90000
+        }
+      },
+      "name": "Claude — Responder",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Devuelve las dos respuestas a la pagina\nconst prev = $('Preparar turno de Claude').first().json;\nconst claudeText = ($input.first().json.content || []).filter(b => b.type === 'text').map(b => b.text).join('\\n');\nreturn [{ json: { modo: prev.modo, gpt: { text: prev.gptText }, claude: { text: claudeText } } }];"
+      },
+      "name": "Armar respuesta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "name": "Responder a la pagina",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1320,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook — Cerebros": {
+      "main": [
+        [
+          {
+            "node": "Preparar prompts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar prompts": {
+      "main": [
+        [
+          {
+            "node": "ChatGPT — Responder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ChatGPT — Responder": {
+      "main": [
+        [
+          {
+            "node": "Preparar turno de Claude",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar turno de Claude": {
+      "main": [
+        [
+          {
+            "node": "Claude — Responder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude — Responder": {
+      "main": [
+        [
+          {
+            "node": "Armar respuesta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Armar respuesta": {
+      "main": [
+        [
+          {
+            "node": "Responder a la pagina",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

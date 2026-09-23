@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - cerebro_claude_3d.html
+      - cerebros_conectados.html
       - vendor/**
       - .github/workflows/pages.yml
   workflow_dispatch:
@@ -30,6 +31,7 @@ jobs:
         run: |
           mkdir -p _site
           { echo '<!doctype html><html lang="es"><head><meta charset="utf-8">'; cat cerebro_claude_3d.html; echo '</html>'; } > _site/index.html
+          { echo '<!doctype html><html lang="es"><head><meta charset="utf-8">'; cat cerebros_conectados.html; echo '</html>'; } > _site/cerebros_conectados.html
           cp -r vendor _site/vendor
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

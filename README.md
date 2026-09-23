@@ -115,6 +115,18 @@ que muestra lo que Claude es de verdad: capas de atencion causal.
   recuerda la conversacion, mira imagenes adjuntas, se sincroniza con otras personas conectadas y guarda un muro de
   pensamientos compartido. Fuera de claude.ai (archivo local o GitHub Pages) funciona en modo simulado.
 
+### Cerebros conectados: Claude + ChatGPT
+
+[`cerebros_conectados.html`](./cerebros_conectados.html) pone el cerebro de Claude junto al de ChatGPT ("Luna")
+unidos por un puente. Haces una pregunta y cada IA muestra que regiones usa y responde; en modo **Debate**
+ChatGPT responde primero, su respuesta cruza el puente y Claude le contesta.
+
+1. Importa [`n8n_flow_cerebros_conectados.json`](./n8n_flow_cerebros_conectados.json) en n8n.
+2. Define las variables de entorno `OPENAI_API_KEY` y `ANTHROPIC_API_KEY` (opcionales: `OPENAI_MODEL`, `CLAUDE_MODEL`).
+3. Activa el flujo, copia la URL de produccion del webhook y pegala en el recuadro "Conexion" de la pagina.
+
+Las claves quedan en n8n; la pagina nunca las ve. Sin n8n, ChatGPT queda en modo simulado.
+
 ---
 
 **Lleyton Murphy** | lleyton-ia-page.netlify.app | linkedin.com/in/lleyton-murphy-3716093a3

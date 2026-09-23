@@ -1,0 +1,738 @@
+<title>Cerebros conectados</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap">
+<style>
+  :root {
+    color-scheme: dark;
+    --ground: #05060c;
+    --panel: rgba(12, 15, 25, 0.82);
+    --panel-solid: #0c0f19;
+    --line: rgba(160, 170, 205, 0.15);
+    --line-strong: rgba(160, 170, 205, 0.3);
+    --ink: #ece8df;
+    --soft: #c9c5bd;
+    --muted: #8d92a8;
+    --faint: #5b6079;
+    --claude: #ff8a5b;
+    --gpt: #7cecff;
+    --gpt-violet: #b78cff;
+    --accent: #ffd166;
+    --ok: #6fe0bf;
+    --warn: #ff8a5b;
+    --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
+    --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  }
+  [hidden] { display: none !important; }
+  html, body { height: 100%; }
+  body { margin: 0; background: var(--ground); color: var(--ink); font: 14px/1.5 var(--body); overflow: hidden; -webkit-font-smoothing: antialiased; }
+  #stage { position: fixed; inset: 0; display: block; touch-action: none; cursor: grab; }
+  #stage.dragging { cursor: grabbing; }
+  .vignette { position: fixed; inset: 0; pointer-events: none; background: radial-gradient(ellipse 80% 70% at 50% 40%, transparent 55%, rgba(2, 3, 6, 0.75) 100%); }
+  .labels { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
+  .blabel { position: absolute; left: 0; top: 0; text-align: center; will-change: transform; }
+  .blabel b { display: block; font: 700 20px/1 var(--display); letter-spacing: -0.01em; }
+  .blabel span { display: block; font: 400 11px/1.4 var(--mono); color: var(--muted); margin-top: 4px; }
+  .blabel.claude b { color: var(--claude); }
+  .blabel.gpt b { color: var(--gpt); }
+
+  .ui { position: fixed; inset: 0; pointer-events: none; padding: max(18px, env(safe-area-inset-top, 0px)) 20px max(16px, env(safe-area-inset-bottom, 0px)); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto 1fr auto auto; gap: 12px 16px; }
+  .ui > * { pointer-events: auto; }
+  header { grid-column: 1; grid-row: 1; max-width: 460px; pointer-events: none; }
+  .eyebrow { font: 500 11px/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+  h1 { font: 700 clamp(28px, 4vw, 46px)/0.98 var(--display); letter-spacing: -0.025em; margin: 10px 0 8px; }
+  h1 .c { color: var(--claude); } h1 .g { color: var(--gpt); }
+  .lede { color: var(--muted); margin: 0; max-width: 44ch; font-size: 13px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+
+  .conn { grid-column: 2; grid-row: 1; justify-self: end; width: min(360px, 100%); padding: 12px 14px; display: grid; gap: 8px; }
+  .kicker { font: 500 11px/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin: 0; }
+  .status { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; font: 500 11px/1 var(--mono); color: var(--soft); padding: 5px 8px; border-radius: 999px; border: 1px solid var(--line); }
+  .pill i { width: 6px; height: 6px; border-radius: 50%; background: var(--warn); }
+  .pill[data-on="1"] i { background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+  .urlrow { display: flex; gap: 6px; }
+  .urlrow input { flex: 1; min-width: 0; background: rgba(255,255,255,0.04); border: 1px solid var(--line); border-radius: 8px; color: var(--ink); font: 400 12px/1 var(--mono); padding: 8px; }
+  .small-btn { border: 1px solid var(--line); background: transparent; color: var(--muted); border-radius: 8px; font: 500 11px/1 var(--mono); padding: 7px 9px; cursor: pointer; white-space: nowrap; }
+  .small-btn:hover { color: var(--ink); border-color: var(--line-strong); }
+  .conn .help { font-size: 12px; color: var(--muted); margin: 0; }
+  .conn .help code { font: 400 11px/1 var(--mono); color: var(--soft); }
+  button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .answer { grid-row: 3; padding: 14px 16px; max-height: 30vh; overflow: auto; min-height: 0; overscroll-behavior: contain; }
+  .answer.claude { grid-column: 1; border-top: 2px solid var(--claude); }
+  .answer.gpt { grid-column: 2; border-top: 2px solid var(--gpt); }
+  .answer .top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .answer h2 { font: 700 18px/1 var(--display); margin: 0; }
+  .answer.claude h2 { color: var(--claude); } .answer.gpt h2 { color: var(--gpt); }
+  .tag { font: 500 10px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 4px 7px; }
+  .steps { display: grid; gap: 4px; margin-bottom: 10px; }
+  .step { display: grid; grid-template-columns: 8px auto 1fr; gap: 8px; align-items: baseline; font: 400 12px/1.45 var(--mono); color: var(--muted); animation: rise 300ms ease-out both; }
+  .step .sw { width: 7px; height: 7px; border-radius: 50%; background: var(--c); transform: translateY(-1px); }
+  .step b { color: var(--c); font-weight: 500; }
+  .text { white-space: pre-wrap; margin: 0; font-size: 14px; line-height: 1.6; color: var(--ink); }
+  .empty { color: var(--faint); font-size: 13px; margin: 0; }
+  .thinking { font: 400 12px/1.4 var(--mono); color: var(--muted); display: flex; gap: 8px; align-items: center; }
+  .thinking i { display: inline-block; width: 4px; height: 4px; border-radius: 50%; background: var(--accent); animation: blink 1s infinite; }
+  .thinking i:nth-child(2) { animation-delay: .2s; } .thinking i:nth-child(3) { animation-delay: .4s; }
+  .err { color: var(--warn); font-size: 13px; margin: 6px 0 0; }
+
+  .bottom { grid-column: 1 / -1; grid-row: 4; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .shared { font: 400 12px/1.4 var(--mono); color: var(--muted); min-height: 1.4em; text-align: center; }
+  .shared b { color: var(--ink); font-weight: 500; }
+  .form { display: flex; gap: 6px; padding: 6px; width: min(680px, 100%); align-items: center; }
+  .form > label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 9px; padding: 2px; flex: none; }
+  .seg button { border: 0; background: transparent; color: var(--muted); font: 500 12px/1 var(--mono); padding: 8px 10px; border-radius: 7px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: rgba(255,255,255,0.1); color: var(--ink); }
+  .form input[type="text"] { flex: 1; min-width: 0; background: transparent; border: 0; color: var(--ink); font: 400 14px/1 var(--body); padding: 10px 6px; }
+  .form input::placeholder { color: var(--faint); }
+  .think { border: 0; border-radius: 9px; padding: 10px 16px; font: 700 14px/1 var(--display); color: #0a0c14; background: linear-gradient(135deg, var(--claude), var(--accent) 50%, var(--gpt)); cursor: pointer; flex: none; }
+  .think:disabled { opacity: 0.5; cursor: default; }
+  .toast { position: fixed; left: 50%; top: max(18px, env(safe-area-inset-top, 0px)); transform: translateX(-50%); padding: 8px 12px; border-radius: 10px; background: var(--panel-solid); border: 1px solid var(--line-strong); font: 400 12px/1.3 var(--mono); color: var(--soft); pointer-events: none; transition: opacity 400ms; max-width: calc(100% - 32px); text-align: center; z-index: 3; }
+  .fallback { position: fixed; inset: 0; display: grid; place-items: center; padding-inline: 16px; background: var(--ground); z-index: 5; }
+  .fallback .card { max-width: 440px; padding: 24px; }
+
+  @keyframes blink { 50% { opacity: 0.3; } }
+  @keyframes rise { from { opacity: 0; transform: translateY(4px); } }
+
+  @media (max-width: 760px) {
+    .ui { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto 30vh auto auto auto; padding-inline: 16px; gap: 8px; overflow: auto; pointer-events: auto; }
+    header { grid-row: 1; }
+    .lede { display: none; }
+    .conn { grid-column: 1; grid-row: 2; justify-self: stretch; width: auto; }
+    .answer.claude { grid-column: 1; grid-row: 4; }
+    .answer.gpt { grid-column: 1; grid-row: 5; }
+    .bottom { grid-row: 6; }
+    .seg button { padding: 8px 7px; }
+    .blabel b { font-size: 15px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .thinking i, .step { animation: none; } }
+</style>
+
+<canvas id="stage" aria-label="Dos cerebros de IA en 3D conectados por un puente: Claude a la izquierda y ChatGPT a la derecha."></canvas>
+<div class="vignette"></div>
+<div class="labels" id="labels">
+  <div class="blabel claude" id="lblClaude"><b>Claude</b><span>partículas · Anthropic</span></div>
+  <div class="blabel gpt" id="lblGpt"><b>ChatGPT · Luna</b><span>núcleo neural · OpenAI</span></div>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<div class="ui">
+  <header>
+    <div class="eyebrow">Dos IAs · un puente</div>
+    <h1>Cerebros <span class="c">conec</span><span class="g">tados</span></h1>
+    <p class="lede">Haz una pregunta y mira cómo la procesan Claude y ChatGPT, cada uno en su cerebro. En modo debate, la respuesta de ChatGPT cruza el puente y Claude le contesta. Las regiones son una metáfora que cada IA usa para describirse.</p>
+  </header>
+
+  <section class="card conn" aria-label="Conexión">
+    <div class="kicker">Conexión</div>
+    <div class="status"><span class="pill" id="pillClaude"><i></i><span>Claude: …</span></span><span class="pill" id="pillGpt"><i></i><span>ChatGPT: …</span></span></div>
+    <div class="urlrow" id="urlRow">
+      <label for="hook" hidden>URL del webhook de n8n</label>
+      <input id="hook" type="url" placeholder="https://tu-n8n/webhook/cerebros" autocomplete="off">
+      <button class="small-btn" type="button" id="saveHook">Conectar</button>
+    </div>
+    <p class="help" id="help">Importa <code>n8n_flow_cerebros_conectados.json</code> en n8n, carga <code>OPENAI_API_KEY</code> y <code>ANTHROPIC_API_KEY</code>, activa el flujo y pega aquí su URL de producción.</p>
+  </section>
+
+  <section class="card answer claude" aria-live="polite">
+    <div class="top"><h2>Claude</h2><span class="tag" id="tagClaude">esperando</span></div>
+    <div id="bodyClaude"><p class="empty">Todavía no pensé nada. Pregunta algo abajo.</p></div>
+  </section>
+  <section class="card answer gpt" aria-live="polite">
+    <div class="top"><h2>ChatGPT</h2><span class="tag" id="tagGpt">esperando</span></div>
+    <div id="bodyGpt"><p class="empty">Todavía no pensé nada. Pregunta algo abajo.</p></div>
+  </section>
+
+  <div class="bottom">
+    <div class="shared" id="shared"></div>
+    <form class="form card" id="form" autocomplete="off">
+      <div class="seg" role="group" aria-label="Modo">
+        <button type="button" id="mCompare" aria-pressed="true">Comparar</button>
+        <button type="button" id="mDebate" aria-pressed="false">Debate</button>
+      </div>
+      <label for="q">Pregunta para las dos IAs</label>
+      <input id="q" type="text" maxlength="400" value="¿Qué es la conciencia y la tienes tú?">
+      <button class="think" type="submit" id="go">Pensar</button>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+<script>
+  // Offline fallback: when opened from the repo without internet, load the copies in vendor/three/.
+  if (!window.THREE) document.write('<script src="vendor/three/three.min.js"><\/script>');
+</script>
+<script>
+  if (window.THREE && !THREE.UnrealBloomPass) {
+    ["CopyShader", "LuminosityHighPassShader", "EffectComposer", "RenderPass", "ShaderPass", "UnrealBloomPass"]
+      .forEach(f => document.write('<script src="vendor/three/' + f + '.js"><\/script>'));
+  }
+</script>
+<script>
+(() => {
+  const REGIONS = [
+    { id: "razonamiento", name: "Razonamiento", color: "#ff8a5b", kw: /por ?qu[eé]|c[oó]mo|calcul|l[oó]gic|plan|resolv|problema|matem|decid|analiz|conciencia/i },
+    { id: "atencion", name: "Atención", color: "#ffd166", kw: /detalle|importa|clave|foco|document|resum/i },
+    { id: "lenguaje", name: "Lenguaje", color: "#6fe0bf", kw: /escrib|tradu|idioma|palabra|texto|poema|historia|explica|chiste/i },
+    { id: "vision", name: "Visión", color: "#8fa8ff", kw: /imagen|foto|gr[aá]fic|dibuj|visual|diseñ/i },
+    { id: "codigo", name: "Código", color: "#c792ea", kw: /c[oó]dig|python|sql|java|html|error|bug|script|api|n8n|dato|program/i },
+    { id: "valores", name: "Valores", color: "#f25f7a", kw: /[eé]tic|verdad|honest|daño|sent|emoci|conciencia|mentir|justo/i },
+    { id: "memoria", name: "Memoria", color: "#9be15d", kw: /record|memoria|antes|contexto|olvid/i },
+  ];
+  const N = REGIONS.length;
+  const $ = id => document.getElementById(id);
+  const toastEl = $("toast");
+  let toastT = 0;
+  function toast(msg, ms = 3400) {
+    toastEl.textContent = msg; toastEl.hidden = false; toastEl.style.opacity = "1";
+    clearTimeout(toastT);
+    toastT = setTimeout(() => { toastEl.style.opacity = "0"; setTimeout(() => (toastEl.hidden = true), 400); }, ms);
+  }
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* storage off */ } },
+  };
+
+  if (!window.THREE) { document.body.insertAdjacentHTML("beforeend", `<div class="fallback"><div class="card"><h2>No pude cargar el 3D</h2><p>Revisa tu conexión a internet.</p></div></div>`); return; }
+  const canvas = $("stage");
+  let renderer;
+  try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true }); }
+  catch (e) { document.body.insertAdjacentHTML("beforeend", `<div class="fallback"><div class="card"><h2>Sin WebGL</h2><p>Tu navegador no puede dibujar 3D. Prueba con Chrome, Edge, Firefox o Safari actualizados.</p></div></div>`); return; }
+  const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const isSmall = () => innerWidth < 760;
+  const DPR = Math.min(devicePixelRatio || 1, 2);
+  renderer.setPixelRatio(DPR);
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x05060c);
+  const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
+  const world = new THREE.Group();
+  scene.add(world);
+  const colors = REGIONS.map(r => new THREE.Color(r.color));
+  const WHITE = new THREE.Color("#fff");
+
+  let seed = 11;
+  const rand = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+  const gauss = () => { let u = 0, v = 0; while (!u) u = rand(); while (!v) v = rand(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
+  const randDir = () => new THREE.Vector3(gauss(), gauss(), gauss()).normalize();
+  const hash = (x, y, z) => { const h = Math.sin(x * 127.1 + y * 311.7 + z * 74.7) * 43758.5453; return h - Math.floor(h); };
+  const sm = t => t * t * (3 - 2 * t);
+  function noise(x, y, z) {
+    const xi = Math.floor(x), yi = Math.floor(y), zi = Math.floor(z), xf = sm(x - xi), yf = sm(y - yi), zf = sm(z - zi);
+    const l = (a, b, t) => a + (b - a) * t, c = (a, b, d) => hash(xi + a, yi + b, zi + d);
+    return l(l(l(c(0,0,0), c(1,0,0), xf), l(c(0,1,0), c(1,1,0), xf), yf), l(l(c(0,0,1), c(1,0,1), xf), l(c(0,1,1), c(1,1,1), xf), yf), zf);
+  }
+  const ridged = (x, y, z) => { let s = 0, a = 1, f = 1; for (let o = 0; o < 3; o++) { s += a * Math.pow(1 - Math.abs(2 * noise(x * f, y * f, z * f) - 1), 2.2); a *= 0.5; f *= 2.03; } return s / 1.75; };
+
+  const SEP = 1.55;              // each brain sits this far from the centre
+  const brains = [];             // 0 = Claude, 1 = ChatGPT
+  const activity = [new Array(N).fill(0), new Array(N).fill(0)];
+
+  // ------------------------------------------------ Claude: particle brain (same look as cerebro_claude_3d.html)
+  const claude = new THREE.Group(); claude.position.x = -SEP; world.add(claude);
+  const claudeSurface = REGIONS.map(() => []);
+  {
+    const pos = [], col = [], reg = [], sd = [];
+    const regionOf = p => p.z < -0.58 ? 3 : p.z > 0.38 ? 0 : (p.y < -0.02 && Math.abs(p.x) > 0.3) ? 2 : 1;
+    const add = (p, r, surf) => {
+      pos.push(p.x, p.y, p.z);
+      const c = colors[r].clone().lerp(WHITE, rand() * 0.2).multiplyScalar(r === 4 ? 0.62 : 1);
+      col.push(c.r, c.g, c.b); reg.push(r); sd.push(rand());
+      if (surf) claudeSurface[r].push(p.clone());
+    };
+    for (const h of [-1, 1]) for (let i = 0; i < 7000; i++) {
+      const u = randDir();
+      let x = u.x * 0.62, y = u.y * 0.7, z = u.z;
+      if (u.x * h < 0) x *= 0.34; if (y < 0) y *= 0.72; if (z > 0) y *= 1 - 0.18 * z;
+      y -= Math.max(0, -u.y) * Math.max(0, Math.abs(u.x) - 0.2) * (u.z > -0.5 ? 1 : 0) * 0.18;
+      const p = new THREE.Vector3(x + h * 0.26, y + 0.12, z * 0.98);
+      let d = 0.085 * ridged(p.x * 3.4 + h * 9, p.y * 3.4, p.z * 3.4);
+      const syl = p.y + 0.02 - 0.3 * p.z; d -= 0.075 * Math.exp(-(syl * syl) / 0.0035) * Math.min(1, Math.abs(u.x) * 1.6);
+      p.addScaledVector(new THREE.Vector3(x / 0.62, y / 0.7, z).normalize(), d);
+      const surf = rand() > 0.14;
+      if (!surf) { const k = 0.6 + rand() * 0.35; p.set(h * 0.26 + (p.x - h * 0.26) * k, 0.12 + (p.y - 0.12) * k, p.z * k); }
+      add(p, regionOf(p), surf);
+    }
+    for (const h of [-1, 1]) for (let i = 0; i < 900; i++) {
+      const s = rand(), a = rand() * Math.PI * 2, rr = (0.075 - 0.045 * s) * Math.sqrt(rand());
+      add(new THREE.Vector3(h * (0.4 - 0.12 * s) + Math.cos(a) * rr, -0.2 + 0.36 * s * s + Math.sin(a) * rr, 0.22 - s * 0.72), 6, true);
+    }
+    for (let i = 0; i < 2800; i++) {
+      const u = randDir(), p = new THREE.Vector3(u.x * 0.6, u.y * 0.3, u.z * 0.36);
+      if (Math.abs(u.x) < 0.12) p.x *= 0.6;
+      p.add(new THREE.Vector3(0, -0.5, -0.66)); p.addScaledVector(u, 0.022 * Math.sin(p.y * 70 + Math.sin(p.x * 6) * 1.5));
+      add(p, 4, rand() > 0.1);
+    }
+    for (let i = 0; i < 900; i++) {
+      const t = rand(), a = rand() * Math.PI * 2, r = (0.13 - t * 0.035) * (0.85 + rand() * 0.15);
+      add(new THREE.Vector3(Math.cos(a) * r, -0.3 - t * 0.85, -0.3 - t * 0.2 + Math.sin(a) * r * 0.9), 5, true);
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+    g.setAttribute("aColor", new THREE.Float32BufferAttribute(col, 3));
+    g.setAttribute("aRegion", new THREE.Float32BufferAttribute(reg, 1));
+    g.setAttribute("aSeed", new THREE.Float32BufferAttribute(sd, 1));
+    var claudeUniforms = { uTime: { value: 0 }, uPix: { value: DPR }, uAct: { value: activity[0] } };
+    const m = new THREE.ShaderMaterial({
+      uniforms: claudeUniforms,
+      vertexShader: `
+        attribute vec3 aColor; attribute float aRegion; attribute float aSeed;
+        uniform float uTime, uPix; uniform float uAct[${N}];
+        varying vec3 vCol; varying float vA;
+        void main() {
+          vec4 mv = modelViewMatrix * vec4(position, 1.0);
+          gl_Position = projectionMatrix * mv;
+          float act = 0.0;
+          for (int i = 0; i < ${N}; i++) { if (abs(float(i) - aRegion) < 0.5) act = uAct[i]; }
+          vA = (0.7 + 0.3 * sin(uTime * 1.3 + aSeed * 40.0)) * (1.0 + act * 0.9);
+          vCol = aColor;
+          gl_PointSize = 9.0 * uPix * (0.8 + aSeed * 0.5) / -mv.z;
+        }`,
+      fragmentShader: `
+        varying vec3 vCol; varying float vA;
+        void main() { float d = length(gl_PointCoord - 0.5); if (d > 0.5) discard; gl_FragColor = vec4(vCol, smoothstep(0.5, 0.0, d) * vA * 0.5); }`,
+      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    });
+    claude.add(new THREE.Points(g, m));
+  }
+
+  // ------------------------------------------------ ChatGPT: solid folded core (after cerebro_gpt_luna_3d.html)
+  const gpt = new THREE.Group(); gpt.position.x = SEP; world.add(gpt);
+  const GPT_SCALE = 0.5;
+  function lunaPoint(hemi, lat, lon) {
+    // same surface formula as the Luna canvas brain, kept whole so it reads as ChatGPT's design
+    const cx = hemi * 0.56, c = Math.cos(lat), s = Math.sin(lat);
+    const rx = 0.99, ry = 1.23, rz = 0.88;
+    let x = rx * c * Math.cos(lon), y = ry * s, z = rz * c * Math.sin(lon);
+    x *= 1 + 0.065 * Math.sin(lat * 2.0) - 0.04 * Math.cos(lon * 2.0);
+    z *= 1 + 0.10 * Math.cos(lat * 2.2);
+    y *= 1 + 0.045 * Math.sin(lon * 3.0);
+    const deep = 0.036 * Math.sin(lon * 10 + lat * 4) + 0.022 * Math.sin(lon * 22 - lat * 7) + 0.014 * Math.sin(lon * 39 + lat * 11);
+    const grooves = Math.pow(Math.abs(Math.sin(lon * 9 + 0.8 * Math.sin(lat * 4) + 0.35 * Math.sin(lon * 17))), 7);
+    const ridge = deep - 0.085 * grooves;
+    const L = Math.hypot(x / rx, y / ry, z / rz) || 1;
+    x += x / L * ridge; y += y / L * ridge; z += z / L * ridge;
+    x += -hemi * Math.max(0, 1 - Math.abs(x) / 0.62) * 0.11;
+    // Luna's brain stands upright with its front toward +x in its own frame; turn it to face +z like Claude's
+    return new THREE.Vector3(z * GPT_SCALE, y * GPT_SCALE * 0.82, (x + cx) * GPT_SCALE * -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2);
+  }
+  function gptRegion(p) {
+    const n = new THREE.Vector3(p.x / 0.62, (p.y) / 0.5, p.z / 0.5);
+    if (n.z > 0.55) return 0;
+    if (n.z < -0.6) return n.y < -0.25 ? 4 : 3;
+    if (n.y < -0.15 && Math.abs(n.x) > 0.55) return 2;
+    if (Math.abs(p.x) < 0.07) return 6;
+    return 1;
+  }
+  const gptSurface = REGIONS.map(() => []);
+  const GPT_BASE = new THREE.Color(0.40, 0.21, 0.52);
+  const gptMeshes = [];
+  for (const hemi of [-1, 1]) {
+    const rows = 56, cols = 110, P = [], R = [];
+    for (let i = 0; i <= rows; i++) {
+      const lat = -Math.PI / 2 + i / rows * Math.PI;
+      for (let j = 0; j <= cols; j++) {
+        const lon = -Math.PI + j / cols * Math.PI * 2;
+        const p = lunaPoint(hemi, lat, lon);
+        P.push(p.x, p.y, p.z);
+        const r = gptRegion(p); R.push(r);
+        if (i % 3 === 0 && j % 3 === 0) gptSurface[r].push(p.clone());
+      }
+    }
+    const idx = [];
+    for (let i = 0; i < rows; i++) for (let j = 0; j < cols; j++) {
+      const a = i * (cols + 1) + j, b = a + 1, c = a + cols + 2, d = a + cols + 1;
+      idx.push(a, b, c, a, c, d);
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.Float32BufferAttribute(P, 3));
+    const colAttr = new THREE.Float32BufferAttribute(new Float32Array(P.length), 3);
+    g.setAttribute("color", colAttr);
+    g.setIndex(idx);
+    g.computeVertexNormals();
+    const mesh = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.6, metalness: 0.1, flatShading: true, emissive: 0x0a0512 }));
+    mesh.userData = { regions: R, colAttr };
+    gpt.add(mesh); gptMeshes.push(mesh);
+  }
+  { // stem, like Luna's gradient tube
+    const pts = [];
+    for (let i = 0; i < 10; i++) { const t = i / 9; pts.push(new THREE.Vector3(Math.sin(t * 3.5) * 0.04, -0.42 - t * 0.42, -0.05)); }
+    const tube = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 30, 0.09, 12), new THREE.MeshStandardMaterial({ color: 0x4a2860, roughness: 0.6, emissive: 0x12081c }));
+    gpt.add(tube);
+    for (let i = 0; i < 20; i++) gptSurface[5].push(pts[Math.floor(rand() * pts.length)].clone());
+  }
+  scene.add(new THREE.AmbientLight(0x8a7aa8, 0.55));
+  const key = new THREE.DirectionalLight(0xffffff, 0.8); key.position.set(-2, 3, 4); scene.add(key);
+  const rim = new THREE.DirectionalLight(0x7cecff, 0.7); rim.position.set(3, 1, -3); scene.add(rim);
+  function paintGpt() {
+    const act = activity[1];
+    for (const m of gptMeshes) {
+      const { regions, colAttr } = m.userData;
+      for (let i = 0; i < regions.length; i++) {
+        const a = Math.min(1, act[regions[i]]);
+        const c = colors[regions[i]];
+        colAttr.setXYZ(i, GPT_BASE.r + (c.r - GPT_BASE.r) * a * 0.6, GPT_BASE.g + (c.g - GPT_BASE.g) * a * 0.6, GPT_BASE.b + (c.b - GPT_BASE.b) * a * 0.6);
+      }
+      colAttr.needsUpdate = true;
+    }
+  }
+
+  // ------------------------------------------------ neurons, synapses and the bridge between the two brains
+  const nodes = [];      // {p (world-space, relative to world), r, b}
+  function addNodes(surface, group, b, counts, lift) {
+    counts.forEach((n, r) => {
+      const src = surface[r];
+      if (!src.length) return;
+      for (let i = 0; i < n; i++) {
+        const p = src[Math.floor(rand() * src.length)].clone().multiplyScalar(lift).add(group.position);
+        nodes.push({ p, r, b });
+      }
+    });
+  }
+  addNodes(claudeSurface, claude, 0, [40, 36, 32, 24, 26, 12, 16], 0.985);
+  addNodes(gptSurface, gpt, 1, [34, 36, 30, 22, 16, 10, 12], 1.03);
+  const edges = [], adj = nodes.map(() => []);
+  const keyset = new Set();
+  function addEdge(a, b, pts, bridge) {
+    const k = a < b ? a + "-" + b : b + "-" + a;
+    if (a === b || keyset.has(k)) return;
+    keyset.add(k);
+    edges.push({ a, b, pts, bridge });
+    adj[a].push(edges.length - 1); adj[b].push(edges.length - 1);
+  }
+  nodes.forEach((n, i) => {
+    nodes.map((m, j) => [j, m.b === n.b ? n.p.distanceToSquared(m.p) : 99])
+      .filter(([j, d]) => j !== i && d < 0.16).sort((x, y) => x[1] - y[1]).slice(0, 3)
+      .forEach(([j]) => addEdge(i, j, [n.p, nodes[j].p], false));
+  });
+  const bridgeEdges = [];
+  const byBrain = b => nodes.map((n, i) => n.b === b ? i : -1).filter(i => i >= 0);
+  const topNodes = b => byBrain(b).filter(i => nodes[i].p.y > 0.25 && (b === 0 ? nodes[i].p.x > -SEP + 0.1 : nodes[i].p.x < SEP - 0.1));
+  const tc = topNodes(0), tg = topNodes(1);
+  for (let k = 0; k < 9; k++) {
+    const a = tc[Math.floor(rand() * tc.length)], b = tg[Math.floor(rand() * tg.length)];
+    const A = nodes[a].p, B = nodes[b].p, C = new THREE.Vector3(0, 1.0 + rand() * 0.35, (rand() - 0.5) * 0.5);
+    const pts = [];
+    for (let i = 0; i <= 28; i++) { const t = i / 28, it = 1 - t; pts.push(new THREE.Vector3(it * it * A.x + 2 * it * t * C.x + t * t * B.x, it * it * A.y + 2 * it * t * C.y + t * t * B.y, it * it * A.z + 2 * it * t * C.z + t * t * B.z)); }
+    addEdge(a, b, pts, true);
+    bridgeEdges.push(edges.length - 1);
+  }
+  const nodesBy = [0, 1].map(b => REGIONS.map((_, r) => nodes.map((n, i) => n.b === b && n.r === r ? i : -1).filter(i => i >= 0)));
+
+  const GPT_CYAN = new THREE.Color("#7cecff");
+  { // synapse lines: Claude's in region colours, Luna's in its cyan, the bridge in a warm-to-cool gradient
+    const P = [], C = [];
+    edges.forEach(e => {
+      for (let i = 0; i < e.pts.length - 1; i++) {
+        const t0 = i / (e.pts.length - 1), t1 = (i + 1) / (e.pts.length - 1);
+        P.push(e.pts[i].x, e.pts[i].y, e.pts[i].z, e.pts[i + 1].x, e.pts[i + 1].y, e.pts[i + 1].z);
+        const ca = nodes[e.a].b ? GPT_CYAN : colors[nodes[e.a].r], cb = nodes[e.b].b ? GPT_CYAN : colors[nodes[e.b].r];
+        const k = e.bridge ? 0.9 : nodes[e.a].b ? 0.7 : 1;
+        const c0 = ca.clone().lerp(cb, t0).multiplyScalar(k), c1 = ca.clone().lerp(cb, t1).multiplyScalar(k);
+        C.push(c0.r, c0.g, c0.b, c1.r, c1.g, c1.b);
+      }
+    });
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.Float32BufferAttribute(P, 3));
+    g.setAttribute("color", new THREE.Float32BufferAttribute(C, 3));
+    var lineMat = new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.2, blending: THREE.AdditiveBlending, depthWrite: false });
+    world.add(new THREE.LineSegments(g, lineMat));
+  }
+  function sprites(n) {
+    const g = new THREE.BufferGeometry();
+    const a = { pos: new THREE.Float32BufferAttribute(new Float32Array(n * 3), 3), col: new THREE.Float32BufferAttribute(new Float32Array(n * 3), 3), size: new THREE.Float32BufferAttribute(new Float32Array(n), 1), alpha: new THREE.Float32BufferAttribute(new Float32Array(n), 1) };
+    [["position", a.pos], ["aColor", a.col], ["aSize", a.size], ["aAlpha", a.alpha]].forEach(([k, v]) => { v.setUsage(THREE.DynamicDrawUsage); g.setAttribute(k, v); });
+    const m = new THREE.ShaderMaterial({
+      uniforms: { uPix: { value: DPR } },
+      vertexShader: `attribute vec3 aColor; attribute float aSize; attribute float aAlpha; uniform float uPix; varying vec3 vCol; varying float vA;
+        void main() { vec4 mv = modelViewMatrix * vec4(position, 1.0); gl_Position = projectionMatrix * mv; vCol = aColor; vA = aAlpha; gl_PointSize = aSize * uPix / -mv.z; }`,
+      fragmentShader: `varying vec3 vCol; varying float vA;
+        void main() { float d = length(gl_PointCoord - 0.5); if (d > 0.5) discard; float core = smoothstep(0.18, 0.0, d), halo = smoothstep(0.5, 0.0, d) * 0.5; gl_FragColor = vec4(mix(vCol, vec3(1.0), core * 0.7), (core + halo) * vA); }`,
+      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    });
+    const pts = new THREE.Points(g, m); pts.frustumCulled = false; world.add(pts);
+    a.commit = () => { a.pos.needsUpdate = a.col.needsUpdate = a.size.needsUpdate = a.alpha.needsUpdate = true; };
+    return a;
+  }
+  const nodeBuf = sprites(nodes.length);
+  nodes.forEach((n, i) => { nodeBuf.pos.setXYZ(i, n.p.x, n.p.y, n.p.z); const c = n.b ? GPT_CYAN : colors[n.r]; nodeBuf.col.setXYZ(i, c.r, c.g, c.b); });
+  const nodeGlow = new Float32Array(nodes.length);
+  const MAXP = 500, pulseBuf = sprites(MAXP), pulses = [];
+
+  function spawnOn(e, fromNode, hops) {
+    if (pulses.length >= MAXP) return;
+    const E = edges[e];
+    const len = E.bridge ? 2.6 : E.pts[0].distanceTo(E.pts[1]);
+    pulses.push({ e, forward: E.a === fromNode, t: 0, speed: (E.bridge ? 0.55 : 0.9 + Math.random() * 0.6) / Math.max(0.12, len), hops });
+    nodeGlow[fromNode] = 1;
+  }
+  function spawnFrom(i, hops) {
+    const local = adj[i].filter(e => !edges[e].bridge);
+    if (local.length) spawnOn(local[Math.floor(Math.random() * local.length)], i, hops);
+  }
+  function burst(b, r, n) {
+    const list = nodesBy[b][r];
+    if (!list.length) return;
+    for (let k = 0; k < n; k++) spawnFrom(list[Math.floor(Math.random() * list.length)], 3 + Math.floor(Math.random() * 3));
+    activity[b][r] = Math.min(1.4, activity[b][r] + 0.3);
+  }
+  function crossBridge(from, n) {
+    for (let k = 0; k < n; k++) setTimeout(() => {
+      const e = bridgeEdges[Math.floor(Math.random() * bridgeEdges.length)];
+      const E = edges[e];
+      spawnOn(e, nodes[E.a].b === from ? E.a : E.b, 2);
+    }, reduceMotion ? 0 : k * 140);
+  }
+  const tmp = new THREE.Vector3();
+  function updatePulses(dt) {
+    for (let i = pulses.length - 1; i >= 0; i--) {
+      const P = pulses[i];
+      P.t += P.speed * dt * 0.55;
+      if (P.t >= 1) {
+        const E = edges[P.e], end = P.forward ? E.b : E.a;
+        nodeGlow[end] = 1;
+        const n = nodes[end]; activity[n.b][n.r] = Math.min(1.4, activity[n.b][n.r] + 0.05);
+        pulses.splice(i, 1);
+        if (P.hops > 0 && Math.random() < 0.75) spawnFrom(end, P.hops - 1);
+      }
+    }
+    for (let i = 0; i < MAXP; i++) {
+      if (i < pulses.length) {
+        const P = pulses[i], E = edges[P.e], pts = E.pts, t = P.forward ? P.t : 1 - P.t;
+        const f = t * (pts.length - 1), k = Math.min(pts.length - 2, Math.floor(f));
+        tmp.copy(pts[k]).lerp(pts[k + 1], f - k);
+        pulseBuf.pos.setXYZ(i, tmp.x, tmp.y, tmp.z);
+        const src = nodes[P.forward ? E.a : E.b];
+        const c = E.bridge ? (src.b ? GPT_CYAN : colors[0]) : src.b ? colors[src.r].clone().lerp(GPT_CYAN, 0.4) : colors[src.r];
+        pulseBuf.col.setXYZ(i, c.r, c.g, c.b);
+        pulseBuf.size.setX(i, E.bridge ? 40 : 24);
+        pulseBuf.alpha.setX(i, Math.sin(Math.PI * Math.min(1, P.t * 1.2 + 0.1)) * 0.9 + 0.1);
+      } else { pulseBuf.alpha.setX(i, 0); pulseBuf.size.setX(i, 0); }
+    }
+    pulseBuf.commit();
+    for (let i = 0; i < nodes.length; i++) {
+      nodeGlow[i] *= Math.exp(-dt * 2.4);
+      nodeBuf.size.setX(i, (nodes[i].b ? 13 : 11) + nodeGlow[i] * 28);
+      nodeBuf.alpha.setX(i, 0.4 + nodeGlow[i] * 0.9);
+    }
+    nodeBuf.size.needsUpdate = nodeBuf.alpha.needsUpdate = true;
+  }
+
+  // ------------------------------------------------ bloom
+  let composer = null;
+  if (THREE.EffectComposer && THREE.UnrealBloomPass) {
+    try {
+      composer = new THREE.EffectComposer(renderer);
+      composer.addPass(new THREE.RenderPass(scene, camera));
+      var bloom = new THREE.UnrealBloomPass(new THREE.Vector2(512, 512), 0.7, 0.5, 0.42);
+      composer.addPass(bloom);
+    } catch (e) { composer = null; }
+  }
+
+  // ------------------------------------------------ controls
+  let rotY = 0, rotX = 0.12, velY = 0, dragging = false, lastX = 0, lastY = 0, lastInteract = -10, dist = 6.2, targetDist = 6.2;
+  canvas.addEventListener("pointerdown", e => { canvas.setPointerCapture(e.pointerId); dragging = true; lastX = e.clientX; lastY = e.clientY; canvas.classList.add("dragging"); });
+  canvas.addEventListener("pointermove", e => {
+    if (!dragging) return;
+    const dx = e.clientX - lastX, dy = e.clientY - lastY; lastX = e.clientX; lastY = e.clientY;
+    velY = dx * 0.005; rotY += velY; rotX = Math.max(-0.7, Math.min(0.7, rotX + dy * 0.004)); lastInteract = clock.elapsedTime;
+  });
+  const end = () => { dragging = false; canvas.classList.remove("dragging"); };
+  canvas.addEventListener("pointerup", end); canvas.addEventListener("pointercancel", end);
+  canvas.addEventListener("wheel", e => { e.preventDefault(); targetDist = Math.max(3.8, Math.min(10, targetDist * (1 + e.deltaY * 0.001))); }, { passive: false });
+
+  function resize() {
+    const w = innerWidth, h = innerHeight;
+    renderer.setSize(w, h, false);
+    canvas.style.width = w + "px"; canvas.style.height = h + "px";
+    camera.aspect = w / h; camera.fov = isSmall() ? 60 : 38; camera.updateProjectionMatrix();
+    if (composer) { composer.setPixelRatio(Math.min(DPR, 1.5)); composer.setSize(w, h); bloom.resolution.set(w / 2, h / 2); }
+  }
+  addEventListener("resize", resize); resize();
+
+  // ------------------------------------------------ answers UI
+  const REGION_IDS = Object.fromEntries(REGIONS.map((r, i) => [r.id, i]));
+  const normId = s => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z]/g, "");
+  function parse(text) {
+    const sep = text.match(/(^|\n)\s*-{3,}\s*(\n|$)/);
+    const head = sep ? text.slice(0, sep.index) : text;
+    const steps = [];
+    head.split("\n").forEach(line => {
+      const m = line.match(/^\s*[-*]?\s*\[([^\]]+)\]\s*(.+)$/);
+      const r = m ? REGION_IDS[normId(m[1])] : undefined;
+      if (r !== undefined) steps.push({ r, t: m[2].trim() });
+    });
+    const answer = sep ? text.slice(sep.index + sep[0].length).trim() : steps.length ? "" : text.trim();
+    return { steps, answer };
+  }
+  const side = b => ({ body: $(b ? "bodyGpt" : "bodyClaude"), tag: $(b ? "tagGpt" : "tagClaude") });
+  function showThinking(b, label) {
+    const s = side(b);
+    s.tag.textContent = label;
+    s.body.innerHTML = `<div class="thinking"><i></i><i></i><i></i><span>Pensando…</span></div>`;
+  }
+  function showWaiting(b, msg) { const s = side(b); s.tag.textContent = "esperando"; s.body.innerHTML = `<p class="empty"></p>`; s.body.firstChild.textContent = msg; }
+  // reveal one side's steps with a brain burst each, then the answer
+  function reveal(b, parsed, tagText, delay0) {
+    return new Promise(res => {
+      const s = side(b);
+      s.tag.textContent = tagText;
+      s.body.innerHTML = `<div class="steps"></div><p class="text"></p>`;
+      const stepsEl = s.body.querySelector(".steps"), textEl = s.body.querySelector(".text");
+      const gap = reduceMotion ? 0 : 650;
+      parsed.steps.forEach((st, j) => setTimeout(() => {
+        const row = document.createElement("div");
+        row.className = "step"; row.style.setProperty("--c", REGIONS[st.r].color);
+        row.innerHTML = `<span class="sw"></span><b>${REGIONS[st.r].name}</b><span></span>`;
+        row.lastChild.textContent = st.t;
+        stepsEl.appendChild(row);
+        burst(b, st.r, 14);
+      }, delay0 + j * gap));
+      setTimeout(() => { textEl.textContent = parsed.answer || "(sin respuesta)"; res(); }, delay0 + parsed.steps.length * gap + 200);
+    });
+  }
+  function showError(b, msg) { const s = side(b); s.tag.textContent = "error"; s.body.innerHTML = `<p class="err"></p>`; s.body.firstChild.textContent = msg; }
+  function sharedRegions(a, b) {
+    const A = new Set(a.steps.map(s => s.r)), B = new Set(b.steps.map(s => s.r));
+    const both = [...A].filter(r => B.has(r)).map(r => REGIONS[r].name);
+    $("shared").innerHTML = both.length ? `Las dos usaron: <b></b>` : `No coincidieron en ninguna región.`;
+    if (both.length) $("shared").querySelector("b").textContent = both.join(" · ");
+  }
+
+  // simulated answers when there is no real connection
+  function simulate(q, who) {
+    const hit = REGIONS.map((r, i) => r.kw.test(q) ? i : -1).filter(i => i >= 0);
+    if (!hit.length) hit.push(2, 1);
+    if (!hit.includes(5)) hit.push(5);
+    const steps = hit.slice(0, 4).map(r => ({ r, t: who === 1 ? ["Buscando el patrón central de la pregunta.", "Armando una respuesta clara y ordenada.", "Revisando que sea útil y segura."][Math.floor(Math.random() * 3)] : ["Descomponiendo la pregunta en partes.", "Buscando lo que de verdad importa aquí.", "Verificando que sea honesto."][Math.floor(Math.random() * 3)] }));
+    return { steps, answer: who === 1 ? "(Simulado: conecta tu flujo de n8n arriba para que ChatGPT responda de verdad.)" : "(Simulado: conecta n8n, o abre esta página en claude.ai, para que Claude responda de verdad.)" };
+  }
+
+  // ------------------------------------------------ connection state
+  const inClaudeAi = !!(window.claude && typeof window.claude.use === "function");
+  let hookUrl = store.get("cerebros-webhook", "");
+  let sampleFn = null;
+  const hookEl = $("hook");
+  hookEl.value = hookUrl;
+  function setPill(id, on, text) { const p = $(id); p.dataset.on = on ? "1" : "0"; p.querySelector("span").textContent = text; }
+  function refreshStatus() {
+    const viaHook = !!hookUrl && !inClaudeAi;
+    setPill("pillClaude", viaHook || !!sampleFn, viaHook ? "Claude: vía n8n" : sampleFn ? "Claude: real" : "Claude: simulado");
+    setPill("pillGpt", viaHook, viaHook ? "ChatGPT: vía n8n" : "ChatGPT: simulado");
+  }
+  if (inClaudeAi) {
+    // claude.ai blocks calls to other sites, so n8n can't be reached from here; Claude still answers through the page
+    $("urlRow").hidden = true;
+    $("help").textContent = "Desde claude.ai la página no puede llamar a otros sitios, así que ChatGPT queda simulado. Para conectarlo de verdad, abre cerebros_conectados.html del repo (o GitHub Pages) y pega la URL de tu flujo de n8n.";
+    window.claude.use("sample").then(fn => { sampleFn = fn; refreshStatus(); }).catch(() => {});
+  }
+  $("saveHook").addEventListener("click", () => {
+    const v = hookEl.value.trim();
+    if (v && !/^https?:\/\//i.test(v)) { toast("La URL tiene que empezar con https://"); return; }
+    hookUrl = v; store.set("cerebros-webhook", v); refreshStatus();
+    toast(v ? "Listo: las preguntas van a tu n8n." : "Desconectado: vuelvo al modo simulado.");
+  });
+  refreshStatus();
+
+  let mode = "comparar";
+  const setMode = m => { mode = m; $("mCompare").setAttribute("aria-pressed", String(m === "comparar")); $("mDebate").setAttribute("aria-pressed", String(m === "debate")); };
+  $("mCompare").addEventListener("click", () => setMode("comparar"));
+  $("mDebate").addEventListener("click", () => setMode("debate"));
+
+  const RULES = `Estás dentro de una visualización 3D de dos "cerebros" de IA conectados por un puente: el tuyo y el de ChatGPT. Es una metáfora: ninguna de las dos tiene lóbulos. Regiones: razonamiento, atencion, lenguaje, vision, codigo, valores, memoria.
+Responde en español, en este formato EXACTO y sin nada más:
+Primero entre 3 y 5 líneas así: [id] frase corta (máximo 12 palabras) sobre qué hace esa región con este mensaje
+Luego una línea que diga solo: ---
+Después tu respuesta: breve (máximo 110 palabras), en texto plano sin markdown.`;
+
+  let busy = false;
+  async function ask(q) {
+    busy = true; $("go").disabled = true; $("shared").textContent = "";
+    const debate = mode === "debate";
+    try {
+      if (hookUrl && !inClaudeAi) {
+        showThinking(1, "pensando"); showThinking(0, debate ? "escuchando" : "pensando");
+        const res = await fetch(hookUrl, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ pregunta: q, modo: mode }) });
+        if (!res.ok) throw new Error("http " + res.status);
+        const data = await res.json();
+        const g = parse(String(data?.gpt?.text || "")), c = parse(String(data?.claude?.text || ""));
+        if (debate) {
+          await reveal(1, g, "abrió el debate", 0);
+          crossBridge(1, 10);
+          await new Promise(r => setTimeout(r, reduceMotion ? 0 : 1500));
+          await reveal(0, c, "responde a ChatGPT", 0);
+        } else {
+          await Promise.all([reveal(0, c, "respuesta", 0), reveal(1, g, "respuesta", 250)]);
+          crossBridge(0, 4); crossBridge(1, 4);
+        }
+        sharedRegions(c, g);
+      } else {
+        // no n8n: ChatGPT is simulated; Claude answers for real when the page runs in claude.ai
+        showThinking(1, "simulado"); showThinking(0, sampleFn ? "pensando" : "simulado");
+        const g = simulate(q, 1);
+        const gDone = reveal(1, g, "simulado", 300);
+        let c;
+        if (sampleFn) {
+          try { c = parse((await sampleFn(`${RULES}\n\nMensaje: «${q.slice(0, 1500)}»`, { modelTier: "quick", cache: false })).text); }
+          catch (e) { c = null; showError(0, e && e.code === "not_granted" ? "Sin permiso para usar Claude: sigo simulado." : "No pude conectar con Claude. Vuelve a intentar."); }
+        } else c = simulate(q, 0);
+        await gDone;
+        if (debate) crossBridge(1, 8);
+        if (c) { await reveal(0, c, sampleFn ? "respuesta real" : "simulado", debate ? 900 : 0); sharedRegions(c, g); }
+        if (!hookUrl) toast("ChatGPT está simulado: conecta tu flujo de n8n para que responda de verdad.");
+      }
+    } catch (e) {
+      showError(1, "No pude conectar con tu n8n. Revisa que el flujo esté activo, que la URL sea la de producción y que el webhook permita CORS.");
+      showWaiting(0, "Sin respuesta: la pregunta no llegó a n8n.");
+    } finally { busy = false; $("go").disabled = false; }
+  }
+  $("form").addEventListener("submit", e => { e.preventDefault(); const q = $("q").value.trim(); if (q && !busy) ask(q); });
+
+  // ------------------------------------------------ loop
+  const clock = new THREE.Clock();
+  const v = new THREE.Vector3();
+  let ambient = 0, paintT = 0;
+  function place(el, p, dy) {
+    v.copy(p).applyMatrix4(world.matrixWorld).project(camera);
+    el.style.transform = `translate(${(v.x * 0.5 + 0.5) * innerWidth}px, ${(-v.y * 0.5 + 0.5) * innerHeight + dy}px) translate(-50%, 0)`;
+  }
+  function frame() {
+    const dt = Math.min(0.05, clock.getDelta()), t = clock.elapsedTime;
+    claudeUniforms.uTime.value = t;
+    if (!dragging) { velY *= 0.94; rotY += velY; if (!reduceMotion && t - lastInteract > 3) rotY = rotY * (1 - dt * 0.5) + Math.sin(t * 0.15) * 0.35 * dt * 0.5; }
+    world.rotation.set(rotX, rotY, 0);
+    claude.rotation.y = -0.6 + (reduceMotion ? 0 : Math.sin(t * 0.2) * 0.25);
+    gpt.rotation.y = 0.6 - (reduceMotion ? 0 : Math.sin(t * 0.2 + 1) * 0.25);
+    dist += (targetDist - dist) * Math.min(1, dt * 5);
+    const small = isSmall();
+    camera.position.set(0, small ? 0.9 : 0.35, small ? dist * 1.25 : dist);
+    camera.lookAt(0, small ? 0.5 : -0.25, 0);
+    world.updateMatrixWorld();
+
+    ambient += dt * (busy ? 7 : 3);
+    while (ambient > 1) {
+      ambient -= 1;
+      const b = Math.random() < 0.5 ? 0 : 1, r = Math.floor(Math.random() * N), list = nodesBy[b][r];
+      if (list.length) spawnFrom(list[Math.floor(Math.random() * list.length)], 2);
+      if (busy && Math.random() < 0.12) crossBridge(Math.random() < 0.5 ? 0 : 1, 1);
+    }
+    updatePulses(dt);
+    for (const b of [0, 1]) for (let i = 0; i < N; i++) { activity[b][i] *= Math.exp(-dt * 0.9); if (i === 5) activity[b][i] = Math.max(activity[b][i], 0.15); }
+    if (t - paintT > 0.05) { paintT = t; paintGpt(); }
+
+    place($("lblClaude"), new THREE.Vector3(-SEP, 0.78, 0), -44);
+    place($("lblGpt"), new THREE.Vector3(SEP, 0.78, 0), -44);
+    if (composer) composer.render(); else renderer.render(scene, camera);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
