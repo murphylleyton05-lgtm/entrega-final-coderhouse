@@ -771,19 +771,39 @@ Después tu respuesta: breve (máximo 110 palabras), en texto plano sin markdown
       if (!r.ok) throw new Error((await r.text()).slice(0, 200) || "ollama " + r.status);
       return (await r.json()).message?.content || "";
     }
-    const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST", headers: { "content-type": "application/json", Authorization: "Bearer " + cfg.groqKey },
-      body: JSON.stringify({ model, messages, max_tokens: 900 }),
-    });
+    // gpt-oss reasons before it writes: give it room and ask for short reasoning, or it can spend every token thinking
+    const oss = /gpt-oss/i.test(model);
+    const call = async extra => {
+      const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 60000);
+      try {
+        return await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          method: "POST", signal: ctl.signal,
+          headers: { "content-type": "application/json", Authorization: "Bearer " + cfg.groqKey },
+          body: JSON.stringify({ model, messages, max_completion_tokens: oss ? 3000 : 1200, ...extra }),
+        });
+      } catch (e) {
+        throw new Error(e && e.name === "AbortError" ? `Groq: ${model} tardó más de un minuto. Prueba de nuevo.` : "Groq: no pude conectarme. Revisa tu internet.");
+      } finally { clearTimeout(timer); }
+    };
+    let r = await call(oss ? { reasoning_effort: "low" } : {});
+    if (r.status === 400 && oss) r = await call({});          // older setups may not take reasoning_effort
+    const j = await r.json().catch(() => ({}));
     if (r.status === 429) throw new Error("Groq: llegaste al límite gratis por ahora. Espera un minuto.");
-    if (!r.ok) throw new Error("Groq " + r.status);
-    return (await r.json()).choices?.[0]?.message?.content || "";
+    if (r.status === 401) throw new Error("Groq: la clave no es válida. Pulsa “Cambiar conexión” y pégala de nuevo.");
+    if (r.status === 404) throw new Error(`Groq: no existe el modelo “${model}”. Revisa el nombre en “Cambiar conexión”.`);
+    if (!r.ok) throw new Error(`Groq ${r.status}: ${j.error?.message || "error desconocido"}`);
+    const choice = j.choices?.[0] || {};
+    const content = choice.message?.content || "";
+    if (!content.trim()) throw new Error(choice.finish_reason === "length"
+      ? `Groq: ${model} se quedó sin espacio mientras pensaba y no llegó a escribir. Prueba de nuevo o usa openai/gpt-oss-120b.`
+      : `Groq: ${model} devolvió una respuesta vacía. Prueba de nuevo.`);
+    return content;
   }
   function freeError(e) {
     const msg = String(e && e.message || e);
     if (cfg.prov === "ollama" && /fetch|network|load/i.test(msg)) return "No pude hablar con Ollama. Pulsa “Guardar y probar” arriba para ver qué falta.";
     if (/not found|pull/i.test(msg)) return "Ese modelo no está en Ollama: bájalo con ollama pull.";
-    return msg.startsWith("Groq:") ? msg : "Falló la respuesta: " + msg;
+    return /^Groq/.test(msg) ? msg : "Falló la respuesta: " + msg;
   }
 
   let busy = false;
