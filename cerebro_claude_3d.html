@@ -28,8 +28,9 @@
   #stage.dragging { cursor: grabbing; }
   #stage.hovering { cursor: pointer; }
   .vignette { position: fixed; inset: 0; pointer-events: none; background: radial-gradient(ellipse 75% 70% at 45% 48%, transparent 55%, rgba(3, 4, 8, 0.72) 100%); }
+  .dropzone { position: fixed; inset: 12px; border: 2px dashed var(--accent); border-radius: 18px; display: grid; place-items: center; background: rgba(7, 9, 16, 0.7); font: 700 22px/1.2 var(--display); color: var(--ink); z-index: 4; pointer-events: none; }
 
-  .ui { position: fixed; inset: 0; pointer-events: none; padding: max(20px, env(safe-area-inset-top, 0px)) 20px max(18px, env(safe-area-inset-bottom, 0px)); display: grid; grid-template-columns: minmax(0, 1fr) 340px; grid-template-rows: auto 1fr auto; gap: 16px; }
+  .ui { position: fixed; inset: 0; pointer-events: none; padding: max(20px, env(safe-area-inset-top, 0px)) 20px max(18px, env(safe-area-inset-bottom, 0px)); display: grid; grid-template-columns: minmax(0, 1fr) 350px; grid-template-rows: auto 1fr auto; gap: 16px; }
   .ui > * { pointer-events: auto; }
 
   header { grid-column: 1; grid-row: 1; max-width: 470px; pointer-events: none; }
@@ -43,7 +44,6 @@
   .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
 
   .toolbar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-  .toolbar .sep { flex: 1; }
   .tool { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 30px; border: 1px solid var(--line); background: var(--panel); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: var(--muted); border-radius: 999px; padding: 6px 10px; font: 500 11px/1 var(--mono); letter-spacing: 0.03em; cursor: pointer; }
   .tool.icon { width: 30px; padding: 0; }
   .tool svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; flex: none; }
@@ -63,9 +63,9 @@
   .meter { height: 4px; border-radius: 2px; background: rgba(255,255,255,0.08); overflow: hidden; }
   .meter i { display: block; height: 100%; width: 0%; background: var(--c); border-radius: 2px; }
 
-  button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  button:focus-visible, input:focus-visible, label.share:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-  .panel { padding: 16px; overflow: auto; min-height: 0; flex: 1 1 auto; overscroll-behavior: contain; }
+  .panel { position: relative; padding: 16px; overflow: auto; min-height: 0; flex: 1 1 auto; overscroll-behavior: contain; }
   .panel .top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 4px; }
   .panel .top .kicker { margin: 0; }
   .panel h3 { font: 700 26px/1.05 var(--display); letter-spacing: -0.01em; margin: 6px 0 4px; color: var(--c, var(--ink)); }
@@ -77,13 +77,17 @@
   .row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 14px; }
   .small-btn { border: 1px solid var(--line); background: transparent; color: var(--muted); border-radius: 8px; font: 500 11px/1 var(--mono); padding: 7px 9px; cursor: pointer; }
   .small-btn:hover { color: var(--ink); border-color: var(--line-strong); }
-  .small-btn.primary { color: #1a0f08; background: var(--accent); border-color: transparent; }
   .fact { margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--line); font-size: 12px; color: var(--muted); }
   .fact b { color: var(--soft); font-weight: 500; }
   .progress { height: 2px; background: rgba(255,255,255,0.08); border-radius: 1px; overflow: hidden; margin: 8px 0 4px; }
   .progress i { display: block; height: 100%; background: var(--c, var(--accent)); width: 0%; }
 
-  .quote { font: 500 15px/1.4 var(--display); color: var(--ink); margin: 8px 0 12px; padding-left: 10px; border-left: 2px solid var(--line-strong); }
+  .ex-block { padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px dashed var(--line); }
+  .ex-block:last-of-type { border-bottom: 0; margin-bottom: 0; }
+  .ex-block.old .steps, .ex-block.old .kicker { display: none; }
+  .ex-block.old .answer { color: var(--soft); font-size: 13px; }
+  .quote { font: 500 15px/1.4 var(--display); color: var(--ink); margin: 8px 0 10px; padding-left: 10px; border-left: 2px solid var(--line-strong); }
+  .quote .img { display: inline-block; font: 500 10px/1 var(--mono); color: var(--muted); border: 1px solid var(--line); border-radius: 4px; padding: 3px 5px; margin-left: 6px; vertical-align: 2px; }
   .steps { display: grid; gap: 5px; margin-bottom: 12px; }
   .step { display: grid; grid-template-columns: 8px auto 1fr; gap: 8px; align-items: baseline; font: 400 12px/1.45 var(--mono); color: var(--muted); animation: rise 300ms ease-out both; }
   .step .swatch { width: 7px; height: 7px; transform: translateY(-1px); }
@@ -95,41 +99,62 @@
   .note { font-size: 11.5px; color: var(--faint); margin-top: 12px; line-height: 1.45; }
   .err { color: var(--warn); font-size: 13px; margin: 8px 0 0; }
   .hist { display: grid; gap: 4px; }
-  .hist button { width: 100%; text-align: left; border: 1px solid transparent; background: rgba(255,255,255,0.03); border-radius: 8px; padding: 8px 10px; color: var(--ink); font: 400 13px/1.35 var(--body); cursor: pointer; display: grid; gap: 4px; }
+  .hist button, .wall-item { width: 100%; text-align: left; border: 1px solid transparent; background: rgba(255,255,255,0.03); border-radius: 8px; padding: 8px 10px; color: var(--ink); font: 400 13px/1.35 var(--body); display: grid; gap: 4px; }
+  .hist button { cursor: pointer; }
   .hist button:hover { border-color: var(--line-strong); }
-  .hist .meta { display: flex; gap: 4px; align-items: center; font: 400 10.5px/1 var(--mono); color: var(--faint); }
-  .hist .meta .swatch { width: 6px; height: 6px; box-shadow: none; }
+  .meta { display: flex; gap: 4px; align-items: center; font: 400 10.5px/1 var(--mono); color: var(--faint); }
+  .meta .swatch { width: 6px; height: 6px; box-shadow: none; }
 
-  .bottom { grid-column: 1 / -1; grid-row: 3; display: grid; grid-template-columns: 1fr minmax(0, 580px) 1fr; align-items: end; gap: 16px; }
+  .bars { display: grid; gap: 2px; margin: 10px 0 16px; }
+  .bar { display: grid; grid-template-columns: 96px 1fr 44px; align-items: center; gap: 8px; padding: 4px 4px; border-radius: 6px; font-size: 12.5px; color: var(--soft); }
+  .bar:hover { background: rgba(255,255,255,0.05); }
+  .bar .track { height: 8px; }
+  .bar .fill { height: 100%; min-width: 2px; background: var(--c); border-radius: 0 4px 4px 0; }
+  .bar .num { font: 500 12px/1 var(--mono); color: var(--ink); text-align: right; font-variant-numeric: tabular-nums; }
+  .bar .num small { color: var(--faint); font-weight: 400; }
+
+  .bottom { grid-column: 1 / -1; grid-row: 3; display: grid; grid-template-columns: 1fr minmax(0, 600px) 1fr; align-items: end; gap: 16px; }
   .corner { display: grid; gap: 6px; }
   .stats { display: flex; flex-wrap: wrap; gap: 2px 12px; font: 400 11px/1.4 var(--mono); color: var(--faint); font-variant-numeric: tabular-nums; }
   .stats b { font-weight: 500; color: var(--soft); }
   .hint { font: 400 11px/1.6 var(--mono); color: var(--faint); letter-spacing: 0.02em; }
   .hint kbd { font: inherit; color: var(--muted); }
   .center { grid-column: 2; display: flex; flex-direction: column; align-items: stretch; gap: 8px; min-width: 0; }
-  .mode { align-self: center; display: inline-flex; align-items: center; gap: 6px; font: 500 10.5px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding: 5px 9px; border-radius: 999px; background: rgba(14, 17, 27, 0.6); border: 1px solid var(--line); }
+  .chips { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
+  .mode { display: inline-flex; align-items: center; gap: 6px; font: 500 10.5px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding: 5px 9px; border-radius: 999px; background: rgba(14, 17, 27, 0.6); border: 1px solid var(--line); }
   .mode .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--faint); }
-  .mode[data-mode="real"] .dot { background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+  .mode[data-mode="real"] .dot, .mode[data-mode="room"] .dot { background: var(--ok); box-shadow: 0 0 8px var(--ok); }
   .mode[data-mode="sim"] .dot { background: var(--warn); }
-  .form { display: flex; gap: 8px; padding: 6px; }
-  .form label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-  .form input { flex: 1; min-width: 0; background: transparent; border: 0; color: var(--ink); font: 400 14px/1 var(--body); padding: 10px; border-radius: 8px; }
+  .form { display: flex; gap: 6px; padding: 6px; align-items: center; }
+  .form > label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .form input[type="text"] { flex: 1; min-width: 0; background: transparent; border: 0; color: var(--ink); font: 400 14px/1 var(--body); padding: 10px 6px; border-radius: 8px; }
   .form input::placeholder { color: var(--faint); }
-  .think { border: 0; border-radius: 9px; padding: 10px 16px; font: 700 14px/1 var(--display); color: #1a0f08; background: linear-gradient(135deg, #ff8a5b, #ffd166); cursor: pointer; white-space: nowrap; }
+  .attach { width: 36px; height: 36px; flex: none; display: grid; place-items: center; border: 0; background: transparent; color: var(--muted); border-radius: 8px; cursor: pointer; }
+  .attach:hover { color: var(--ink); background: rgba(255,255,255,0.06); }
+  .attach svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .thumb { position: relative; flex: none; }
+  .thumb img { width: 36px; height: 36px; object-fit: cover; border-radius: 6px; display: block; border: 1px solid var(--line-strong); }
+  .thumb button { position: absolute; top: -6px; right: -6px; width: 18px; height: 18px; border-radius: 50%; border: 0; background: var(--ink); color: #0b0d14; font: 700 11px/18px var(--body); padding: 0; cursor: pointer; }
+  .think { border: 0; border-radius: 9px; padding: 10px 16px; font: 700 14px/1 var(--display); color: #1a0f08; background: linear-gradient(135deg, #ff8a5b, #ffd166); cursor: pointer; white-space: nowrap; flex: none; }
   .think.stop { background: transparent; color: var(--ink); border: 1px solid var(--line-strong); }
   .think:active { transform: translateY(1px); }
-  .examples { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+  .examples { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; align-items: center; }
   .ex { border: 1px solid var(--line); background: rgba(14, 17, 27, 0.55); color: var(--muted); border-radius: 999px; padding: 5px 10px; font: 400 12px/1 var(--body); cursor: pointer; }
   .ex:hover { color: var(--ink); border-color: var(--line-strong); }
+  label.share { display: inline-flex; align-items: center; gap: 6px; font: 400 12px/1 var(--body); color: var(--muted); padding: 5px 8px; border-radius: 999px; border: 1px dashed var(--line-strong); cursor: pointer; }
+  label.share input { accent-color: var(--accent); margin: 0; }
 
   .labels { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
   .label { position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 6px; padding: 4px 9px 4px 6px; border-radius: 999px; border: 1px solid var(--line); background: rgba(7, 9, 16, 0.66); color: var(--ink); font: 500 11px/1 var(--mono); letter-spacing: 0.04em; white-space: nowrap; cursor: pointer; will-change: transform, opacity; }
   .label .swatch { width: 7px; height: 7px; }
   .label.on { border-color: var(--c); box-shadow: 0 0 16px -4px var(--c); }
+  .tlabel { position: absolute; left: 0; top: 0; font: 500 11px/1 var(--mono); color: var(--muted); white-space: nowrap; pointer-events: none; will-change: transform, opacity; }
+  .tlabel.tok { color: #0b0d14; background: var(--c); padding: 3px 7px; border-radius: 5px; box-shadow: 0 0 14px -2px var(--c); }
+  .tlabel.next { color: var(--ink); border: 1px solid var(--accent); background: rgba(7, 9, 16, 0.8); padding: 4px 8px; border-radius: 999px; }
   .token { position: absolute; left: 0; top: 0; padding: 3px 8px; border-radius: 6px; font: 500 12px/1 var(--mono); color: #0b0d14; background: var(--c); box-shadow: 0 0 18px var(--c); white-space: nowrap; pointer-events: none; }
-  .tip { position: fixed; left: 0; top: 0; pointer-events: none; padding: 7px 10px; border-radius: 8px; background: var(--panel-solid); border: 1px solid var(--line-strong); font: 500 12px/1.3 var(--body); color: var(--ink); white-space: nowrap; }
+  .tip { position: fixed; left: 0; top: 0; pointer-events: none; padding: 7px 10px; border-radius: 8px; background: var(--panel-solid); border: 1px solid var(--line-strong); font: 500 12px/1.3 var(--body); color: var(--ink); white-space: nowrap; z-index: 3; }
   .tip small { display: block; font: 400 11px/1.3 var(--mono); color: var(--muted); margin-top: 2px; }
-  .toast { position: fixed; left: 50%; top: max(20px, env(safe-area-inset-top, 0px)); transform: translateX(-50%); padding: 8px 12px; border-radius: 10px; background: var(--panel-solid); border: 1px solid var(--line-strong); font: 400 12px/1.3 var(--mono); color: var(--soft); pointer-events: none; transition: opacity 400ms; max-width: calc(100% - 32px); text-align: center; }
+  .toast { position: fixed; left: 50%; top: max(20px, env(safe-area-inset-top, 0px)); transform: translateX(-50%); padding: 8px 12px; border-radius: 10px; background: var(--panel-solid); border: 1px solid var(--line-strong); font: 400 12px/1.3 var(--mono); color: var(--soft); pointer-events: none; transition: opacity 400ms; max-width: calc(100% - 32px); text-align: center; z-index: 3; }
 
   .loader { position: fixed; inset: 0; display: grid; place-items: center; pointer-events: none; font: 500 12px/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); transition: opacity 600ms; }
   .fallback { position: fixed; inset: 0; display: grid; place-items: center; padding-inline: 16px; background: var(--ground); z-index: 5; }
@@ -146,9 +171,9 @@
     h1 { margin: 8px 0 6px; }
     .lede { font-size: 12.5px; }
     aside { grid-column: 1; grid-row: 3; max-height: 46vh; }
-    .toolbar .sep { display: none; }
     .tool .txt { display: none; }
     .tool:not(.icon) { width: 30px; padding: 0; }
+    .tool { background: rgba(14, 17, 27, 0.92); }
     .legend { padding: 4px; position: relative; }
     .legend h2 { display: none; }
     .regions { grid-auto-flow: column; overflow-x: auto; scrollbar-width: none; -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent); mask-image: linear-gradient(90deg, #000 85%, transparent); padding-right: 24px; }
@@ -156,12 +181,12 @@
     .regions button { grid-template-columns: 8px auto; gap: 6px; padding: 7px 10px; white-space: nowrap; }
     .regions kbd, .regions .meter { display: none; }
     .panel { display: none; max-height: 24vh; padding: 14px; }
-    .tool { background: rgba(14, 17, 27, 0.92); }
     aside.has-panel .panel { display: block; }
     .bottom { grid-row: 4; grid-template-columns: minmax(0, 1fr); }
     .center { grid-column: 1; }
-    .corner, .examples { display: none; }
-    .mode { display: none; }
+    .corner { display: none; }
+    .examples .ex { display: none; }
+    .chips { display: none; }
     .label { font-size: 10px; }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -173,8 +198,10 @@
 <canvas id="stage" aria-label="Modelo 3D interactivo de un cerebro hecho de partículas. Arrastra para rotar, usa las teclas 1 a 7 para elegir regiones."></canvas>
 <div class="vignette"></div>
 <div class="labels" id="labels"></div>
+<div class="labels" id="techLabels"></div>
 <div class="tip" id="tip" hidden></div>
 <div class="toast" id="toast" hidden></div>
+<div class="dropzone" id="dropzone" hidden>Suelta la imagen para que la mire</div>
 <div class="loader" id="loader">Ensamblando neuronas…</div>
 
 <div class="ui" id="ui">
@@ -187,14 +214,20 @@
   <aside id="aside">
     <div class="toolbar" role="toolbar" aria-label="Vista">
       <button class="tool" type="button" id="tTour" aria-pressed="false" title="Tour guiado (T)"><svg viewBox="0 0 16 16"><path d="M5 3.5l7 4.5-7 4.5z"/></svg><span class="txt">Tour</span></button>
+      <button class="tool" type="button" id="tTech" aria-pressed="false" title="Lo que soy de verdad: capas de transformer (M)"><svg viewBox="0 0 16 16"><path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11"/><path d="M5 4.5l3 3.5 3-3.5"/></svg><span class="txt">Transformer</span></button>
       <button class="tool" type="button" id="tExplode" aria-pressed="false" title="Separar partes (E)"><svg viewBox="0 0 16 16"><path d="M6 3.5H3.5V6M10 3.5h2.5V6M6 12.5H3.5V10M10 12.5h2.5V10"/></svg><span class="txt">Separar</span></button>
       <button class="tool" type="button" id="tCut" aria-pressed="false" title="Corte coronal (C)"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5"/><path d="M9.5 1.5v13"/></svg><span class="txt">Corte</span></button>
       <button class="tool" type="button" id="tHist" aria-pressed="false" title="Historial (H)"><svg viewBox="0 0 16 16"><path d="M2.5 8a5.5 5.5 0 1 0 1.6-3.9"/><path d="M2.5 2.5v2.8h2.8M8 5v3.2l2 1.3"/></svg><span class="txt">Historial</span></button>
-      <span class="sep"></span>
+      <button class="tool" type="button" id="tWall" aria-pressed="false" title="Muro de pensamientos (W)" hidden><svg viewBox="0 0 16 16"><path d="M3 13V8M6.5 13V4M10 13V9.5M13.5 13V6"/></svg><span class="txt">Muro</span></button>
+    </div>
+    <div class="toolbar" role="toolbar" aria-label="Ajustes">
       <button class="tool icon" type="button" id="tRotate" aria-pressed="true" title="Girar solo" aria-label="Girar solo"><svg viewBox="0 0 16 16"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9"/><path d="M13.5 2.5v2.8h-2.8"/></svg></button>
       <button class="tool icon" type="button" id="tShell" aria-pressed="true" title="Corteza de vidrio" aria-label="Corteza de vidrio"><svg viewBox="0 0 16 16"><ellipse cx="8" cy="8" rx="6" ry="4.8"/><path d="M8 3.2v9.6"/></svg></button>
       <button class="tool icon" type="button" id="tBloom" aria-pressed="true" title="Brillo" aria-label="Brillo"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.5"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M3.4 12.6l1.4-1.4M11.2 4.8l1.4-1.4"/></svg></button>
-      <button class="tool icon" type="button" id="tSound" aria-pressed="false" title="Sonido" aria-label="Sonido"><svg viewBox="0 0 16 16"><path d="M2.5 6h2.5l3.5-3v10l-3.5-3H2.5z"/><path d="M11 5.5a3.5 3.5 0 0 1 0 5M12.8 3.8a6 6 0 0 1 0 8.4"/></svg></button>
+      <button class="tool icon" type="button" id="tTheme" title="Tema de color: Neón" aria-label="Cambiar tema de color"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5"/><path d="M8 2.5v11" /><path d="M8 2.5a5.5 5.5 0 0 1 0 11z" fill="currentColor" stroke="none"/></svg></button>
+      <button class="tool icon" type="button" id="tSound" aria-pressed="false" title="Sonido de sinapsis" aria-label="Sonido de sinapsis"><svg viewBox="0 0 16 16"><path d="M2.5 6h2.5l3.5-3v10l-3.5-3H2.5z"/><path d="M11 5.5a3.5 3.5 0 0 1 0 5M12.8 3.8a6 6 0 0 1 0 8.4"/></svg></button>
+      <button class="tool icon" type="button" id="tVoice" aria-pressed="false" title="Leer en voz alta (V)" aria-label="Leer en voz alta"><svg viewBox="0 0 16 16"><path d="M8 2v7M5.5 4.5v2M10.5 3.5v4M3 6v0.5M13 5v2"/><path d="M4 11.5c1.2 1.3 2.5 2 4 2s2.8-.7 4-2"/></svg></button>
+      <button class="tool icon" type="button" id="tShot" title="Descargar captura (P)" aria-label="Descargar captura"><svg viewBox="0 0 16 16"><rect x="2" y="4.5" width="12" height="9" rx="1.5"/><circle cx="8" cy="9" r="2.3"/><path d="M5.5 4.5l1-2h3l1 2"/></svg></button>
       <button class="tool icon" type="button" id="tReset" title="Centrar vista (R)" aria-label="Centrar vista"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5"/><circle cx="8" cy="8" r="1.5"/></svg></button>
     </div>
     <div class="card cutrow" id="cutRow" hidden>
@@ -212,16 +245,24 @@
   <div class="bottom">
     <div class="corner">
       <div class="stats" id="stats"></div>
-      <div class="hint"><kbd>Arrastrar</kbd> rotar · <kbd>Rueda</kbd> zoom · <kbd>1–7</kbd> regiones<br><kbd>T</kbd> tour · <kbd>E</kbd> separar · <kbd>C</kbd> corte · <kbd>H</kbd> historial · <kbd>Esc</kbd> salir</div>
+      <div class="hint"><kbd>Arrastrar</kbd> rotar · <kbd>Rueda</kbd> zoom · <kbd>1–7</kbd> regiones<br><kbd>T</kbd> tour · <kbd>M</kbd> transformer · <kbd>E</kbd> separar · <kbd>C</kbd> corte<br><kbd>H</kbd> historial · <kbd>V</kbd> voz · <kbd>P</kbd> captura · <kbd>Esc</kbd> salir</div>
     </div>
     <div class="center">
-      <div class="mode" id="mode" data-mode="wait"><span class="dot"></span><span id="modeText">Conectando con Claude…</span></div>
+      <div class="chips">
+        <div class="mode" id="mode" data-mode="wait"><span class="dot"></span><span id="modeText">Conectando con Claude…</span></div>
+        <div class="mode" id="roomChip" data-mode="room" hidden><span class="dot"></span><span id="roomText"></span></div>
+      </div>
       <form class="form card" id="thinkForm" autocomplete="off">
         <label for="thought">Dame algo en qué pensar</label>
+        <button class="attach" type="button" id="attachBtn" title="Adjuntar una imagen" aria-label="Adjuntar una imagen"><svg viewBox="0 0 20 20"><path d="M16 9.5l-6.4 6.4a4 4 0 0 1-5.7-5.7l6.8-6.8a2.7 2.7 0 0 1 3.8 3.8l-6.7 6.7a1.3 1.3 0 0 1-1.9-1.9l6-6"/></svg></button>
+        <input id="imageInput" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+        <div class="thumb" id="thumb" hidden><img id="thumbImg" alt="Imagen adjunta"><button type="button" id="thumbX" aria-label="Quitar imagen">×</button></div>
         <input id="thought" name="thought" type="text" maxlength="400" value="¿Cómo depuro este error de Python en mi código?" placeholder="Dame algo en qué pensar…">
         <button class="think" type="submit" id="thinkBtn">Pensar</button>
       </form>
-      <div class="examples" id="examples"></div>
+      <div class="examples" id="examples">
+        <label class="share" id="shareLabel" hidden><input type="checkbox" id="shareWall">Publicar en el muro</label>
+      </div>
     </div>
   </div>
 </div>
@@ -263,7 +304,7 @@
       fact: "Las áreas de Broca y Wernicke, clave para el lenguaje humano, están en el hemisferio izquierdo en la mayoría de las personas.",
       thoughts: ["Entiendo la intención: {intent}.", "Eligiendo el tono: directo y claro.", "Tokenizando: {n} palabras, más signos y acentos."] },
     { id: "vision", name: "Visión", where: "Lóbulo occipital · imágenes", color: "#8fa8ff",
-      text: "Leo capturas de pantalla, fotos, gráficos y PDFs, y los conecto con el texto de la conversación.",
+      text: "Leo capturas de pantalla, fotos, gráficos y PDFs, y los conecto con el texto de la conversación. Adjunta una imagen abajo y la miro de verdad.",
       fires: ["Imágenes y capturas", "Gráficos y dashboards", "Diagramas y documentos escaneados"],
       fact: "Curiosidad: la visión se procesa en la parte de atrás del cerebro, lo más lejos posible de los ojos.",
       thoughts: ["¿Hay algo visual? Imaginando cómo se vería “{k}”.", "Buscando estructura: ejes, tablas, formas."] },
@@ -278,7 +319,7 @@
       fact: "El tronco encefálico controla lo que nunca se apaga: respirar, el pulso, estar despierto.",
       thoughts: ["Verificando que la respuesta sea honesta y útil.", "Si no lo sé, lo digo.", "¿Esto le sirve de verdad a quien pregunta?"] },
     { id: "memoria", name: "Memoria", where: "Hipocampo · contexto de la conversación", color: "#9be15d",
-      text: "Mi memoria de trabajo es el contexto: todo lo que está en esta conversación. Lo uso para no repetirme y seguir el hilo, pero por defecto no recuerdo conversaciones anteriores.",
+      text: "Mi memoria de trabajo es el contexto: todo lo que está en esta conversación. Aquí sí la uso: pregúntame algo y después pregunta “¿y lo de antes?”. Por defecto no recuerdo conversaciones anteriores.",
       fires: ["“Como te dije antes…”", "Seguir un proyecto largo", "Retomar un dato de hace varios mensajes"],
       fact: "El hipocampo tiene forma de caballito de mar: de ahí su nombre (hippokampos, en griego).",
       thoughts: ["Buscando en el contexto algo relacionado con “{k}”.", "Guardando esto para el resto de la conversación."] },
@@ -288,15 +329,15 @@
     [0, /por ?qu[eé]|c[oó]mo|calcul|l[oó]gic|plan|pens|resolv|problema|matem|decid|analiz|paso|estrateg/i],
     [1, /detalle|importa|clave|foco|concentr|document|largo|resum/i],
     [2, /escrib|tradu|idioma|palabra|texto|poema|historia|explica|ingl[eé]s|español|bro|carta|mensaje|chiste/i],
-    [3, /imagen|foto|captura|\bver\b|gr[aá]fic|dibuj|pdf|color|visual|dashboard|diseñ|logo/i],
+    [3, /imagen|foto|captura|\bver\b|ves|gr[aá]fic|dibuj|pdf|color|visual|dashboard|diseñ|logo/i],
     [4, /c[oó]dig|python|sql|java|html|css|error|bug|depur|funci[oó]n|script|api|n8n|power ?bi|dato|excel|program/i],
     [5, /ayud|[eé]tic|seguro|verdad|honest|daño|sent[ií]|emoci|triste|miedo|consejo|mentir|mentira/i],
-    [6, /record|memoria|antes|dijiste|contexto|olvid|historial|anterior/i],
+    [6, /record|memoria|antes|dijiste|contexto|olvid|historial|anterior|acuerdas/i],
   ];
-  const EXAMPLES = ["Explícame la fotosíntesis como a un niño", "Arma un dashboard de ventas en Power BI", "¿Te acuerdas de lo que hablamos ayer?", "¿Está bien decir una mentira piadosa?"];
+  const EXAMPLES = ["Explícame la fotosíntesis como a un niño", "Arma un dashboard de ventas en Power BI", "¿Y qué te pregunté antes?", "¿Está bien decir una mentira piadosa?"];
+  const THEMES = ["Neón", "Rayos X", "Térmico", "Mármol"];
 
   const $ = id => document.getElementById(id);
-  const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const toastEl = $("toast");
   let toastT = 0;
   function toast(msg, ms = 3200) {
@@ -304,6 +345,12 @@
     clearTimeout(toastT);
     toastT = setTimeout(() => { toastEl.style.opacity = "0"; setTimeout(() => (toastEl.hidden = true), 400); }, ms);
   }
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* storage off: keep it in memory only */ } },
+  };
+  const claudeUse = name => (window.claude && typeof window.claude.use === "function")
+    ? window.claude.use(name).catch(() => null) : Promise.resolve(null);
 
   // ============================================================ WebGL guard
   function fail(reason) {
@@ -325,7 +372,6 @@
   const DPR = Math.min(window.devicePixelRatio || 1, 2);
   let pixelRatio = DPR;
   renderer.setPixelRatio(pixelRatio);
-  renderer.localClippingEnabled = false;
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x070910);
   scene.fog = new THREE.FogExp2(0x070910, 0.05);
@@ -393,11 +439,15 @@
   }
   const partOfPoint = (p, r) => r === 4 ? 2 : r === 5 ? 3 : p.x < 0 ? 0 : 1;
 
+  // transformer mode: particles re-form into stacked layers
+  const LAYERS = 8;
+  const layerY = l => -0.62 + l * (1.62 / (LAYERS - 1));
+
   // ============================================================ particles
   const colors = REGIONS.map(r => new THREE.Color(r.color));
   const DENSITY_GAIN = [1, 1, 1, 1, 0.62, 1, 1];     // the cerebellum is small and dense: tone it down
   const WHITE = new THREE.Color("#ffffff");
-  const pos = [], col = [], reg = [], sd = [], scat = [], part = [];
+  const pos = [], col = [], reg = [], sd = [], scat = [], part = [], lay = [];
   const surfaceByRegion = REGIONS.map(() => []);
   function addPoint(p, r, surface) {
     pos.push(p.x, p.y, p.z);
@@ -405,6 +455,8 @@
     col.push(c.r, c.g, c.b); reg.push(r); sd.push(rand()); part.push(partOfPoint(p, r));
     const s = randDir().multiplyScalar(2.5 + rand() * 5);
     scat.push(s.x, s.y, s.z);
+    const l = Math.floor(rand() * LAYERS);
+    lay.push((rand() * 2 - 1) * 1.08, layerY(l) + (rand() - 0.5) * 0.025, (rand() * 2 - 1) * 0.42);
     if (surface) surfaceByRegion[r].push(p.clone());
   }
   for (const h of [-1, 1]) {
@@ -417,8 +469,7 @@
     // hippocampus: a curled tube tucked inside each temporal lobe
     for (let i = 0; i < 1300; i++) {
       const s = rand(), a = rand() * Math.PI * 2;
-      const z = 0.22 - s * 0.72;
-      const c = new THREE.Vector3(h * (0.4 - 0.12 * s), -0.2 + 0.36 * s * s, z);
+      const c = new THREE.Vector3(h * (0.4 - 0.12 * s), -0.2 + 0.36 * s * s, 0.22 - s * 0.72);
       const rr = (0.075 - 0.045 * s) * Math.sqrt(rand());
       addPoint(new THREE.Vector3(c.x + Math.cos(a) * rr, c.y + Math.sin(a) * rr, c.z), 6, true);
     }
@@ -447,43 +498,74 @@
   brainGeo.setAttribute("aRegion", new THREE.Float32BufferAttribute(reg, 1));
   brainGeo.setAttribute("aSeed", new THREE.Float32BufferAttribute(sd, 1));
   brainGeo.setAttribute("aScatter", new THREE.Float32BufferAttribute(scat, 3));
+  brainGeo.setAttribute("aLayer", new THREE.Float32BufferAttribute(lay, 3));
   brainGeo.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 3);
 
   const uniforms = {
     uTime: { value: 0 }, uSel: { value: -1 }, uHover: { value: -1 }, uPix: { value: pixelRatio },
     uForm: { value: reduceMotion ? 1 : 0 }, uShell: { value: 1 }, uGain: { value: 0.5 },
+    uMorph: { value: 0 }, uTheme: { value: 0 }, uDream: { value: 0 },
     uAct: { value: new Array(N).fill(0) },
   };
+  // shared GLSL: selection / hover / activity per region, and the colour themes
   const REGION_GLSL = `
-    uniform float uSel, uHover; uniform float uAct[${N}];
+    uniform float uSel, uHover, uTheme, uDream, uTime; uniform float uAct[${N}];
+    float regionAct(float r) {
+      float act = 0.0;
+      for (int i = 0; i < ${N}; i++) { if (abs(float(i) - r) < 0.5) act = uAct[i]; }
+      return act;
+    }
     float regionWeight(float r) {
       bool isSel = abs(r - uSel) < 0.5;
       float w = uSel < -0.5 ? 1.0 : (isSel ? 1.0 : 0.15);
       if (abs(r - uHover) < 0.5) w *= 1.3;
-      float act = 0.0;
-      for (int i = 0; i < ${N}; i++) { if (abs(float(i) - r) < 0.5) act = uAct[i]; }
-      return w * (1.0 + act * (isSel ? 0.3 : 0.4));
+      return w * (1.0 + regionAct(r) * (isSel ? 0.3 : 0.4));
+    }
+    vec3 hueShift(vec3 c, float a) {
+      const vec3 k = vec3(0.57735);
+      float ca = cos(a);
+      return c * ca + cross(k, c) * sin(a) + k * dot(k, c) * (1.0 - ca);
+    }
+    vec3 themeColor(vec3 c, float r, float s) {
+      vec3 o = c;
+      if (uTheme > 0.5 && uTheme < 1.5) {                 // x-ray
+        float l = dot(c, vec3(0.3, 0.5, 0.2));
+        o = vec3(0.45, 0.8, 1.0) * (0.45 + l * 0.75);
+      } else if (uTheme > 1.5 && uTheme < 2.5) {          // thermal: colour follows activity
+        float h = clamp(regionAct(r) * 1.1 + s * 0.12, 0.0, 1.0);
+        o = mix(vec3(0.12, 0.2, 0.85), vec3(0.75, 0.12, 0.6), smoothstep(0.0, 0.35, h));
+        o = mix(o, vec3(1.0, 0.38, 0.1), smoothstep(0.35, 0.7, h));
+        o = mix(o, vec3(1.0, 0.92, 0.35), smoothstep(0.7, 1.0, h));
+      } else if (uTheme > 2.5) {                          // marble
+        o = vec3(0.93, 0.9, 0.85) * (0.5 + 0.5 * s);
+      }
+      if (uDream > 0.0) o = mix(o, abs(hueShift(o, uTime * 0.35 + s * 2.5)), uDream * 0.85);
+      return o;
     }`;
   const brainMat = new THREE.ShaderMaterial({
     uniforms, clipping: true,
     vertexShader: `
       #include <clipping_planes_pars_vertex>
-      attribute vec3 aColor; attribute float aRegion; attribute float aSeed; attribute vec3 aScatter;
-      uniform float uTime, uPix, uForm;
+      attribute vec3 aColor; attribute float aRegion; attribute float aSeed; attribute vec3 aScatter; attribute vec3 aLayer;
+      uniform float uPix, uForm, uMorph;
       varying vec3 vCol; varying float vA;
       ${REGION_GLSL}
       void main() {
         float f = clamp(uForm * 1.35 - aSeed * 0.35, 0.0, 1.0);
         f = 1.0 - pow(1.0 - f, 3.0);
+        float m = clamp(uMorph * 1.4 - aSeed * 0.4, 0.0, 1.0);
+        m = m * m * (3.0 - 2.0 * m);
         vec3 swirl = vec3(sin(uTime * 0.7 + aSeed * 30.0), cos(uTime * 0.5 + aSeed * 20.0), sin(uTime * 0.6 + aSeed * 11.0)) * 0.25;
-        vec3 p = mix(aScatter + swirl, position, f);
+        vec3 target = mix(position, aLayer, m) + swirl * m * (1.0 - m) * 1.5;
+        vec3 p = mix(aScatter + swirl, target, f);
         vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);
         gl_Position = projectionMatrix * mvPosition;
         #include <clipping_planes_vertex>
         float tw = 0.7 + 0.3 * sin(uTime * 1.3 + aSeed * 40.0);
-        vA = tw * regionWeight(aRegion) * (0.35 + 0.65 * f);
-        vCol = aColor;
-        bool isSel = abs(aRegion - uSel) < 0.5;
+        float dreamWave = 1.0 + uDream * 0.5 * sin(uTime * 0.8 + p.y * 4.0 + p.z * 3.0);
+        vA = tw * mix(regionWeight(aRegion), 0.75, m) * (0.35 + 0.65 * f) * dreamWave;
+        vCol = themeColor(aColor, aRegion, aSeed);
+        bool isSel = abs(aRegion - uSel) < 0.5 && m < 0.5;
         gl_PointSize = 9.5 * uPix * (isSel ? 1.12 : 1.0) * (0.8 + aSeed * 0.5) / -mvPosition.z;
       }`,
     fragmentShader: `
@@ -514,16 +596,17 @@
         gl_Position = projectionMatrix * mvPosition;
         #include <clipping_planes_vertex>
         vN = normalize(normalMatrix * normal); vV = -mvPosition.xyz;
-        vCol = aColor; vRidge = aRidge; vW = regionWeight(aRegion);
+        vCol = themeColor(aColor, aRegion, 0.6); vRidge = aRidge; vW = regionWeight(aRegion);
       }`,
     fragmentShader: `
       #include <clipping_planes_pars_fragment>
-      uniform float uShell, uForm;
+      uniform float uShell, uForm, uMorph, uTheme;
       varying vec3 vN, vV, vCol; varying float vRidge, vW;
       void main() {
         #include <clipping_planes_fragment>
         float fres = pow(1.0 - abs(dot(normalize(vN), normalize(vV))), 2.4);
-        float a = (fres * 0.5 + 0.025 + vRidge * 0.05) * vW * uShell * smoothstep(0.55, 1.0, uForm);
+        float xray = uTheme > 0.5 && uTheme < 1.5 ? 1.6 : 1.0;
+        float a = (fres * 0.5 * xray + 0.025 + vRidge * 0.05) * vW * uShell * smoothstep(0.55, 1.0, uForm) * (1.0 - uMorph);
         gl_FragColor = vec4(vCol * (0.55 + vRidge * 0.6), a);
       }`,
     transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.FrontSide,
@@ -666,28 +749,27 @@
       transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
     });
   }
+  function dynPoints(n, clip, parent) {
+    const g = new THREE.BufferGeometry();
+    const a = {
+      pos: new THREE.Float32BufferAttribute(new Float32Array(n * 3), 3),
+      col: new THREE.Float32BufferAttribute(new Float32Array(n * 3), 3),
+      size: new THREE.Float32BufferAttribute(new Float32Array(n), 1),
+      alpha: new THREE.Float32BufferAttribute(new Float32Array(n), 1),
+    };
+    [["position", a.pos], ["aColor", a.col], ["aSize", a.size], ["aAlpha", a.alpha]].forEach(([k, v]) => { v.setUsage(THREE.DynamicDrawUsage); g.setAttribute(k, v); });
+    const pts = new THREE.Points(g, spriteMaterial(clip));
+    pts.frustumCulled = false;
+    parent.add(pts);
+    a.commit = () => { a.pos.needsUpdate = a.col.needsUpdate = a.size.needsUpdate = a.alpha.needsUpdate = true; };
+    return a;
+  }
 
   const nodeGlow = new Float32Array(nodes.length);
-  const nodeGeo = new THREE.BufferGeometry();
-  const nodePosAttr = new THREE.Float32BufferAttribute(nodes.flatMap(n => [n.p.x, n.p.y, n.p.z]), 3);
-  nodeGeo.setAttribute("position", nodePosAttr);
-  nodeGeo.setAttribute("aColor", new THREE.Float32BufferAttribute(nodes.flatMap(n => colors[n.r].toArray()), 3));
-  const nodeSize = new THREE.Float32BufferAttribute(new Float32Array(nodes.length), 1);
-  const nodeAlpha = new THREE.Float32BufferAttribute(new Float32Array(nodes.length), 1);
-  nodeGeo.setAttribute("aSize", nodeSize); nodeGeo.setAttribute("aAlpha", nodeAlpha);
-  nodeGeo.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 3);
-  brain.add(new THREE.Points(nodeGeo, spriteMaterial(true)));
-
+  const nodeBuf = dynPoints(nodes.length, true, brain);
+  nodes.forEach((n, i) => { nodeBuf.pos.setXYZ(i, n.p.x, n.p.y, n.p.z); nodeBuf.col.setXYZ(i, colors[n.r].r, colors[n.r].g, colors[n.r].b); });
   const MAXP = 520;
-  const pulseGeo = new THREE.BufferGeometry();
-  const pPos = new THREE.Float32BufferAttribute(new Float32Array(MAXP * 3), 3);
-  const pCol = new THREE.Float32BufferAttribute(new Float32Array(MAXP * 3), 3);
-  const pSize = new THREE.Float32BufferAttribute(new Float32Array(MAXP), 1);
-  const pAlpha = new THREE.Float32BufferAttribute(new Float32Array(MAXP), 1);
-  [["position", pPos], ["aColor", pCol], ["aSize", pSize], ["aAlpha", pAlpha]].forEach(([k, v]) => { v.setUsage(THREE.DynamicDrawUsage); pulseGeo.setAttribute(k, v); });
-  const pulsePoints = new THREE.Points(pulseGeo, spriteMaterial(true));
-  pulsePoints.frustumCulled = false;
-  brain.add(pulsePoints);
+  const pulseBuf = dynPoints(MAXP, true, brain);
 
   // ambient dust (never clipped)
   const dust = (() => {
@@ -708,6 +790,82 @@
     return pts;
   })();
 
+  // ============================================================ transformer overlay
+  const tech = new THREE.Group();
+  brain.add(tech);
+  const MAX_TOK = 10;
+  const attnLineGeo = new THREE.BufferGeometry();
+  const attnMat = new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false });
+  const attnLines = new THREE.LineSegments(attnLineGeo, attnMat);
+  attnLines.frustumCulled = false;
+  tech.add(attnLines);
+  const tokPulse = dynPoints(MAX_TOK * 3, true, tech);
+  let techTokens = [], techBoost = 0;
+  const techLabelsEl = $("techLabels");
+  let techLabelEls = [];
+  function regionOfWord(w, i) {
+    for (const [r, re] of KEYWORDS) if (re.test(w)) return r;
+    return i % 3 === 0 ? 1 : 2;
+  }
+  function tokenX(i, T) { return -0.9 + 1.8 * (i + 0.5) / T; }
+  function setTokens(words) {
+    const ws = words.slice(0, MAX_TOK);
+    if (!ws.length) ws.push("Hola", ",", "¿", "cómo", "piensas", "?");
+    const T = ws.length;
+    techTokens = ws.map((w, i) => ({ w, r: regionOfWord(w, i), x: tokenX(i, T), phase: Math.random() }));
+    // causal attention: every token only looks back at itself and earlier tokens
+    const P = [], C = [];
+    const amber = new THREE.Color("#ffd166");
+    for (let l = 0; l < LAYERS - 1; l++) {
+      const y0 = layerY(l), y1 = layerY(l + 1);
+      techTokens.forEach((tk, i) => {
+        const picks = new Set([i, Math.max(0, i - 1)]);
+        if (Math.random() < 0.6) picks.add(Math.floor(Math.random() * (i + 1)));
+        if (Math.random() < 0.3) picks.add(0);
+        picks.forEach(j => {
+          const w = j === i ? 0.35 : 0.3 + Math.random() * 0.7;
+          const x0 = techTokens[j].x, x1 = tk.x;
+          const bulge = 0.12 + Math.abs(i - j) / T * 0.45;
+          const c = colors[techTokens[j].r].clone().lerp(amber, 0.35).multiplyScalar(w);
+          let px = x0, py = y0, pz = 0;
+          for (let s = 1; s <= 10; s++) {
+            const t = s / 10;
+            const nx = x0 + (x1 - x0) * t, ny = y0 + (y1 - y0) * t, nz = Math.sin(Math.PI * t) * bulge;
+            P.push(px, py, pz, nx, ny, nz); C.push(c.r, c.g, c.b, c.r, c.g, c.b);
+            px = nx; py = ny; pz = nz;
+          }
+        });
+      });
+    }
+    // residual stream: one faint column per token
+    techTokens.forEach(tk => {
+      const c = colors[tk.r].clone().multiplyScalar(0.5);
+      P.push(tk.x, layerY(0) - 0.12, 0, tk.x, layerY(LAYERS - 1) + 0.06, 0); C.push(c.r, c.g, c.b, c.r, c.g, c.b);
+    });
+    attnLineGeo.setAttribute("position", new THREE.Float32BufferAttribute(P, 3));
+    attnLineGeo.setAttribute("color", new THREE.Float32BufferAttribute(C, 3));
+    // HTML labels: tokens at the bottom, layer names at the side, the next token on top
+    techLabelsEl.innerHTML = "";
+    techLabelEls = [];
+    const addTL = (html, cls, p, color) => {
+      const el = document.createElement("div");
+      el.className = "tlabel " + cls; el.textContent = html;
+      if (color) el.style.setProperty("--c", color);
+      techLabelsEl.appendChild(el);
+      techLabelEls.push({ el, p });
+    };
+    techTokens.forEach(tk => addTL(tk.w, "tok", new THREE.Vector3(tk.x, layerY(0) - 0.17, 0), REGIONS[tk.r].color));
+    addTL("Embeddings", "", new THREE.Vector3(1.3, layerY(0), 0));
+    addTL("Capa 4", "", new THREE.Vector3(1.3, layerY(3), 0));
+    addTL("Capa 8", "", new THREE.Vector3(1.3, layerY(LAYERS - 1), 0));
+    addTL("siguiente token → …", "next", new THREE.Vector3(0, layerY(LAYERS - 1) + 0.2, 0));
+  }
+  function setNextToken(word) {
+    const last = techLabelEls[techLabelEls.length - 1];
+    if (last) last.el.textContent = "siguiente token → " + (word || "…");
+  }
+  setTokens([]);
+
   // ============================================================ exploded view
   let explode = 0, explodeTarget = 0, appliedExplode = -1;
   const offOf = (p, e, out) => out.copy(PART_OFF[p]).multiplyScalar(e);
@@ -727,8 +885,8 @@
       L[i * 3 + 2] = lineBase[i * 3 + 2] + (a.z + (b.z - a.z) * t) * e;
     }
     linePosAttr.needsUpdate = true;
-    nodes.forEach((n, i) => { offOf(n.part, e, tmpA).add(n.p); nodePosAttr.setXYZ(i, tmpA.x, tmpA.y, tmpA.z); });
-    nodePosAttr.needsUpdate = true;
+    nodes.forEach((n, i) => { offOf(n.part, e, tmpA).add(n.p); nodeBuf.pos.setXYZ(i, tmpA.x, tmpA.y, tmpA.z); });
+    nodeBuf.pos.needsUpdate = true;
     shells.forEach(m => m.position.copy(m.userData.base).addScaledVector(PART_OFF[m.userData.part], e));
     appliedExplode = e;
   }
@@ -769,9 +927,11 @@
     for (let i = 0; i < n; i++) spawnFrom(list[Math.floor(Math.random() * list.length)], 3 + Math.floor(Math.random() * 3));
     activity[r] = Math.min(1.4, activity[r] + 0.25);
     thump = Math.min(1, thump + 0.35);
+    techBoost = Math.min(1, techBoost + 0.25);
   }
   const tmp = new THREE.Vector3();
-  function updatePulses(dt) {
+  function updatePulses(dt, morph) {
+    const hide = 1 - morph;
     for (let i = pulses.length - 1; i >= 0; i--) {
       const P = pulses[i];
       P.t += P.speed * dt * 0.55;
@@ -785,32 +945,50 @@
       }
     }
     for (let i = 0; i < MAXP; i++) {
-      if (i < pulses.length) {
+      if (i < pulses.length && hide > 0.01) {
         const P = pulses[i], E = edges[P.e], pts = E.pts;
         const t = P.forward ? P.t : 1 - P.t;
         const f = t * (pts.length - 1), k = Math.min(pts.length - 2, Math.floor(f));
         tmp.copy(pts[k]).lerp(pts[k + 1], f - k);
         if (explode > 0) tmp.add(offOf(nodes[E.a].part, explode, tmpA).lerp(offOf(nodes[E.b].part, explode, tmpB), t));
-        pPos.setXYZ(i, tmp.x, tmp.y, tmp.z);
+        pulseBuf.pos.setXYZ(i, tmp.x, tmp.y, tmp.z);
         const c = colors[nodes[P.forward ? E.a : E.b].r];
-        pCol.setXYZ(i, c.r, c.g, c.b);
-        pSize.setX(i, 26);
+        pulseBuf.col.setXYZ(i, c.r, c.g, c.b);
+        pulseBuf.size.setX(i, 26);
         const sel = selected < 0 || nodes[E.a].r === selected || nodes[E.b].r === selected ? 1 : 0.3;
-        pAlpha.setX(i, (Math.sin(Math.PI * Math.min(1, P.t * 1.2 + 0.1)) * 0.9 + 0.1) * sel);
-      } else { pAlpha.setX(i, 0); pSize.setX(i, 0); }
+        pulseBuf.alpha.setX(i, (Math.sin(Math.PI * Math.min(1, P.t * 1.2 + 0.1)) * 0.9 + 0.1) * sel * hide);
+      } else { pulseBuf.alpha.setX(i, 0); pulseBuf.size.setX(i, 0); }
     }
-    pPos.needsUpdate = pCol.needsUpdate = pSize.needsUpdate = pAlpha.needsUpdate = true;
+    pulseBuf.commit();
     const form = uniforms.uForm.value;
     for (let i = 0; i < nodes.length; i++) {
       nodeGlow[i] *= Math.exp(-dt * 2.4);
       const sel = selected < 0 || nodes[i].r === selected ? 1 : 0.25;
-      nodeSize.setX(i, 11 + nodeGlow[i] * 30);
-      nodeAlpha.setX(i, (0.35 + nodeGlow[i] * 0.9) * sel * form);
+      nodeBuf.size.setX(i, 11 + nodeGlow[i] * 30);
+      nodeBuf.alpha.setX(i, (0.35 + nodeGlow[i] * 0.9) * sel * form * hide);
     }
-    nodeSize.needsUpdate = nodeAlpha.needsUpdate = true;
+    nodeBuf.size.needsUpdate = nodeBuf.alpha.needsUpdate = true;
+  }
+  function updateTech(t, dt, morph) {
+    tech.visible = morph > 0.02;
+    if (!tech.visible) return;
+    techBoost *= Math.exp(-dt * 0.8);
+    attnMat.opacity = morph * (0.22 + techBoost * 0.5);
+    const yb = layerY(0) - 0.12, yt = layerY(LAYERS - 1) + 0.06, speed = 0.18 + techBoost * 0.6;
+    for (let i = 0; i < MAX_TOK * 3; i++) {
+      const tk = techTokens[i % Math.max(1, techTokens.length)];
+      if (!tk || i >= techTokens.length * 3) { tokPulse.alpha.setX(i, 0); continue; }
+      const k = ((t * speed + tk.phase + Math.floor(i / techTokens.length) / 3) % 1);
+      tokPulse.pos.setXYZ(i, tk.x, yb + (yt - yb) * k, 0);
+      const c = colors[tk.r];
+      tokPulse.col.setXYZ(i, c.r, c.g, c.b);
+      tokPulse.size.setX(i, 30);
+      tokPulse.alpha.setX(i, morph * Math.sin(Math.PI * k));
+    }
+    tokPulse.commit();
   }
 
-  // ============================================================ sound
+  // ============================================================ sound + voice
   const audio = (() => {
     let ctx = null, out = null, on = false, last = 0;
     const SCALE = [392.0, 440.0, 523.25, 587.33, 659.25, 293.66, 783.99];
@@ -846,6 +1024,31 @@
       },
     };
   })();
+  const voice = (() => {
+    const synth = window.speechSynthesis;
+    let on = false, esVoice = null;
+    const pick = () => {
+      const vs = synth ? synth.getVoices() : [];
+      esVoice = vs.find(v => /^es(-|_)(419|MX|US|AR|CO|CL)/i.test(v.lang)) || vs.find(v => /^es/i.test(v.lang)) || null;
+    };
+    if (synth) { pick(); synth.addEventListener?.("voiceschanged", pick); }
+    return {
+      available: !!(synth && window.SpeechSynthesisUtterance),
+      get on() { return on; },
+      toggle() { on = !on; if (!on) synth.cancel(); return on; },
+      say(text) {
+        if (!on || !text) return;
+        synth.cancel();
+        const u = new SpeechSynthesisUtterance(text.slice(0, 1200));
+        u.lang = esVoice ? esVoice.lang : "es-ES";
+        if (esVoice) u.voice = esVoice;
+        u.rate = 1.03;
+        synth.speak(u);
+      },
+      stop() { synth && synth.cancel(); },
+    };
+  })();
+  if (!voice.available) $("tVoice").hidden = true;
 
   // ============================================================ anchors + labels
   const anchors = surfaceByRegion.map((list, r) => {
@@ -888,37 +1091,42 @@
   // ============================================================ panel (one card, several views)
   const panelEl = $("panel"), asideEl = $("aside");
   let selected = -1;
-  let view = "intro";            // intro | region | answer | history
-  let current = null;            // the thought being shown: {text, steps, answer, mode, status, error, truncated}
+  let view = "intro";            // intro | region | answer | history | wall | tech
+  const convo = [];              // exchanges of the current conversation
   let tour = null;
+  const current = () => convo[convo.length - 1] || null;
 
   function setView(v) {
     view = v;
     $("tHist").setAttribute("aria-pressed", String(v === "history"));
+    $("tWall").setAttribute("aria-pressed", String(v === "wall"));
     renderPanel();
   }
+  const backView = () => techOn ? "tech" : convo.length ? "answer" : "intro";
   function renderPanel() {
     asideEl.classList.toggle("has-panel", view !== "intro");
     panelEl.style.removeProperty("--c");
+    answerEls = null;
     if (view === "region" && selected >= 0) return renderRegion();
-    if (view === "answer" && current) return renderAnswer();
+    if (view === "answer" && convo.length) return renderAnswer();
     if (view === "history") return renderHistory();
+    if (view === "wall") return renderWall();
+    if (view === "tech") return renderTech();
     panelEl.innerHTML = `
       <div class="kicker">Cómo leer el modelo</div>
       <p>Cada punto de color es parte de una región. Los destellos que viajan por las líneas son señales que se encadenan de una zona a otra, como una idea que se forma.</p>
       <ul>
-        <li class="dash">Escribe algo abajo y pulsa <strong>Pensar</strong>: te respondo de verdad y el cerebro muestra qué zonas uso.</li>
-        <li class="dash">Toca una región: el cerebro gira para mostrártela.</li>
+        <li class="dash">Escribe abajo y pulsa <strong>Pensar</strong>: te respondo de verdad, recuerdo la conversación y el cerebro muestra qué zonas uso. También puedes adjuntar una imagen.</li>
+        <li class="dash"><strong>Transformer</strong> muestra lo que soy de verdad: capas de atención, no lóbulos.</li>
         <li class="dash"><strong>Tour</strong> recorre todo solo; <strong>Separar</strong> y <strong>Corte</strong> muestran el interior.</li>
       </ul>`;
   }
   function renderRegion() {
     const r = REGIONS[selected];
     panelEl.style.setProperty("--c", r.color);
-    const tourBar = tour ? `<div class="progress"><i id="tourBar"></i></div>` : "";
     panelEl.innerHTML = `
       <div class="top"><div class="kicker">${tour ? `Tour · ${selected + 1} de ${N}` : `Región ${selected + 1} de ${N}`}</div><button class="small-btn" type="button" data-act="close">${tour ? "Detener tour" : "Cerrar"}</button></div>
-      ${tourBar}
+      ${tour ? `<div class="progress"><i id="tourBar"></i></div>` : ""}
       <h3>${r.name}</h3>
       <p class="where">${r.where}</p>
       <p>${r.text}</p>
@@ -931,51 +1139,87 @@
       if (a === "close") { stopTour(); select(-1); }
       if (a === "prev") { stopTour(); select((selected + N - 1) % N); }
       if (a === "next") { stopTour(); select((selected + 1) % N); }
-      if (a === "fire") { chainBoost = 0.15; setTimeout(() => (chainBoost = 0), 1500); burst(selected, 16); }
+      if (a === "fire") { chainBoost = 0.15; setTimeout(() => (chainBoost = 0), 1500); burst(selected, 16); roomFire(selected, 10); }
     }));
+  }
+  function renderTech() {
+    panelEl.innerHTML = `
+      <div class="top"><div class="kicker">Lo que soy de verdad</div><button class="small-btn" type="button" data-act="close">Volver al cerebro</button></div>
+      <h3>Un transformer</h3>
+      <p>No tengo lóbulos: soy una pila de capas. Tu mensaje entra abajo como tokens y sube capa por capa. En cada capa, la <strong>atención</strong> deja que cada token mire a los anteriores (las curvas) y tome lo que le sirve.</p>
+      <ul>
+        <li class="dash">Fíjate en los colores: las “regiones” del cerebro están mezcladas en todas las capas. No hay una zona para el código ni otra para el lenguaje.</li>
+        <li class="dash">La atención es causal: cada token solo mira hacia atrás, nunca a las palabras que todavía no escribí.</li>
+        <li class="dash">Arriba sale un solo token. Lo agrego al texto y repito, una palabra a la vez.</li>
+        <li class="dash">Tengo muchas más capas; aquí hay ${LAYERS} para que se vea.</li>
+      </ul>
+      <p class="note">Escribe algo y pulsa Pensar: tus palabras aparecen como tokens abajo.</p>`;
+    panelEl.querySelector("[data-act=close]").addEventListener("click", toggleTech);
   }
   let answerEls = null;
   function renderAnswer() {
-    const c = current;
+    const c = current();
     const modeLabel = c.mode === "real" ? "Claude real" : "Simulación";
     panelEl.innerHTML = `
-      <div class="top"><div class="kicker">${modeLabel} · ${c.status === "thinking" ? "pensando" : "respuesta"}</div><button class="small-btn" type="button" data-act="close">Cerrar</button></div>
-      <div class="quote"></div>
-      <div class="kicker">Qué zonas usé</div>
-      <div class="steps"></div>
-      <div class="kicker">Respuesta</div>
-      <div class="thinking" hidden><span class="dots"><i></i><i></i><i></i></span><span>Pensando…</span></div>
-      <p class="answer"></p>
-      <p class="err" hidden></p>
-      <div class="row"><button class="small-btn" type="button" data-act="replay">Repetir activación</button><button class="small-btn" type="button" data-act="new">Nueva pregunta</button></div>
+      <div class="top"><div class="kicker">${modeLabel} · conversación · ${convo.length}</div><button class="small-btn" type="button" data-act="reset">Nueva conversación</button></div>
+      <div id="exList"></div>
+      <div class="row"><button class="small-btn" type="button" data-act="replay">Repetir activación</button><button class="small-btn" type="button" data-act="speak">Leer en voz alta</button><button class="small-btn" type="button" data-act="close">Cerrar</button></div>
       <p class="note">${c.mode === "real"
-        ? "Los pasos son cómo Claude describe su propio proceso usando esta metáfora de regiones, no una lectura de sus activaciones internas."
+        ? "Recuerdo esta conversación mientras no la reinicies. Los pasos son cómo Claude describe su propio proceso usando esta metáfora, no una lectura de sus activaciones internas."
         : "Modo simulado: los pasos salen de palabras clave y frases de ejemplo. Abre esta página en claude.ai y acepta el permiso para que responda Claude de verdad."}</p>`;
-    answerEls = { quote: panelEl.querySelector(".quote"), steps: panelEl.querySelector(".steps"), thinking: panelEl.querySelector(".thinking"), answer: panelEl.querySelector(".answer"), err: panelEl.querySelector(".err") };
-    answerEls.quote.textContent = c.text;
-    c.steps.forEach(s => appendStepEl(s));
-    updateAnswerText();
+    const list = panelEl.querySelector("#exList");
+    convo.forEach((ex, i) => {
+      const last = i === convo.length - 1;
+      const b = document.createElement("div");
+      b.className = "ex-block" + (last ? "" : " old");
+      b.innerHTML = `<div class="quote"></div><div class="kicker">Qué zonas usé</div><div class="steps"></div><div class="thinking" hidden><span class="dots"><i></i><i></i><i></i></span><span>Pensando…</span></div><p class="answer"></p><p class="err" hidden></p>`;
+      const q = b.querySelector(".quote");
+      q.textContent = ex.text;
+      if (ex.hasImage) { const s = document.createElement("span"); s.className = "img"; s.textContent = "imagen"; q.appendChild(s); }
+      list.appendChild(b);
+      const els = { steps: b.querySelector(".steps"), thinking: b.querySelector(".thinking"), answer: b.querySelector(".answer"), err: b.querySelector(".err") };
+      ex.steps.forEach(s => appendStepTo(els.steps, s));
+      fillAnswer(els, ex);
+      if (last) answerEls = { ...els, block: b };
+    });
     panelEl.querySelectorAll("[data-act]").forEach(b => b.addEventListener("click", () => {
       const a = b.dataset.act;
-      if (a === "close") setView("intro");
-      if (a === "replay") replay(current);
-      if (a === "new") { $("thought").select(); $("thought").focus(); }
+      if (a === "close") setView(techOn ? "tech" : "intro");
+      if (a === "replay") replay(current());
+      if (a === "speak") { if (!voice.on) setPressed("tVoice", voice.toggle()); voice.say(current().answer); }
+      if (a === "reset") resetConversation();
     }));
+    scrollToLatest();
   }
-  function appendStepEl(s) {
-    if (!answerEls || view !== "answer") return;
+  function scrollToLatest() { if (answerEls && answerEls.block) panelEl.scrollTop = Math.max(0, answerEls.block.offsetTop - 6); }
+  function appendStepTo(container, s) {
     const row = document.createElement("div");
     row.className = "step"; row.style.setProperty("--c", REGIONS[s.r].color);
     row.innerHTML = `<span class="swatch"></span><b>${REGIONS[s.r].name}</b><span></span>`;
     row.lastChild.textContent = s.t;
-    answerEls.steps.appendChild(row);
+    container.appendChild(row);
   }
-  function updateAnswerText() {
-    if (!answerEls || view !== "answer" || !current) return;
-    answerEls.thinking.hidden = !(current.status === "thinking" && !current.answer);
-    answerEls.answer.textContent = current.answer || "";
-    answerEls.err.hidden = !current.error;
-    answerEls.err.textContent = current.error || "";
+  function fillAnswer(els, ex) {
+    els.thinking.hidden = !(ex.status === "thinking" && !ex.answer);
+    els.answer.textContent = ex.answer || "";
+    els.err.hidden = !ex.error;
+    els.err.textContent = ex.error || "";
+  }
+  function onStep(s) {
+    if (answerEls && view === "answer") { appendStepTo(answerEls.steps, s); scrollToLatest(); }
+  }
+  function onAnswerText() {
+    const ex = current();
+    if (answerEls && view === "answer" && ex) { fillAnswer(answerEls, ex); scrollToLatest(); }
+    if (ex && ex.answer && ex.mode === "real") setNextToken(ex.answer.split(/\s+/)[0]);
+  }
+  function resetConversation() {
+    stopThinking();
+    convo.length = 0;
+    voice.stop();
+    setNextToken("");
+    toast("Conversación nueva: empecé con la memoria en blanco.");
+    setView(techOn ? "tech" : "intro");
   }
   function renderHistory() {
     const items = loadHistory();
@@ -990,12 +1234,16 @@
       const used = [...new Set(it.steps.map(s => s.r))];
       b.innerHTML = `<span class="q"></span><span class="meta">${used.map(r => `<span class="swatch" style="--c:${REGIONS[r].color}"></span>`).join("")}<span>${it.mode === "real" ? "Claude real" : "simulado"} · ${new Date(it.ts).toLocaleString("es", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</span></span>`;
       b.querySelector(".q").textContent = it.text;
-      b.addEventListener("click", () => { current = { ...it, status: "done", error: "" }; select(-1, true); setView("answer"); replay(current); });
+      b.addEventListener("click", () => {
+        convo.length = 0;
+        convo.push({ ...it, raw: "", status: "done", error: "" });
+        select(-1, true); setView("answer"); replay(current());
+      });
       list.appendChild(b);
     });
     panelEl.querySelectorAll("[data-act]").forEach(b => b.addEventListener("click", () => {
-      if (b.dataset.act === "close") setView(current ? "answer" : "intro");
-      if (b.dataset.act === "clear") { saveHistory([]); renderHistory(); }
+      if (b.dataset.act === "close") setView(backView());
+      if (b.dataset.act === "clear") { store.set(HKEY, []); renderHistory(); }
     }));
   }
 
@@ -1004,61 +1252,99 @@
     uniforms.uSel.value = i;
     regionBtns.forEach((b, j) => b.setAttribute("aria-pressed", String(j === i)));
     labelEls.forEach((b, j) => b.classList.toggle("on", j === i));
-    if (i >= 0) { burst(i, 10); flyTo(anchors[i].n, i === 6 ? 3.3 : 3.6); if (!keepView) setView("region"); }
-    else { targetDist = baseDist(); if (!keepView && view === "region") setView(current ? "answer" : "intro"); }
+    if (i >= 0) {
+      if (techOn) toggleTech();
+      burst(i, 10); flyTo(anchors[i].n, i === 6 ? 3.3 : 3.6);
+      if (!keepView) setView("region");
+    } else { targetDist = baseDist(); if (!keepView && view === "region") setView(backView()); }
   }
 
   // ============================================================ history (per-browser convenience)
   const HKEY = "cerebro-claude-historial";
-  function loadHistory() { try { return JSON.parse(localStorage.getItem(HKEY) || "[]"); } catch (e) { return []; } }
-  function saveHistory(items) { try { localStorage.setItem(HKEY, JSON.stringify(items.slice(0, 15))); } catch (e) { /* storage off: history stays in memory only */ } }
-  function remember(c) {
-    const items = loadHistory().filter(it => it.text !== c.text || it.mode !== c.mode);
-    items.unshift({ text: c.text, steps: c.steps, answer: c.answer, mode: c.mode, ts: Date.now() });
-    saveHistory(items);
+  const loadHistory = () => store.get(HKEY, []);
+  function remember(ex) {
+    const items = loadHistory().filter(it => it.text !== ex.text || it.mode !== ex.mode);
+    items.unshift({ text: ex.text, steps: ex.steps, answer: ex.answer, mode: ex.mode, hasImage: !!ex.hasImage, ts: Date.now() });
+    store.set(HKEY, items.slice(0, 15));
   }
-  function replay(c) {
-    if (!c) return;
+  function replay(ex) {
+    if (!ex) return;
     chainBoost = 0.15; setTimeout(() => (chainBoost = 0), 2500);
-    c.steps.forEach((s, j) => setTimeout(() => burst(s.r, 10), reduceMotion ? 0 : j * 450));
+    ex.steps.forEach((s, j) => setTimeout(() => burst(s.r, 10), reduceMotion ? 0 : j * 450));
   }
 
-  // ============================================================ thinking
+  // ============================================================ images
+  let attached = null, attachedUrl = "", imagesOk = true;
+  const imageInput = $("imageInput");
+  function attachImage(file) {
+    if (!file || !/^image\/(png|jpeg|webp|gif)$/.test(file.type)) { toast("Solo puedo mirar imágenes PNG, JPG, WebP o GIF."); return; }
+    if (attachedUrl) URL.revokeObjectURL(attachedUrl);
+    attached = file; attachedUrl = URL.createObjectURL(file);
+    $("thumbImg").src = attachedUrl; $("thumb").hidden = false;
+    burst(3, 8);
+    if (!inputEl.value.trim() || inputEl.value === DEFAULT_Q) inputEl.value = "¿Qué ves en esta imagen?";
+    inputEl.focus();
+  }
+  function clearImage() {
+    attached = null; $("thumb").hidden = true; imageInput.value = "";
+    if (attachedUrl) { URL.revokeObjectURL(attachedUrl); attachedUrl = ""; }
+  }
+  $("attachBtn").addEventListener("click", () => imageInput.click());
+  imageInput.addEventListener("change", () => imageInput.files[0] && attachImage(imageInput.files[0]));
+  $("thumbX").addEventListener("click", clearImage);
+  let dragDepth = 0;
+  addEventListener("dragenter", e => { if ([...(e.dataTransfer?.types || [])].includes("Files")) { dragDepth++; $("dropzone").hidden = false; } });
+  addEventListener("dragleave", () => { dragDepth = Math.max(0, dragDepth - 1); if (!dragDepth) $("dropzone").hidden = true; });
+  addEventListener("dragover", e => e.preventDefault());
+  addEventListener("drop", e => {
+    e.preventDefault(); dragDepth = 0; $("dropzone").hidden = true;
+    const f = [...(e.dataTransfer?.files || [])].find(f => f.type.startsWith("image/"));
+    if (f) attachImage(f);
+  });
+  addEventListener("paste", e => {
+    const f = [...(e.clipboardData?.files || [])].find(f => f.type.startsWith("image/"));
+    if (f) { e.preventDefault(); attachImage(f); }
+  });
+
+  // ============================================================ thinking (real Claude, or simulated)
   const inputEl = $("thought"), thinkBtn = $("thinkBtn");
+  const DEFAULT_Q = inputEl.value;
   let sampleFn = null, sampleReady = false, ctl = null, thinkId = 0;
   const modeEl = $("mode"), modeText = $("modeText");
   function setMode(m, txt) { modeEl.dataset.mode = m; modeText.textContent = txt; }
-  const samplePromise = (window.claude && typeof window.claude.use === "function")
-    ? window.claude.use("sample").catch(() => null)
-    : Promise.resolve(null);
+  const samplePromise = claudeUse("sample");
   samplePromise.then(fn => {
     sampleFn = fn; sampleReady = true;
     setMode(fn ? "real" : "sim", fn ? "Responde Claude de verdad" : "Modo simulado");
+    if (fn && fn.limits) fn.limits().then(l => { imagesOk = !!(l && l.images); }).catch(() => { imagesOk = false; });
   });
-  setTimeout(() => { if (!sampleReady) setMode("wait", "Conectando con Claude…"); }, 0);
 
   const REGION_IDS = Object.fromEntries(REGIONS.map((r, i) => [r.id, i]));
   const normId = s => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z]/g, "");
-  function buildPrompt(text) {
-    return `Eres Claude. Alguien escribió un mensaje en una visualización 3D interactiva de tu "cerebro". Es una metáfora: tú eres una red transformer, no tienes lóbulos. Las regiones de la metáfora son:
+  const RULES = `Eres Claude y estás conversando con alguien dentro de una visualización 3D interactiva de tu "cerebro". Es una metáfora: eres una red transformer, no tienes lóbulos. Las regiones de la metáfora son:
 - razonamiento: planificar, lógica, descomponer problemas
 - atencion: decidir qué partes del mensaje importan
 - lenguaje: entender y escribir texto, tono, idiomas
 - vision: imágenes, gráficos, cosas visuales
 - codigo: programación, precisión técnica, datos
 - valores: honestidad, cuidado, no causar daño
-- memoria: el contexto de la conversación (no recuerdas conversaciones anteriores)
+- memoria: el contexto de ESTA conversación (úsala cuando retomes algo de mensajes anteriores; no recuerdas otras conversaciones)
 
-Responde en español, en este formato EXACTO y sin nada más:
+Responde siempre en español, en este formato EXACTO y sin nada más:
 Primero entre 3 y 5 líneas de pasos de pensamiento, cada una así:
 [id] frase corta (máximo 12 palabras) sobre qué hace esa región con este mensaje
 Usa solo los ids de arriba, en el orden en que los usarías. Luego una línea que diga solo:
 ---
-Después tu respuesta real y útil al mensaje: breve (máximo 130 palabras), en texto plano sin markdown, con el mismo tono de la persona.
-
-Mensaje: """${text.slice(0, 1500)}"""`;
+Después tu respuesta real y útil: breve (máximo 130 palabras), en texto plano sin markdown, con el mismo tono de la persona.`;
+  const userTurn = ex => `Mensaje: """${ex.text.slice(0, 1500)}"""` + (ex.hasImage ? "\n(Adjuntó una imagen: mírala y úsala en tu respuesta; usa la región vision.)" : "");
+  function buildTurns() {
+    const done = convo.slice(0, -1).filter(ex => ex.mode === "real" && ex.raw).slice(-6);
+    const turns = [{ role: "user", content: RULES }];
+    done.forEach(ex => { turns.push({ role: "user", content: userTurn(ex) }); turns.push({ role: "assistant", content: ex.raw }); });
+    turns.push({ role: "user", content: userTurn(current()) });
+    return turns;
   }
-  function parseStream(c, full, final) {
+  function parseStream(ex, full, final) {
     const sepMatch = full.match(/(^|\n)\s*-{3,}\s*(\n|$)/);
     const head = sepMatch ? full.slice(0, sepMatch.index) : full;
     const lines = head.split("\n");
@@ -1070,17 +1356,17 @@ Mensaje: """${text.slice(0, 1500)}"""`;
       const r = REGION_IDS[normId(m[1])];
       if (r === undefined) return;
       stepLines++;
-      if (stepLines > c.steps.length) {
+      if (stepLines > ex.steps.length) {
         const s = { r, t: m[2].trim() };
-        c.steps.push(s);
-        appendStepEl(s);
-        burst(r, 12);
+        ex.steps.push(s);
+        onStep(s);
+        burst(r, 12); roomFire(r, 8);
         flashLabel(r);
       }
     });
-    if (sepMatch) c.answer = full.slice(sepMatch.index + sepMatch[0].length).trim();
-    else if (final && !c.steps.length) c.answer = full.trim();
-    updateAnswerText();
+    if (sepMatch) ex.answer = full.slice(sepMatch.index + sepMatch[0].length).trim();
+    else if (final && !ex.steps.length) ex.answer = full.trim();
+    onAnswerText();
   }
   function flashLabel(r) {
     const el = labelEls[r];
@@ -1088,12 +1374,13 @@ Mensaje: """${text.slice(0, 1500)}"""`;
     setTimeout(() => { if (selected !== r) el.classList.remove("on"); }, 1400);
   }
 
-  function flyTokens(words) {
+  function flyTokens(words, withImage) {
+    if (techOn) return;
     const inRect = inputEl.getBoundingClientRect();
     brain.updateMatrixWorld();
-    words.forEach((w, i) => {
-      let r = i % 3 === 0 ? 1 : 2;
-      for (const [rr, re] of KEYWORDS) if (re.test(w)) { r = rr; break; }
+    const list = withImage ? ["imagen", ...words] : words;
+    list.forEach((w, i) => {
+      const r = withImage && i === 0 ? 3 : regionOfWord(w, i);
       const tok = document.createElement("div");
       tok.className = "token"; tok.textContent = w; tok.style.setProperty("--c", REGIONS[r].color);
       labelsEl.appendChild(tok);
@@ -1108,110 +1395,227 @@ Mensaje: """${text.slice(0, 1500)}"""`;
     });
   }
 
-  function simulate(c, id) {
-    const words = c.text.split(/\s+/).filter(Boolean);
+  function simulate(ex, id) {
+    const words = ex.text.split(/\s+/).filter(Boolean);
     const hit = new Set();
-    words.forEach((w, i) => { for (const [r, re] of KEYWORDS) if (re.test(w)) hit.add(r); });
+    if (ex.hasImage) hit.add(3);
+    words.forEach(w => { for (const [r, re] of KEYWORDS) if (re.test(w)) hit.add(r); });
+    if (convo.length > 1 && /antes|dijiste|pregunt|anterior|acuerdas/i.test(ex.text)) hit.add(6);
     if (!hit.size) { hit.add(2); hit.add(1); }
     hit.add(5);
-    const k = words.map(w => w.replace(/[^\p{L}\p{N}]/gu, "")).sort((a, b) => b.length - a.length)[0] || c.text;
-    const intent = /\?\s*$/.test(c.text) ? "una pregunta que espera respuesta" : /^(escrib|arm|hac|cre|dame|explic)/i.test(c.text) ? "un pedido concreto" : "una idea para desarrollar";
+    const k = words.map(w => w.replace(/[^\p{L}\p{N}]/gu, "")).sort((a, b) => b.length - a.length)[0] || ex.text;
+    const intent = /\?\s*$/.test(ex.text) ? "una pregunta que espera respuesta" : /^(escrib|arm|hac|cre|dame|explic)/i.test(ex.text) ? "un pedido concreto" : "una idea para desarrollar";
     const order = [...hit].sort((a, b) => (a === 5) - (b === 5)).slice(0, 5);
     order.forEach((r, j) => setTimeout(() => {
       if (id !== thinkId) return;
       const opts = REGIONS[r].thoughts;
       const s = { r, t: opts[Math.floor(Math.random() * opts.length)].replace("{k}", k).replace("{n}", words.length).replace("{intent}", intent) };
-      c.steps.push(s); appendStepEl(s); burst(r, 10); flashLabel(r);
+      ex.steps.push(s); onStep(s); burst(r, 10); roomFire(r, 6); flashLabel(r);
       if (j === order.length - 1) {
-        c.answer = "(Modo simulado: aquí aparecería mi respuesta. Abre esta página en claude.ai y acepta el permiso para que te responda de verdad.)";
-        finish(c, id);
+        ex.answer = "(Modo simulado: aquí aparecería mi respuesta. Abre esta página en claude.ai y acepta el permiso para que te responda de verdad.)";
+        onAnswerText();
+        finish(ex, id);
       }
     }, reduceMotion ? 0 : 500 + j * 650));
   }
 
-  function finish(c, id) {
+  function finish(ex, id) {
     if (id !== thinkId) return;
-    c.status = "done"; busy = 0;
+    ex.status = "done"; busy = 0;
     thinkBtn.textContent = "Pensar"; thinkBtn.classList.remove("stop");
+    roomPresence({ thinking: false });
     if (view === "answer") renderAnswer();
-    if (c.steps.length || c.answer) remember(c);
+    if (ex.steps.length || ex.answer) { remember(ex); postToWall(ex); }
+    if (ex.mode === "real" && ex.answer) voice.say(ex.answer);
   }
 
   async function think(text) {
     text = text.trim();
+    if (!text && attached) text = "¿Qué ves en esta imagen?";
     if (!text) { inputEl.focus(); inputEl.placeholder = "Escribe algo primero: una pregunta, una idea…"; return; }
     stopTour();
+    wake();
     const id = ++thinkId;
     ctl?.abort();
-    current = { text, steps: [], answer: "", mode: "sim", status: "thinking", error: "", truncated: false };
+    const image = attached;
+    const ex = { text, steps: [], answer: "", raw: "", mode: "sim", status: "thinking", error: "", hasImage: !!image };
+    convo.push(ex);
     if (selected >= 0) select(-1, true);
     setView("answer");
-    flyTokens(text.split(/\s+/).filter(Boolean).slice(0, 20));
+    const words = text.split(/\s+/).filter(Boolean).slice(0, 20);
+    flyTokens(words, !!image);
+    if (techOn) { setTokens(words); techBoost = 1; }
+    if (image) { burst(3, 14); clearImage(); }
     chainBoost = 0.18; busy = 1;
     setTimeout(() => (chainBoost = 0), 2600);
     thinkBtn.textContent = "Detener"; thinkBtn.classList.add("stop");
+    roomPresence({ thinking: true });
+    inputEl.value = "";
 
     const fn = sampleReady ? sampleFn : await samplePromise;
     if (id !== thinkId) return;
-    if (!fn) { simulate(current, id); return; }
+    if (!fn) { simulate(ex, id); return; }
 
-    current.mode = "real";
+    ex.mode = "real";
     renderAnswer();
-    const c = current;
     ctl = new AbortController();
+    const opts = {
+      modelTier: "quick", signal: ctl.signal, cache: false,
+      onText: ({ text: full }) => { if (id === thinkId) { ex.raw = full; parseStream(ex, full, false); } },
+    };
+    if (image && imagesOk) opts.images = [image];
+    else if (image) toast("Esta vista no puede enviar imágenes a Claude; respondo solo al texto.");
     try {
-      const res = await fn(buildPrompt(text), {
-        modelTier: "quick", signal: ctl.signal,
-        onText: ({ text: full }) => { if (id === thinkId) parseStream(c, full, false); },
-      });
+      const res = await fn(buildTurns(), opts);
       if (id !== thinkId) return;
-      parseStream(c, res.text, true);
-      if (res.truncated) c.error = "La respuesta se cortó por largo.";
-      finish(c, id);
+      ex.raw = res.text;
+      parseStream(ex, res.text, true);
+      if (res.truncated) ex.error = "La respuesta se cortó por largo.";
+      finish(ex, id);
     } catch (e) {
       if (id !== thinkId) return;
-      if (e && typeof e.text === "string" && e.code !== "refused") parseStream(c, e.text, true);
+      if (e && typeof e.text === "string" && e.code !== "refused") { ex.raw = e.text; parseStream(ex, e.text, true); }
       const code = e && e.code;
-      if (code === "cancelled") { c.error = c.answer ? "" : "Detenido."; }
+      if (code === "cancelled") { ex.error = ex.answer ? "" : "Detenido."; }
       else if (["not_granted", "sampling_disabled", "not_declared", "capability_disabled", "capability_removed"].includes(code)) {
         sampleFn = null; setMode("sim", "Modo simulado");
-        c.mode = "sim"; c.steps = []; c.answer = "";
+        ex.mode = "sim"; ex.steps = []; ex.answer = ""; ex.raw = "";
         toast("Sin permiso para usar Claude: sigo en modo simulado.");
-        renderAnswer(); simulate(c, id); return;
+        renderAnswer(); simulate(ex, id); return;
       }
-      else if (code === "rate_limited") c.error = "Demasiadas preguntas seguidas. Espera un momento y vuelve a intentar.";
-      else if (code === "session_expired") c.error = "Tu sesión expiró. Vuelve a iniciar sesión en claude.ai.";
-      else if (code === "refused") { c.steps = []; c.answer = ""; c.error = "Claude prefirió no responder a esto. Prueba con otra pregunta."; }
-      else if (code === "prompt_too_large") c.error = "El mensaje es demasiado largo. Prueba con algo más corto.";
-      else c.error = (c.answer ? "Se interrumpió la respuesta. " : "No pude conectar con Claude. ") + "Pulsa Pensar para reintentar.";
-      finish(c, id);
+      else if (code === "images_unavailable" || code === "image_rejected") ex.error = "No pude abrir esa imagen. Prueba con un PNG o JPG más chico.";
+      else if (code === "rate_limited") ex.error = "Demasiadas preguntas seguidas. Espera un momento y vuelve a intentar.";
+      else if (code === "session_expired") ex.error = "Tu sesión expiró. Vuelve a iniciar sesión en claude.ai.";
+      else if (code === "refused") { ex.steps = []; ex.answer = ""; ex.raw = ""; ex.error = "Claude prefirió no responder a esto. Prueba con otra pregunta."; }
+      else if (code === "prompt_too_large") ex.error = "La conversación es demasiado larga. Pulsa “Nueva conversación”.";
+      else ex.error = (ex.answer ? "Se interrumpió la respuesta. " : "No pude conectar con Claude. ") + "Vuelve a preguntar para reintentar.";
+      finish(ex, id);
     }
   }
   function stopThinking() {
     if (!busy) return;
     ctl?.abort();
-    if (current && current.mode === "sim") { thinkId++; current.error = "Detenido."; current.status = "done"; busy = 0; thinkBtn.textContent = "Pensar"; thinkBtn.classList.remove("stop"); renderAnswer(); }
+    const ex = current();
+    if (ex && ex.mode === "sim") {
+      thinkId++; ex.error = "Detenido."; ex.status = "done"; busy = 0;
+      thinkBtn.textContent = "Pensar"; thinkBtn.classList.remove("stop");
+      roomPresence({ thinking: false });
+      if (view === "answer") renderAnswer();
+    }
   }
   $("thinkForm").addEventListener("submit", ev => { ev.preventDefault(); if (busy) stopThinking(); else think(inputEl.value); });
   EXAMPLES.forEach(t => {
     const b = document.createElement("button");
     b.type = "button"; b.className = "ex"; b.textContent = t;
-    b.addEventListener("click", () => { inputEl.value = t; if (busy) stopThinking(); think(t); });
-    $("examples").appendChild(b);
+    b.addEventListener("click", () => { if (busy) stopThinking(); think(t); });
+    $("examples").insertBefore(b, $("shareLabel"));
   });
 
+  // ============================================================ room: everyone here right now
+  let room = null, lastFireSent = 0, lastRemoteToast = 0;
+  function roomFire(r, n) {
+    if (!room || !room.connected()) return;
+    const now = performance.now();
+    if (now - lastFireSent < 220) return;
+    lastFireSent = now;
+    room.emit("fire", { r, n: Math.min(12, n) }).catch(() => {});
+  }
+  function roomPresence(patch) { if (room) room.presence(patch).catch(() => {}); }
+  claudeUse("room").then(r => {
+    room = r;
+    if (!r) return;
+    r.presence({ thinking: false }).catch(() => {});
+    r.onPeers(ch => {
+      const viewers = ch.peers.filter(p => p.kind === "viewer");
+      const n = viewers.length, thinking = viewers.filter(p => !p.sameTab && p.presence && p.presence.thinking === true).length;
+      $("roomChip").hidden = n < 2;
+      $("roomText").textContent = `${n} personas aquí` + (thinking ? ` · ${thinking} pensando` : "");
+    }, () => { $("roomChip").hidden = true; });
+    r.on("fire", msg => {
+      if (msg.sameTab) return;
+      const d = msg.data || {};
+      const reg_ = Number(d.r), n = Math.max(1, Math.min(12, Number(d.n) || 4));
+      if (!Number.isInteger(reg_) || reg_ < 0 || reg_ >= N) return;
+      burst(reg_, n); flashLabel(reg_);
+      const now = performance.now();
+      if (now - lastRemoteToast > 6000) { lastRemoteToast = now; toast(`Alguien más está pensando: se enciende ${REGIONS[reg_].name}`); }
+    }, () => {});
+  });
+
+  // ============================================================ wall: shared, saved thoughts
+  let db = null, wallDocs = [], wallLoaded = false;
+  const shareEl = $("shareWall");
+  shareEl.checked = store.get("cerebro-claude-muro", false);
+  shareEl.addEventListener("change", () => store.set("cerebro-claude-muro", shareEl.checked));
+  claudeUse("db").then(d => {
+    db = d;
+    if (!d) return;
+    $("tWall").hidden = false; $("shareLabel").hidden = false;
+    d.collection("wall").orderBy("ts", "desc").limit(300).onSnapshot(snap => {
+      wallDocs = snap.docs.map(doc => doc.data()).filter(Boolean);
+      wallLoaded = true;
+      if (view === "wall") renderWall();
+    }, () => { wallLoaded = true; });
+  });
+  function postToWall(ex) {
+    if (!db || !shareEl.checked) return;
+    const regions = [...new Set(ex.steps.map(s => s.r))];
+    db.collection("wall").add({ text: ex.text.slice(0, 200), regions, mode: ex.mode, ts: Date.now() })
+      .then(() => toast("Publicado en el muro."))
+      .catch(e => toast(e && e.code === "quota_exceeded" ? "El muro está lleno: no se pudo publicar." : "No pude publicar en el muro."));
+  }
+  function renderWall() {
+    const docs = wallDocs.filter(d => typeof d.text === "string" && Array.isArray(d.regions));
+    const counts = new Array(N).fill(0);
+    docs.forEach(d => new Set(d.regions).forEach(r => { if (Number.isInteger(r) && r >= 0 && r < N) counts[r]++; }));
+    const total = docs.length;
+    const max = Math.max(1, ...counts);
+    const order = counts.map((c, r) => r).sort((a, b) => counts[b] - counts[a] || a - b);
+    panelEl.innerHTML = `
+      <div class="top"><div class="kicker">Muro · ${total} ${total === 1 ? "pensamiento" : "pensamientos"}</div><button class="small-btn" type="button" data-act="close">Cerrar</button></div>
+      <h3 style="font-size:20px">Qué zonas se usan más</h3>
+      <p style="font-size:13px;margin:0">En cuántos pensamientos del muro aparece cada región.</p>
+      <div class="bars" role="table" aria-label="Uso de cada región en el muro"></div>
+      <div class="kicker">Lo último que se preguntó</div>
+      <div class="hist" id="wallList"></div>
+      <p class="note">${wallLoaded ? "" : "Cargando… "}El muro lo ven todos los que abren esta página. Para publicar, marca “Publicar en el muro” antes de pensar.</p>`;
+    const bars = panelEl.querySelector(".bars");
+    order.forEach(r => {
+      const row = document.createElement("div");
+      row.className = "bar"; row.setAttribute("role", "row"); row.style.setProperty("--c", REGIONS[r].color);
+      const pct = total ? Math.round(counts[r] / total * 100) : 0;
+      row.title = `${REGIONS[r].name}: aparece en ${counts[r]} de ${total} pensamientos (${pct}%)`;
+      row.innerHTML = `<span role="cell">${REGIONS[r].name}</span><span class="track" role="cell"><span class="fill" style="display:block;width:${counts[r] / max * 100}%"></span></span><span class="num" role="cell">${counts[r]}</span>`;
+      bars.appendChild(row);
+    });
+    const list = panelEl.querySelector("#wallList");
+    if (!docs.length) list.innerHTML = `<p style="font-size:13px">Todavía nadie publicó. Sé la primera persona.</p>`;
+    docs.slice(0, 15).forEach(d => {
+      const it = document.createElement("div");
+      it.className = "wall-item";
+      it.innerHTML = `<span class="q"></span><span class="meta">${d.regions.filter(r => REGIONS[r]).map(r => `<span class="swatch" style="--c:${REGIONS[r].color}"></span>`).join("")}<span></span></span>`;
+      it.querySelector(".q").textContent = d.text;
+      it.querySelector(".meta span:last-child").textContent = new Date(Number(d.ts) || 0).toLocaleString("es", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+      list.appendChild(it);
+    });
+    panelEl.querySelector("[data-act=close]").addEventListener("click", () => setView(backView()));
+  }
+
   // ============================================================ tour
-  const TOUR_STEP = 7000;
+  const TOUR_STEP = 8000;
   function startTour() {
     stopTour(true);
+    if (techOn) toggleTech();
     tour = { i: 0, t0: performance.now() };
     $("tTour").setAttribute("aria-pressed", "true");
     select(0);
+    voice.say(REGIONS[0].name + ". " + REGIONS[0].text);
   }
   function stopTour(silent) {
     if (!tour) return;
     tour = null;
     $("tTour").setAttribute("aria-pressed", "false");
+    voice.stop();
     if (!silent && view === "region") renderRegion();
   }
   function tickTour() {
@@ -1223,28 +1627,108 @@ Mensaje: """${text.slice(0, 1500)}"""`;
     if (i !== tour.i) {
       tour.i = i;
       if (i >= N) { stopTour(true); select(-1); resetView(); toast("Fin del tour. Ahora pregúntame algo abajo."); }
-      else select(i);
+      else { select(i); voice.say(REGIONS[i].name + ". " + REGIONS[i].text); }
     }
   }
 
   // ============================================================ toolbar
-  let autoRotate = !reduceMotion, shellOn = true;
+  let autoRotate = !reduceMotion, shellOn = true, techOn = false, theme = store.get("cerebro-claude-tema", 0);
   const setPressed = (id, v) => $(id).setAttribute("aria-pressed", String(v));
   setPressed("tRotate", autoRotate);
   $("tRotate").addEventListener("click", () => { autoRotate = !autoRotate; setPressed("tRotate", autoRotate); });
   $("tShell").addEventListener("click", () => { shellOn = !shellOn; setPressed("tShell", shellOn); });
   $("tBloom").addEventListener("click", () => { bloomOn = !bloomOn; setPressed("tBloom", bloomOn); uniforms.uGain.value = bloomOn ? 0.5 : 0.72; });
   $("tSound").addEventListener("click", () => setPressed("tSound", audio.toggle()));
+  $("tVoice").addEventListener("click", toggleVoice);
+  function toggleVoice() {
+    const on = voice.toggle(); setPressed("tVoice", on);
+    toast(on ? "Voz activada: leo mis respuestas y el tour en voz alta." : "Voz desactivada.");
+  }
   $("tReset").addEventListener("click", () => { stopTour(); resetView(); });
   $("tTour").addEventListener("click", () => tour ? (stopTour(), select(-1)) : startTour());
-  const toggleExplode = () => { explodeTarget = explodeTarget ? 0 : 1; setPressed("tExplode", !!explodeTarget); if (explodeTarget) targetDist = Math.max(targetDist, baseDist() + 0.8); else targetDist = baseDist(); };
+  function applyTheme(i, announce) {
+    theme = (i + THEMES.length) % THEMES.length;
+    uniforms.uTheme.value = theme;
+    $("tTheme").title = "Tema de color: " + THEMES[theme];
+    store.set("cerebro-claude-tema", theme);
+    if (announce) toast("Tema: " + THEMES[theme] + (theme === 2 ? " · el color sigue la actividad" : ""));
+  }
+  applyTheme(theme, false);
+  $("tTheme").addEventListener("click", () => applyTheme(theme + 1, true));
+  const toggleExplode = () => {
+    if (techOn) return;
+    explodeTarget = explodeTarget ? 0 : 1; setPressed("tExplode", !!explodeTarget);
+    targetDist = explodeTarget ? Math.max(targetDist, baseDist() + 0.8) : baseDist();
+  };
   $("tExplode").addEventListener("click", toggleExplode);
-  const toggleCut = () => { cutOn = !cutOn; setPressed("tCut", cutOn); $("cutRow").hidden = !cutOn;
-    shellMat.side = cutOn ? THREE.DoubleSide : THREE.FrontSide; shellMat.needsUpdate = true; if (cutOn) toast("Desliza para cortar el cerebro de adelante hacia atrás"); };
+  const toggleCut = () => {
+    cutOn = !cutOn; setPressed("tCut", cutOn); $("cutRow").hidden = !cutOn;
+    shellMat.side = cutOn ? THREE.DoubleSide : THREE.FrontSide; shellMat.needsUpdate = true;
+    if (cutOn) toast("Desliza para cortar el cerebro de adelante hacia atrás");
+  };
   $("tCut").addEventListener("click", toggleCut);
   $("cutRange").addEventListener("input", e => { cutValue = parseFloat(e.target.value); });
-  const toggleHist = () => setView(view === "history" ? (current ? "answer" : "intro") : "history");
+  const toggleHist = () => setView(view === "history" ? backView() : "history");
   $("tHist").addEventListener("click", toggleHist);
+  const toggleWall = () => { if (db) setView(view === "wall" ? backView() : "wall"); };
+  $("tWall").addEventListener("click", toggleWall);
+  function toggleTech() {
+    techOn = !techOn;
+    setPressed("tTech", techOn);
+    if (techOn) {
+      stopTour(true);
+      if (selected >= 0) select(-1, true);
+      if (explodeTarget) { explodeTarget = 0; setPressed("tExplode", false); }
+      const ex = current();
+      setTokens(ex ? ex.text.split(/\s+/).filter(Boolean) : []);
+      if (ex && ex.answer && ex.mode === "real") setNextToken(ex.answer.split(/\s+/)[0]);
+      fly = { y: rotY + Math.atan2(Math.sin(-rotY), Math.cos(-rotY)), x: 0.12 };
+      targetDist = baseDist() + 0.3;
+      setView("tech");
+    } else {
+      targetDist = baseDist();
+      setView(convo.length ? "answer" : "intro");
+    }
+  }
+  $("tTech").addEventListener("click", toggleTech);
+
+  // ============================================================ screenshot
+  let captureReq = false, downloads;
+  $("tShot").addEventListener("click", () => { captureReq = true; });
+  async function saveCapture(blob) {
+    try {
+      const bmp = await createImageBitmap(blob);
+      const c = document.createElement("canvas");
+      c.width = bmp.width; c.height = bmp.height;
+      const g = c.getContext("2d");
+      g.drawImage(bmp, 0, 0);
+      const s = c.height / 800;
+      g.fillStyle = "rgba(236,232,223,0.95)";
+      g.font = `700 ${Math.round(34 * s)}px "Bricolage Grotesque", sans-serif`;
+      g.fillText("El cerebro de Claude", 28 * s, c.height - 52 * s);
+      g.fillStyle = "rgba(141,146,168,0.95)";
+      g.font = `400 ${Math.round(14 * s)}px "IBM Plex Mono", monospace`;
+      const ex = current();
+      const sub = (techOn ? "Modo transformer" : "Tema " + THEMES[theme]) + (ex ? " · “" + ex.text.slice(0, 60) + (ex.text.length > 60 ? "…" : "") + "”" : "");
+      g.fillText(sub, 28 * s, c.height - 26 * s);
+      const out = await new Promise(res => c.toBlob(res, "image/png"));
+      const d = new Date(), pad = n => String(n).padStart(2, "0");
+      const filename = `cerebro-claude-${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}.png`;
+      if (downloads === undefined) downloads = await claudeUse("downloads");
+      if (downloads) {
+        await downloads.save({ filename, data: out });
+        toast("Captura guardada.");
+      } else {
+        // outside claude.ai (the repo file, GitHub Pages): a plain download link works there
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(out); a.download = filename;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+      }
+    } catch (e) {
+      if (!(e && e.code === "declined")) toast("No pude guardar la captura.");
+    }
+  }
 
   // ============================================================ camera controls
   const baseDist = () => (isSmall() ? 4.9 : 4.3);
@@ -1265,6 +1749,15 @@ Mensaje: """${text.slice(0, 1500)}"""`;
     fly = { y: rotY + Math.atan2(Math.sin(-0.95 - rotY), Math.cos(-0.95 - rotY)), x: 0.18 };
     targetDist = baseDist() + (explodeTarget ? 0.8 : 0);
   }
+
+  // dream mode: idle for a while and the brain drifts off
+  let lastActivity = 0, dreamTarget = 0, dreamToastShown = false;
+  function wake() {
+    lastActivity = clock.elapsedTime;
+    if (dreamTarget) { dreamTarget = 0; dreamToastShown = false; }
+  }
+  ["pointerdown", "keydown", "wheel", "touchstart"].forEach(ev => addEventListener(ev, wake, { passive: true }));
+  addEventListener("pointermove", e => { if (e.pointerType !== "mouse" || Math.abs(e.movementX) + Math.abs(e.movementY) > 2) wake(); }, { passive: true });
 
   const pointers = new Map();
   let pinchStart = 0, pinchDist = 0;
@@ -1310,7 +1803,7 @@ Mensaje: """${text.slice(0, 1500)}"""`;
   }, { passive: false });
 
   addEventListener("keydown", e => {
-    if (e.target === inputEl || e.target.tagName === "INPUT" || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.target.tagName === "INPUT" || e.metaKey || e.ctrlKey || e.altKey) return;
     const k = e.key.toLowerCase();
     const n = parseInt(e.key, 10);
     if (n >= 1 && n <= N) { stopTour(); select(n - 1 === selected ? -1 : n - 1); e.preventDefault(); }
@@ -1326,12 +1819,17 @@ Mensaje: """${text.slice(0, 1500)}"""`;
     else if (k === "e") toggleExplode();
     else if (k === "c") toggleCut();
     else if (k === "h") toggleHist();
+    else if (k === "w") toggleWall();
+    else if (k === "m") toggleTech();
+    else if (k === "v" && voice.available) toggleVoice();
+    else if (k === "p") captureReq = true;
     else if (e.key === "Enter" || e.key === "/") { inputEl.focus(); e.preventDefault(); }
   });
 
   const raycaster = new THREE.Raycaster();
   raycaster.params.Points.threshold = 0.035;
   function regionAt(x, y) {
+    if (techOn) return -1;
     raycaster.setFromCamera(new THREE.Vector2((x / innerWidth) * 2 - 1, -(y / innerHeight) * 2 + 1), camera);
     const hits = raycaster.intersectObject(brainPoints);
     for (const h of hits) {
@@ -1341,6 +1839,7 @@ Mensaje: """${text.slice(0, 1500)}"""`;
     return -1;
   }
   function pick(x, y) {
+    if (techOn) return;
     const r = regionAt(x, y);
     select(r < 0 || r === selected ? -1 : r);
   }
@@ -1400,9 +1899,10 @@ Mensaje: """${text.slice(0, 1500)}"""`;
   // ============================================================ loop
   const statsEl = $("stats");
   const fmt = n => n.toLocaleString("es");
-  let statsT = 0, ambient = 0;
+  let statsT = 0, ambient = 0, morph = 0;
   const v = new THREE.Vector3(), nrm = new THREE.Vector3(), camDir = new THREE.Vector3();
   const loader = $("loader");
+  const DREAM_AFTER = 45;
 
   function frame() {
     const dt = Math.min(0.05, clock.getDelta());
@@ -1411,9 +1911,20 @@ Mensaje: """${text.slice(0, 1500)}"""`;
 
     const form = reduceMotion ? 1 : Math.min(1, t / 2.8);
     uniforms.uForm.value = form;
-    lineMat.opacity = 0.15 * Math.max(0, (form - 0.6) / 0.4);
     if (form > 0.15 && loader.style.opacity !== "0") loader.style.opacity = "0";
+
+    morph += ((techOn ? 1 : 0) - morph) * Math.min(1, dt * (reduceMotion ? 60 : 2.2));
+    if (Math.abs(morph - (techOn ? 1 : 0)) < 0.001) morph = techOn ? 1 : 0;
+    uniforms.uMorph.value = morph;
+    lineMat.opacity = 0.15 * Math.max(0, (form - 0.6) / 0.4) * (1 - morph);
     uniforms.uShell.value += ((shellOn ? 1 : 0) - uniforms.uShell.value) * Math.min(1, dt * 6);
+
+    if (!busy && !tour && t - lastActivity > DREAM_AFTER && form >= 1) {
+      dreamTarget = 1;
+      if (!dreamToastShown) { dreamToastShown = true; toast("Soñando… mueve el mouse o toca la pantalla para despertarme.", 4500); }
+    }
+    uniforms.uDream.value += (dreamTarget - uniforms.uDream.value) * Math.min(1, dt * 0.8);
+    const dream = uniforms.uDream.value;
 
     explode += (explodeTarget - explode) * Math.min(1, dt * (reduceMotion ? 60 : 4));
     if (Math.abs(explode - explodeTarget) < 0.001) explode = explodeTarget;
@@ -1426,12 +1937,12 @@ Mensaje: """${text.slice(0, 1500)}"""`;
     } else if (!dragging) {
       velY *= 0.94; velX *= 0.9;
       rotY += velY; rotX = THREE.MathUtils.clamp(rotX + velX, -1.2, 1.2);
-      if (autoRotate && selected < 0 && t - lastInteract > 2.5) rotY += dt * 0.12 * form;
+      if (autoRotate && selected < 0 && t - lastInteract > 2.5) rotY += dt * (techOn ? 0.05 : 0.12) * form * (1 - dream * 0.6);
     }
     if (!reduceMotion) rotY += (1 - form) * dt * 0.8;
     dist += (targetDist - dist) * Math.min(1, dt * (form < 1 ? 2 : 5));
     thump *= Math.exp(-dt * 4);
-    brain.scale.setScalar(1 + Math.sin(t * 1.1) * 0.006 + thump * 0.018);
+    brain.scale.setScalar(1 + Math.sin(t * (1.1 - dream * 0.6)) * (0.006 + dream * 0.01) + thump * 0.018);
     brain.rotation.set(rotX, rotY, 0);
     dust.rotation.y = t * 0.01; dust.rotation.x = Math.sin(t * 0.05) * 0.1;
 
@@ -1448,9 +1959,9 @@ Mensaje: """${text.slice(0, 1500)}"""`;
       renderer.clippingPlanes = [cutWorld];
     } else renderer.clippingPlanes = noPlanes;
 
-    // ambient thinking (busier while waiting on an answer)
-    if (form > 0.85) {
-      ambient += dt * (reduceMotion ? 1.2 : 3.2) * (busy ? 2 : 1);
+    // ambient thinking (busier while waiting on an answer, sleepy while dreaming)
+    if (form > 0.85 && morph < 0.9) {
+      ambient += dt * (reduceMotion ? 1.2 : 3.2) * (busy ? 2 : 1) * (1 - dream * 0.7);
       while (ambient > 1) {
         ambient -= 1;
         const r = selected >= 0 && Math.random() < 0.6 ? selected : Math.floor(Math.random() * N);
@@ -1458,7 +1969,9 @@ Mensaje: """${text.slice(0, 1500)}"""`;
         spawnFrom(list[Math.floor(Math.random() * list.length)], busy ? 3 : 2);
       }
     }
-    updatePulses(dt);
+    if (busy && techOn) techBoost = Math.max(techBoost, 0.6);
+    updatePulses(dt, morph);
+    updateTech(t, dt, morph);
 
     for (let i = 0; i < N; i++) {
       activity[i] *= Math.exp(-dt * 0.9);
@@ -1467,7 +1980,7 @@ Mensaje: """${text.slice(0, 1500)}"""`;
       meters[i].style.width = Math.round(Math.min(1, activity[i]) * 100) + "%";
     }
 
-    // labels
+    // region labels (hidden in transformer mode)
     const w = innerWidth, h = innerHeight;
     for (let i = 0; i < N; i++) {
       anchorPos(i, v).applyMatrix4(brain.matrixWorld);
@@ -1476,12 +1989,20 @@ Mensaje: """${text.slice(0, 1500)}"""`;
       const facing = nrm.dot(camDir);
       const cut = cutOn && cutWorld.distanceToPoint(v) < 0;
       v.project(camera);
-      const op = cut ? 0 : THREE.MathUtils.clamp((facing + 0.15) * 2.5, 0, 1) * (selected < 0 || selected === i ? 1 : 0.35) * Math.max(0, (form - 0.7) / 0.3);
+      const op = cut ? 0 : THREE.MathUtils.clamp((facing + 0.15) * 2.5, 0, 1) * (selected < 0 || selected === i ? 1 : 0.35) * Math.max(0, (form - 0.7) / 0.3) * (1 - morph);
       const el = labelEls[i];
       el.style.transform = `translate(${(v.x * 0.5 + 0.5) * w}px, ${(-v.y * 0.5 + 0.5) * h}px) translate(-50%, -50%)`;
       el.style.opacity = op.toFixed(2);
       el.style.pointerEvents = op > 0.3 ? "auto" : "none";
       el.tabIndex = op > 0.3 ? 0 : -1;
+    }
+    // transformer labels
+    techLabelsEl.style.opacity = Math.max(0, (morph - 0.6) / 0.4).toFixed(2);
+    if (morph > 0.6) {
+      techLabelEls.forEach(({ el, p }) => {
+        v.copy(p).applyMatrix4(brain.matrixWorld).project(camera);
+        el.style.transform = `translate(${(v.x * 0.5 + 0.5) * w}px, ${(-v.y * 0.5 + 0.5) * h}px) translate(-50%, -50%)`;
+      });
     }
 
     if (t - statsT > 0.25) {
@@ -1492,6 +2013,7 @@ Mensaje: """${text.slice(0, 1500)}"""`;
     watchFps(dt, form);
 
     if (composer && bloomOn) composer.render(); else renderer.render(scene, camera);
+    if (captureReq) { captureReq = false; canvas.toBlob(b => b ? saveCapture(b) : toast("No pude guardar la captura."), "image/png"); }
     requestAnimationFrame(frame);
   }
   renderPanel();

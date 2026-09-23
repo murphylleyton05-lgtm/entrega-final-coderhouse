@@ -99,6 +99,22 @@ repositorio guarda los checkpoints de **Coderhouse — Data Analyst**:
 | [`RetailPro/`](./RetailPro) | Proyecto RetailPro — M3: script SQL de la base `Ventas_Tech_DB` (DDL, restricciones de integridad y carga de datos). M4: consultas de negocio con funciones de agregacion |
 | [`modulo9_dashboard_final/`](./modulo9_dashboard_final) | Modulo 9 — capa de visualizacion: dashboard en Excel con segmentadores, cascada, dispersion y narrativa, mas el registro de prompts de IA |
 
+## Extra: el cerebro de Claude en 3D
+
+[`cerebro_claude_3d.html`](./cerebro_claude_3d.html) es un modelo 3D interactivo (three.js) de un "cerebro"
+que representa, como metafora, como piensa Claude: 7 regiones (razonamiento, atencion, lenguaje,
+vision, codigo, valores y memoria), senales que viajan entre neuronas y un modo **Transformer**
+que muestra lo que Claude es de verdad: capas de atencion causal.
+
+- **Abrirlo:** doble clic en el archivo. Funciona sin internet gracias a las copias de three.js en `vendor/three/` (licencia MIT).
+- **Publicarlo en GitHub Pages:** el workflow `.github/workflows/pages.yml` lo publica al hacer push a `main`.
+  Hay que activarlo una vez en *Settings → Pages → Source: GitHub Actions*.
+- **Funciones:** rotar y hacer zoom, tour guiado, vista separada, corte coronal, temas de color,
+  modo sueno, sonido de sinapsis, voz, historial y captura en PNG.
+- **Respuestas reales de Claude:** abierto dentro de claude.ai (como artifact), el cuadro "Pensar" responde con Claude,
+  recuerda la conversacion, mira imagenes adjuntas, se sincroniza con otras personas conectadas y guarda un muro de
+  pensamientos compartido. Fuera de claude.ai (archivo local o GitHub Pages) funciona en modo simulado.
+
 ---
 
 **Lleyton Murphy** | lleyton-ia-page.netlify.app | linkedin.com/in/lleyton-murphy-3716093a3

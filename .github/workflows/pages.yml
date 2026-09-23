@@ -1,0 +1,39 @@
+name: Publicar cerebro 3D en GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - cerebro_claude_3d.html
+      - vendor/**
+      - .github/workflows/pages.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Armar el sitio
+        run: |
+          mkdir -p _site
+          { echo '<!doctype html><html lang="es"><head><meta charset="utf-8">'; cat cerebro_claude_3d.html; echo '</html>'; } > _site/index.html
+          cp -r vendor _site/vendor
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4
