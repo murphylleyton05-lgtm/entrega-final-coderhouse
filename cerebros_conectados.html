@@ -46,9 +46,9 @@
   .lede { color: var(--muted); margin: 0; max-width: 44ch; font-size: 13px; }
   .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
 
-  .conn { grid-column: 2; grid-row: 1; justify-self: end; width: min(360px, 100%); padding: 12px 14px; display: grid; gap: 8px; }
+  .conn { grid-column: 2; grid-row: 1; justify-self: end; align-self: start; width: min(360px, 100%); padding: 12px 14px; display: grid; gap: 8px; }
   .kicker { font: 500 11px/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin: 0; }
-  .status { display: flex; gap: 8px; flex-wrap: wrap; }
+  .status { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
   .pill { display: inline-flex; align-items: center; gap: 6px; font: 500 11px/1 var(--mono); color: var(--soft); padding: 5px 8px; border-radius: 999px; border: 1px solid var(--line); }
   .pill i { width: 6px; height: 6px; border-radius: 50%; background: var(--warn); }
   .pill[data-on="1"] i { background: var(--ok); box-shadow: 0 0 8px var(--ok); }
@@ -57,6 +57,17 @@
   .small-btn { border: 1px solid var(--line); background: transparent; color: var(--muted); border-radius: 8px; font: 500 11px/1 var(--mono); padding: 7px 9px; cursor: pointer; white-space: nowrap; }
   .small-btn:hover { color: var(--ink); border-color: var(--line-strong); }
   .conn .help { font-size: 12px; color: var(--muted); margin: 0; }
+  .field { display: grid; gap: 4px; }
+  .field > label, .cfg label { font: 500 10.5px/1 var(--mono); color: var(--faint); letter-spacing: 0.04em; }
+  .conn select, .cfg input { width: 100%; min-width: 0; box-sizing: border-box; background: rgba(255,255,255,0.04); border: 1px solid var(--line); border-radius: 8px; color: var(--ink); font: 400 12px/1.2 var(--mono); padding: 8px; }
+  .conn select option { background: var(--panel-solid); }
+  .cfg { display: grid; gap: 6px; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .two > div { display: grid; gap: 4px; min-width: 0; }
+  .conn .actions { display: flex; gap: 6px; align-items: center; }
+  .conn .result { font: 400 11.5px/1.4 var(--mono); color: var(--soft); margin: 0; }
+  .conn .result.bad { color: var(--warn); }
+  .conn .result code, .conn .help code { font: 400 11px/1.3 var(--mono); color: var(--ink); background: rgba(255,255,255,0.06); padding: 1px 4px; border-radius: 4px; user-select: all; }
   .conn .help code { font: 400 11px/1 var(--mono); color: var(--soft); }
   button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
@@ -123,26 +134,53 @@
   <header>
     <div class="eyebrow">Dos IAs · un puente</div>
     <h1>Cerebros <span class="c">conec</span><span class="g">tados</span></h1>
-    <p class="lede">Haz una pregunta y mira cómo la procesan Claude y ChatGPT, cada uno en su cerebro. En modo debate, la respuesta de ChatGPT cruza el puente y Claude le contesta. Las regiones son una metáfora que cada IA usa para describirse.</p>
+    <p class="lede">Haz una pregunta y mira cómo la procesan dos IAs, cada una en su cerebro. En modo debate, la respuesta del cerebro derecho cruza el puente y el izquierdo le contesta. Las regiones son una metáfora que cada IA usa para describirse.</p>
   </header>
 
   <section class="card conn" aria-label="Conexión">
     <div class="kicker">Conexión</div>
-    <div class="status"><span class="pill" id="pillClaude"><i></i><span>Claude: …</span></span><span class="pill" id="pillGpt"><i></i><span>ChatGPT: …</span></span></div>
-    <div class="urlrow" id="urlRow">
-      <label for="hook" hidden>URL del webhook de n8n</label>
-      <input id="hook" type="url" placeholder="https://tu-n8n/webhook/cerebros" autocomplete="off">
-      <button class="small-btn" type="button" id="saveHook">Conectar</button>
+    <div class="status"><span class="pill" id="pillClaude"><i></i><span>Izquierdo: …</span></span><span class="pill" id="pillGpt"><i></i><span>Derecho: …</span></span></div>
+    <div class="field" id="provField">
+      <label for="prov">Proveedor</label>
+      <select id="prov">
+        <option value="sim">Simulado · sin conexión</option>
+        <option value="ollama">Ollama · local y gratis</option>
+        <option value="groq">Groq · clave gratis</option>
+        <option value="n8n">n8n · APIs de OpenAI y Anthropic (pagas)</option>
+      </select>
     </div>
-    <p class="help" id="help">Importa <code>n8n_flow_cerebros_conectados.json</code> en n8n, carga <code>OPENAI_API_KEY</code> y <code>ANTHROPIC_API_KEY</code>, activa el flujo y pega aquí su URL de producción.</p>
+    <div class="cfg" data-p="ollama" hidden>
+      <label for="ollamaUrl">Dirección de Ollama</label>
+      <input id="ollamaUrl" type="url" autocomplete="off">
+      <div class="two">
+        <div><label for="ollamaR">Cerebro derecho</label><input id="ollamaR" type="text" autocomplete="off"></div>
+        <div><label for="ollamaL">Cerebro izquierdo</label><input id="ollamaL" type="text" autocomplete="off"></div>
+      </div>
+    </div>
+    <div class="cfg" data-p="groq" hidden>
+      <label for="groqKey">Clave de Groq (queda solo en este navegador)</label>
+      <input id="groqKey" type="password" autocomplete="off" placeholder="gsk_…">
+      <div class="two">
+        <div><label for="groqR">Cerebro derecho</label><input id="groqR" type="text" autocomplete="off"></div>
+        <div><label for="groqL">Cerebro izquierdo</label><input id="groqL" type="text" autocomplete="off"></div>
+      </div>
+    </div>
+    <div class="cfg" data-p="n8n" hidden>
+      <label for="hook">URL del webhook de n8n</label>
+      <input id="hook" type="url" placeholder="https://tu-n8n/webhook/cerebros" autocomplete="off">
+    </div>
+    <div class="actions" id="actions"><button class="small-btn" type="button" id="saveCfg">Guardar y probar</button></div>
+    <div class="actions" id="editRow" hidden><button class="small-btn" type="button" id="editCfg">Cambiar conexión</button></div>
+    <p class="result" id="result" hidden></p>
+    <p class="help" id="help"></p>
   </section>
 
   <section class="card answer claude" aria-live="polite">
-    <div class="top"><h2>Claude</h2><span class="tag" id="tagClaude">esperando</span></div>
+    <div class="top"><h2 id="nameLeft">Claude</h2><span class="tag" id="tagClaude">esperando</span></div>
     <div id="bodyClaude"><p class="empty">Todavía no pensé nada. Pregunta algo abajo.</p></div>
   </section>
   <section class="card answer gpt" aria-live="polite">
-    <div class="top"><h2>ChatGPT</h2><span class="tag" id="tagGpt">esperando</span></div>
+    <div class="top"><h2 id="nameRight">ChatGPT</h2><span class="tag" id="tagGpt">esperando</span></div>
     <div id="bodyGpt"><p class="empty">Todavía no pensé nada. Pregunta algo abajo.</p></div>
   </section>
 
@@ -613,33 +651,105 @@
     if (!hit.length) hit.push(2, 1);
     if (!hit.includes(5)) hit.push(5);
     const steps = hit.slice(0, 4).map(r => ({ r, t: who === 1 ? ["Buscando el patrón central de la pregunta.", "Armando una respuesta clara y ordenada.", "Revisando que sea útil y segura."][Math.floor(Math.random() * 3)] : ["Descomponiendo la pregunta en partes.", "Buscando lo que de verdad importa aquí.", "Verificando que sea honesto."][Math.floor(Math.random() * 3)] }));
-    return { steps, answer: who === 1 ? "(Simulado: conecta tu flujo de n8n arriba para que ChatGPT responda de verdad.)" : "(Simulado: conecta n8n, o abre esta página en claude.ai, para que Claude responda de verdad.)" };
+    return { steps, answer: "(Simulado: elige un proveedor arriba, por ejemplo Ollama o Groq, que son gratis, para que responda de verdad.)" };
   }
 
-  // ------------------------------------------------ connection state
+  // ------------------------------------------------ connection: which AIs answer, and how
   const inClaudeAi = !!(window.claude && typeof window.claude.use === "function");
-  let hookUrl = store.get("cerebros-webhook", "");
-  let sampleFn = null;
-  const hookEl = $("hook");
-  hookEl.value = hookUrl;
+  const legacyHook = store.get("cerebros-webhook", "");
+  const DEFAULTS = {
+    prov: legacyHook ? "n8n" : "sim", hook: legacyHook,
+    ollamaUrl: "http://localhost:11434", ollamaR: "gpt-oss:20b", ollamaL: "llama3.2",
+    groqKey: "", groqR: "openai/gpt-oss-20b", groqL: "llama-3.3-70b-versatile",
+  };
+  const cfg = { ...DEFAULTS, ...store.get("cerebros-config", {}) };
+  const FIELDS = ["hook", "ollamaUrl", "ollamaR", "ollamaL", "groqKey", "groqR", "groqL"];
+  FIELDS.forEach(k => { $(k).value = cfg[k]; });
+  $("prov").value = cfg.prov;
+  let sampleFn = null, collapsed = false;
+  const provNow = () => inClaudeAi ? "claude.ai" : cfg.prov;
+  const isFree = p => p === "ollama" || p === "groq";
+  const HELP = {
+    sim: "Sin conexión, las dos respuestas son de ejemplo. Elige Ollama o Groq para que respondan de verdad gratis.",
+    ollama: `Gratis y sin internet. 1) Instala Ollama (ollama.com). 2) En una terminal: <code>ollama pull gpt-oss:20b</code> y <code>ollama pull llama3.2</code>. 3) Si abriste esta página como archivo o desde GitHub Pages, inicia Ollama con <code>OLLAMA_ORIGINS="*" ollama serve</code> para que la deje conectarse.`,
+    groq: `Gratis con límite de uso. Crea una clave en console.groq.com (API Keys) y pégala arriba. La clave queda guardada solo en este navegador: no publiques la página con tu clave adentro.`,
+    n8n: "Usa las APIs pagas de OpenAI y Anthropic. Importa <code>n8n_flow_cerebros_conectados.json</code>, carga <code>OPENAI_API_KEY</code> y <code>ANTHROPIC_API_KEY</code>, activa el flujo y pega la URL de producción.",
+  };
+  const shortModel = m => String(m || "").split("/").pop().split(":")[0];
+  function names() {
+    const p = provNow();
+    if (isFree(p)) {
+      const R = cfg[p + "R"], L = cfg[p + "L"], rOss = /gpt-oss/i.test(R);
+      return {
+        left: { title: shortModel(L) || "Modelo abierto", sub: "en lugar de Claude · gratis" },
+        right: { title: rOss ? "gpt-oss · OpenAI" : shortModel(R) || "Modelo abierto", sub: rOss ? "modelo abierto de OpenAI" : "modelo abierto" },
+      };
+    }
+    return { left: { title: "Claude", sub: "partículas · Anthropic" }, right: { title: "ChatGPT · Luna", sub: "núcleo neural · OpenAI" } };
+  }
   function setPill(id, on, text) { const p = $(id); p.dataset.on = on ? "1" : "0"; p.querySelector("span").textContent = text; }
   function refreshStatus() {
-    const viaHook = !!hookUrl && !inClaudeAi;
-    setPill("pillClaude", viaHook || !!sampleFn, viaHook ? "Claude: vía n8n" : sampleFn ? "Claude: real" : "Claude: simulado");
-    setPill("pillGpt", viaHook, viaHook ? "ChatGPT: vía n8n" : "ChatGPT: simulado");
+    const p = provNow(), n = names();
+    $("lblClaude").querySelector("b").textContent = n.left.title; $("lblClaude").querySelector("span").textContent = n.left.sub;
+    $("lblGpt").querySelector("b").textContent = n.right.title; $("lblGpt").querySelector("span").textContent = n.right.sub;
+    $("nameLeft").textContent = n.left.title.split(" · ")[0]; $("nameRight").textContent = n.right.title.split(" · ")[0];
+    const L = n.left.title.split(" · ")[0], R = n.right.title.split(" · ")[0];
+    if (p === "claude.ai") { setPill("pillClaude", !!sampleFn, sampleFn ? "Claude: real" : "Claude: simulado"); setPill("pillGpt", false, "ChatGPT: simulado"); }
+    else if (p === "sim") { setPill("pillClaude", false, "Claude: simulado"); setPill("pillGpt", false, "ChatGPT: simulado"); }
+    else if (p === "n8n") { const on = !!cfg.hook; setPill("pillClaude", on, on ? "Claude: vía n8n" : "Claude: falta la URL"); setPill("pillGpt", on, on ? "ChatGPT: vía n8n" : "ChatGPT: falta la URL"); }
+    else { const on = p === "ollama" || !!cfg.groqKey; setPill("pillClaude", on, `${L}: ${on ? "gratis" : "falta la clave"}`); setPill("pillGpt", on, `${R}: ${on ? "gratis" : "falta la clave"}`); }
+    const folded = collapsed && !inClaudeAi;
+    document.querySelectorAll(".cfg").forEach(el => { el.hidden = folded || inClaudeAi || el.dataset.p !== $("prov").value; });
+    $("provField").hidden = folded || inClaudeAi;
+    $("actions").hidden = folded || inClaudeAi || $("prov").value === "sim";
+    $("editRow").hidden = !folded;
+    if (folded) $("result").hidden = true;
+    $("help").hidden = folded;
+    if (!inClaudeAi) $("help").innerHTML = HELP[$("prov").value];
   }
   if (inClaudeAi) {
-    // claude.ai blocks calls to other sites, so n8n can't be reached from here; Claude still answers through the page
-    $("urlRow").hidden = true;
-    $("help").textContent = "Desde claude.ai la página no puede llamar a otros sitios, así que ChatGPT queda simulado. Para conectarlo de verdad, abre cerebros_conectados.html del repo (o GitHub Pages) y pega la URL de tu flujo de n8n.";
+    // claude.ai blocks calls to other sites, so no other AI can be reached from here; Claude still answers, free, with your plan
+    $("provField").hidden = true;
+    $("help").textContent = "Desde claude.ai la página no puede llamar a otros sitios: Claude responde gratis con tu plan y ChatGPT queda simulado. Para conectar gratis un modelo de OpenAI (gpt-oss con Ollama o Groq), abre cerebros_conectados.html del repo o de GitHub Pages.";
     window.claude.use("sample").then(fn => { sampleFn = fn; refreshStatus(); }).catch(() => {});
   }
-  $("saveHook").addEventListener("click", () => {
-    const v = hookEl.value.trim();
-    if (v && !/^https?:\/\//i.test(v)) { toast("La URL tiene que empezar con https://"); return; }
-    hookUrl = v; store.set("cerebros-webhook", v); refreshStatus();
-    toast(v ? "Listo: las preguntas van a tu n8n." : "Desconectado: vuelvo al modo simulado.");
+  $("prov").addEventListener("change", () => { $("result").hidden = true; refreshStatus(); });
+  function foldSoon() { setTimeout(() => { collapsed = true; refreshStatus(); toast("Conectado. Pregunta algo abajo."); }, 1200); }
+  $("editCfg").addEventListener("click", () => { collapsed = false; refreshStatus(); });
+  function showResult(ok, html) { const r = $("result"); r.hidden = false; r.classList.toggle("bad", !ok); r.innerHTML = html; }
+  const esc = x => String(x).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  $("saveCfg").addEventListener("click", async () => {
+    FIELDS.forEach(k => { cfg[k] = $(k).value.trim(); });
+    cfg.prov = $("prov").value;
+    cfg.ollamaUrl = cfg.ollamaUrl.replace(/\/+$/, "") || DEFAULTS.ollamaUrl;
+    store.set("cerebros-config", cfg);
+    refreshStatus();
+    if (cfg.prov === "n8n") { showResult(!!cfg.hook, cfg.hook ? "Guardado: las preguntas van a tu n8n." : "Pega la URL del webhook."); if (cfg.hook) foldSoon(); return; }
+    showResult(true, "Probando conexión…");
+    try {
+      if (cfg.prov === "ollama") {
+        const r = await fetch(cfg.ollamaUrl + "/api/tags");
+        const have = ((await r.json()).models || []).map(m => m.name);
+        const has = m => have.some(h => h === m || h === m + ":latest" || h.split(":")[0] === m);
+        const missing = [cfg.ollamaR, cfg.ollamaL].filter(m => !has(m));
+        if (missing.length) showResult(false, "Ollama responde, pero falta bajar: " + missing.map(m => `<code>ollama pull ${esc(m)}</code>`).join(" "));
+        else { showResult(true, "Conectado a Ollama. Listo para pensar, gratis."); foldSoon(); }
+      } else if (cfg.prov === "groq") {
+        if (!cfg.groqKey) { showResult(false, "Pega tu clave de Groq."); return; }
+        const r = await fetch("https://api.groq.com/openai/v1/models", { headers: { Authorization: "Bearer " + cfg.groqKey } });
+        if (r.status === 401) { showResult(false, "La clave no es válida. Cópiala de nuevo desde console.groq.com."); return; }
+        const have = ((await r.json()).data || []).map(m => m.id);
+        const missing = [cfg.groqR, cfg.groqL].filter(m => !have.includes(m));
+        showResult(!missing.length, missing.length ? "Groq no ofrece: " + missing.map(esc).join(", ") + ". Revisa el nombre del modelo." : "Conectado a Groq. Listo para pensar, gratis.");
+        if (!missing.length) foldSoon();
+      }
+    } catch (e) {
+      showResult(false, cfg.prov === "ollama"
+        ? `No encuentro Ollama en ${esc(cfg.ollamaUrl)}. ¿Está abierto? Si abriste esta página como archivo o desde GitHub Pages, reinícialo con <code>OLLAMA_ORIGINS="*" ollama serve</code>.`
+        : "No pude llegar a Groq. Revisa tu conexión a internet.");
+    }
   });
+  collapsed = !inClaudeAi && ((cfg.prov === "ollama") || (cfg.prov === "groq" && !!cfg.groqKey) || (cfg.prov === "n8n" && !!cfg.hook));
   refreshStatus();
 
   let mode = "comparar";
@@ -647,22 +757,72 @@
   $("mCompare").addEventListener("click", () => setMode("comparar"));
   $("mDebate").addEventListener("click", () => setMode("debate"));
 
-  const RULES = `Estás dentro de una visualización 3D de dos "cerebros" de IA conectados por un puente: el tuyo y el de ChatGPT. Es una metáfora: ninguna de las dos tiene lóbulos. Regiones: razonamiento, atencion, lenguaje, vision, codigo, valores, memoria.
+  const RULES = `Estás dentro de una visualización 3D de dos "cerebros" de IA conectados por un puente: el tuyo y el de otra IA. Es una metáfora: ninguna de las dos tiene lóbulos. Regiones: razonamiento, atencion, lenguaje, vision, codigo, valores, memoria.
 Responde en español, en este formato EXACTO y sin nada más:
 Primero entre 3 y 5 líneas así: [id] frase corta (máximo 12 palabras) sobre qué hace esa región con este mensaje
 Luego una línea que diga solo: ---
 Después tu respuesta: breve (máximo 110 palabras), en texto plano sin markdown.`;
 
+  // one free chat call (Ollama on this computer, or Groq's free tier)
+  async function chatFree(model, identity, user) {
+    const messages = [{ role: "system", content: identity + "\n\n" + RULES }, { role: "user", content: user }];
+    if (cfg.prov === "ollama") {
+      const r = await fetch(cfg.ollamaUrl + "/api/chat", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ model, messages, stream: false }) });
+      if (!r.ok) throw new Error((await r.text()).slice(0, 200) || "ollama " + r.status);
+      return (await r.json()).message?.content || "";
+    }
+    const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST", headers: { "content-type": "application/json", Authorization: "Bearer " + cfg.groqKey },
+      body: JSON.stringify({ model, messages, max_tokens: 900 }),
+    });
+    if (r.status === 429) throw new Error("Groq: llegaste al límite gratis por ahora. Espera un minuto.");
+    if (!r.ok) throw new Error("Groq " + r.status);
+    return (await r.json()).choices?.[0]?.message?.content || "";
+  }
+  function freeError(e) {
+    const msg = String(e && e.message || e);
+    if (cfg.prov === "ollama" && /fetch|network|load/i.test(msg)) return "No pude hablar con Ollama. Pulsa “Guardar y probar” arriba para ver qué falta.";
+    if (/not found|pull/i.test(msg)) return "Ese modelo no está en Ollama: bájalo con ollama pull.";
+    return msg.startsWith("Groq:") ? msg : "Falló la respuesta: " + msg;
+  }
+
   let busy = false;
   async function ask(q) {
     busy = true; $("go").disabled = true; $("shared").textContent = "";
-    const debate = mode === "debate";
+    const debate = mode === "debate", p = provNow(), n = names();
+    const L = n.left.title.split(" · ")[0], R = n.right.title.split(" · ")[0];
     try {
-      if (hookUrl && !inClaudeAi) {
+      if (isFree(p)) {
+        if (p === "groq" && !cfg.groqKey) { toast("Pega tu clave de Groq arriba y pulsa “Guardar y probar”."); return; }
+        const idR = /gpt-oss/i.test(cfg[p + "R"]) ? "Eres gpt-oss, un modelo de pesos abiertos de OpenAI." : `Eres ${R}, un modelo de lenguaje abierto.`;
+        const idL = `Eres ${L}, un modelo de lenguaje abierto. En esta visualización ocupas el lugar de Claude, pero no eres Claude: si te preguntan quién eres, dilo.`;
         showThinking(1, "pensando"); showThinking(0, debate ? "escuchando" : "pensando");
-        const res = await fetch(hookUrl, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ pregunta: q, modo: mode }) });
-        if (!res.ok) throw new Error("http " + res.status);
-        const data = await res.json();
+        const userMsg = `Mensaje: «${q.slice(0, 1500)}»`;
+        let rText;
+        try { rText = await chatFree(cfg[p + "R"], idR, userMsg); }
+        catch (e) { showError(1, freeError(e)); showWaiting(0, "Esperaba la respuesta del otro cerebro."); return; }
+        const g = parse(rText);
+        let rDone;
+        if (debate) { await reveal(1, g, "abrió el debate", 0); crossBridge(1, 10); }
+        else rDone = reveal(1, g, "respuesta", 0);
+        const lMsg = debate ? `${userMsg}\n\n${R} ya respondió esto:\n«${(g.answer || rText).slice(0, 2500)}»\n\nEs un debate amistoso: da tu propia respuesta y di con respeto en qué coincides y en qué no.` : userMsg;
+        let c = null;
+        try { c = parse(await chatFree(cfg[p + "L"], idL, lMsg)); }
+        catch (e) { showError(0, freeError(e)); }
+        if (rDone) await rDone;
+        if (c) { await reveal(0, c, debate ? `responde a ${R}` : "respuesta", 0); if (!debate) { crossBridge(0, 4); crossBridge(1, 4); } sharedRegions(c, g); }
+      } else if (p === "n8n" && cfg.hook) {
+        showThinking(1, "pensando"); showThinking(0, debate ? "escuchando" : "pensando");
+        let data;
+        try {
+          const res = await fetch(cfg.hook, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ pregunta: q, modo: mode }) });
+          if (!res.ok) throw new Error("http " + res.status);
+          data = await res.json();
+        } catch (e) {
+          showError(1, "No pude conectar con tu n8n. Revisa que el flujo esté activo, que la URL sea la de producción y que el webhook permita CORS.");
+          showWaiting(0, "Sin respuesta: la pregunta no llegó a n8n.");
+          return;
+        }
         const g = parse(String(data?.gpt?.text || "")), c = parse(String(data?.claude?.text || ""));
         if (debate) {
           await reveal(1, g, "abrió el debate", 0);
@@ -675,7 +835,7 @@ Después tu respuesta: breve (máximo 110 palabras), en texto plano sin markdown
         }
         sharedRegions(c, g);
       } else {
-        // no n8n: ChatGPT is simulated; Claude answers for real when the page runs in claude.ai
+        // simulated right brain; Claude answers for real (and free, with the viewer's plan) when the page runs in claude.ai
         showThinking(1, "simulado"); showThinking(0, sampleFn ? "pensando" : "simulado");
         const g = simulate(q, 1);
         const gDone = reveal(1, g, "simulado", 300);
@@ -687,11 +847,9 @@ Después tu respuesta: breve (máximo 110 palabras), en texto plano sin markdown
         await gDone;
         if (debate) crossBridge(1, 8);
         if (c) { await reveal(0, c, sampleFn ? "respuesta real" : "simulado", debate ? 900 : 0); sharedRegions(c, g); }
-        if (!hookUrl) toast("ChatGPT está simulado: conecta tu flujo de n8n para que responda de verdad.");
+        if (p === "sim") toast("Modo simulado: elige Ollama o Groq arriba para que respondan de verdad, gratis.");
+        if (p === "n8n") toast("Falta la URL de tu webhook de n8n.");
       }
-    } catch (e) {
-      showError(1, "No pude conectar con tu n8n. Revisa que el flujo esté activo, que la URL sea la de producción y que el webhook permita CORS.");
-      showWaiting(0, "Sin respuesta: la pregunta no llegó a n8n.");
     } finally { busy = false; $("go").disabled = false; }
   }
   $("form").addEventListener("submit", e => { e.preventDefault(); const q = $("q").value.trim(); if (q && !busy) ask(q); });

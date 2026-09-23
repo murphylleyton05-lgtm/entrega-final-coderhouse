@@ -121,11 +121,31 @@ que muestra lo que Claude es de verdad: capas de atencion causal.
 unidos por un puente. Haces una pregunta y cada IA muestra que regiones usa y responde; en modo **Debate**
 ChatGPT responde primero, su respuesta cruza el puente y Claude le contesta.
 
-1. Importa [`n8n_flow_cerebros_conectados.json`](./n8n_flow_cerebros_conectados.json) en n8n.
-2. Define las variables de entorno `OPENAI_API_KEY` y `ANTHROPIC_API_KEY` (opcionales: `OPENAI_MODEL`, `CLAUDE_MODEL`).
-3. Activa el flujo, copia la URL de produccion del webhook y pegala en el recuadro "Conexion" de la pagina.
+En el recuadro "Conexion" eliges el proveedor:
 
-Las claves quedan en n8n; la pagina nunca las ve. Sin n8n, ChatGPT queda en modo simulado.
+| Proveedor | Costo | Cerebro derecho | Cerebro izquierdo |
+|-----------|-------|-----------------|-------------------|
+| **Ollama** (local) | Gratis, sin internet | `gpt-oss:20b` (modelo abierto de OpenAI) | `llama3.2` (en lugar de Claude) |
+| **Groq** | Gratis con limite de uso | `openai/gpt-oss-20b` | `llama-3.3-70b-versatile` (en lugar de Claude) |
+| **n8n** | APIs pagas de OpenAI y Anthropic | ChatGPT | Claude |
+| **claude.ai** (artifact) | Gratis con tu plan | simulado | Claude real |
+
+**Ollama, paso a paso:**
+
+1. Instala Ollama desde [ollama.com](https://ollama.com).
+2. En una terminal: `ollama pull gpt-oss:20b` y `ollama pull llama3.2` (gpt-oss:20b necesita unos 16 GB de RAM).
+3. Si abres la pagina como archivo o desde GitHub Pages, inicia Ollama permitiendo el acceso del navegador:
+   `OLLAMA_ORIGINS="*" ollama serve` (en Windows: `set OLLAMA_ORIGINS=*` y luego `ollama serve`).
+4. En la pagina elige "Ollama", pulsa "Guardar y probar" y pregunta.
+
+**Groq:** crea una clave gratis en [console.groq.com](https://console.groq.com), pegala en la pagina y pulsa
+"Guardar y probar". La clave queda solo en tu navegador: no publiques la pagina con tu clave adentro.
+
+**n8n:** importa [`n8n_flow_cerebros_conectados.json`](./n8n_flow_cerebros_conectados.json), define
+`OPENAI_API_KEY` y `ANTHROPIC_API_KEY` (opcionales: `OPENAI_MODEL`, `CLAUDE_MODEL`), activa el flujo y pega la URL
+de produccion del webhook. Las claves quedan en n8n; la pagina nunca las ve.
+
+Claude no tiene API gratis: con Ollama o Groq el cerebro izquierdo es otro modelo abierto, y la pagina lo dice.
 
 ---
 
