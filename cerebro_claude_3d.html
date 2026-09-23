@@ -1,0 +1,692 @@
+<title>Cerebro de Claude</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap">
+<style>
+  :root {
+    color-scheme: dark;
+    --ground: #090b12;
+    --ground-2: #10131d;
+    --panel: rgba(16, 19, 29, 0.78);
+    --line: rgba(160, 170, 205, 0.16);
+    --ink: #ece8df;
+    --muted: #8d92a8;
+    --faint: #5b6079;
+    --r0: #ff8a5b;
+    --r1: #ffd166;
+    --r2: #6fe0bf;
+    --r3: #8fa8ff;
+    --r4: #c792ea;
+    --r5: #f25f7a;
+    --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
+    --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: radial-gradient(120% 90% at 50% 40%, #141828 0%, var(--ground) 62%);
+    background-color: var(--ground);
+    color: var(--ink);
+    font: 14px/1.5 var(--body);
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  #stage { position: fixed; inset: 0; display: block; touch-action: none; cursor: grab; }
+  #stage.dragging { cursor: grabbing; }
+
+  .ui { position: fixed; inset: 0; pointer-events: none; padding: max(20px, env(safe-area-inset-top, 0px)) 20px max(20px, env(safe-area-inset-bottom, 0px)); display: grid; grid-template-columns: minmax(0, 1fr) 320px; grid-template-rows: auto 1fr auto; gap: 16px; }
+  .ui > * { pointer-events: auto; }
+
+  header { grid-column: 1; grid-row: 1; max-width: 460px; pointer-events: none; }
+  .eyebrow { font: 500 11px/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+  .eyebrow .live { width: 7px; height: 7px; border-radius: 50%; background: var(--r2); box-shadow: 0 0 10px var(--r2); animation: blink 2.4s ease-in-out infinite; }
+  h1 { font: 700 clamp(30px, 4.6vw, 52px)/0.98 var(--display); letter-spacing: -0.02em; margin: 12px 0 10px; text-wrap: balance; }
+  h1 em { font-style: normal; background: linear-gradient(90deg, var(--r0), var(--r1) 45%, var(--r2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .lede { color: var(--muted); margin: 0; max-width: 40ch; text-wrap: pretty; }
+
+  aside { grid-column: 2; grid-row: 1 / 3; display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+  .legend { padding: 14px 14px 10px; }
+  .legend h2, .detail .kicker { font: 500 11px/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; }
+  .regions { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+  .regions button { width: 100%; display: grid; grid-template-columns: 10px 1fr 64px; align-items: center; gap: 10px; padding: 7px 8px; border: 0; border-radius: 8px; background: transparent; color: var(--ink); font: 500 13px/1.2 var(--body); text-align: left; cursor: pointer; }
+  .regions button:hover { background: rgba(255,255,255,0.05); }
+  .regions button[aria-pressed="true"] { background: rgba(255,255,255,0.09); }
+  .regions button:focus-visible, .label:focus-visible, .form button:focus-visible, .form input:focus-visible, .close:focus-visible { outline: 2px solid var(--r1); outline-offset: 2px; }
+  .swatch { width: 10px; height: 10px; border-radius: 50%; background: var(--c); box-shadow: 0 0 8px var(--c); }
+  .meter { height: 4px; border-radius: 2px; background: rgba(255,255,255,0.08); overflow: hidden; }
+  .meter i { display: block; height: 100%; width: 0%; background: var(--c); border-radius: 2px; transition: width 120ms linear; }
+
+  .detail { padding: 16px; overflow: auto; min-height: 0; }
+  .detail .top { display: flex; justify-content: space-between; align-items: start; gap: 8px; }
+  .detail h3 { font: 700 24px/1.05 var(--display); margin: 6px 0 4px; color: var(--c, var(--ink)); }
+  .detail .where { font: 400 12px/1.4 var(--mono); color: var(--muted); margin: 0 0 12px; }
+  .detail p { margin: 0 0 12px; color: #cfcbc3; }
+  .detail ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+  .detail li { font-size: 13px; color: var(--muted); padding-left: 16px; position: relative; }
+  .detail li::before { content: ""; position: absolute; left: 2px; top: 8px; width: 6px; height: 1px; background: var(--c, var(--muted)); }
+  .close { border: 1px solid var(--line); background: transparent; color: var(--muted); border-radius: 8px; font: 500 11px/1 var(--mono); padding: 6px 8px; cursor: pointer; }
+  .close:hover { color: var(--ink); }
+
+  .bottom { grid-column: 1 / -1; grid-row: 3; display: flex; align-items: end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .hint { font: 400 11px/1.5 var(--mono); color: var(--faint); letter-spacing: 0.02em; }
+  .hint kbd { font: inherit; color: var(--muted); }
+  .form { display: flex; gap: 8px; padding: 6px; width: min(560px, 100%); margin-inline: auto; }
+  .form label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .form input { flex: 1; min-width: 0; background: transparent; border: 0; color: var(--ink); font: 400 14px/1 var(--body); padding: 10px 10px; border-radius: 8px; }
+  .form input::placeholder { color: var(--faint); }
+  .form button { border: 0; border-radius: 9px; padding: 10px 16px; font: 700 14px/1 var(--display); color: #1a0f08; background: linear-gradient(135deg, var(--r0), var(--r1)); cursor: pointer; white-space: nowrap; }
+  .form button:active { transform: translateY(1px); }
+  .readout { font: 400 12px/1.4 var(--mono); color: var(--muted); min-height: 1.4em; text-align: center; width: 100%; margin-top: 6px; }
+  .center { display: flex; flex-direction: column; align-items: center; flex: 1; min-width: 0; }
+
+  .labels { position: fixed; inset: 0; pointer-events: none; }
+  .label { position: absolute; left: 0; top: 0; transform: translate(-50%, -50%); display: flex; align-items: center; gap: 6px; padding: 4px 9px 4px 6px; border-radius: 999px; border: 1px solid var(--line); background: rgba(9, 11, 18, 0.62); color: var(--ink); font: 500 11px/1 var(--mono); letter-spacing: 0.04em; white-space: nowrap; cursor: pointer; will-change: transform, opacity; }
+  .label .swatch { width: 7px; height: 7px; }
+  .label.on { border-color: var(--c); }
+
+  @keyframes blink { 50% { opacity: 0.35; } }
+
+  @media (max-width: 760px) {
+    .ui { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr auto auto; padding-inline: 16px; gap: 10px; }
+    header { grid-row: 1; }
+    h1 { margin: 8px 0 6px; }
+    .lede { font-size: 13px; }
+    aside { grid-column: 1; grid-row: 3; max-height: 34vh; }
+    .legend { display: none; }
+    aside.has-detail .detail { display: block; }
+    .detail { max-height: 34vh; }
+    .bottom { grid-row: 4; }
+    .hint { display: none; }
+    .label { font-size: 10px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .eyebrow .live { animation: none; }
+  }
+</style>
+
+<canvas id="stage" aria-label="Modelo 3D interactivo de un cerebro hecho de partículas. Arrastra para rotar."></canvas>
+<div class="labels" id="labels"></div>
+
+<div class="ui">
+  <header>
+    <div class="eyebrow"><span class="live"></span>Modelo 3D · interactivo</div>
+    <h1>El cerebro de <em>Claude</em></h1>
+    <p class="lede">Una metáfora: no tengo lóbulos ni neuronas biológicas, soy una red transformer. Pero si mi forma de pensar tuviera un cerebro, se vería así.</p>
+  </header>
+
+  <aside id="aside">
+    <section class="card legend" aria-label="Regiones">
+      <h2>Regiones · actividad</h2>
+      <ul class="regions" id="regionList"></ul>
+    </section>
+    <section class="card detail" id="detail" aria-live="polite"></section>
+  </aside>
+
+  <div class="bottom">
+    <div class="hint"><kbd>Arrastrar</kbd> rotar · <kbd>Rueda/pellizco</kbd> zoom<br><kbd>Clic</kbd> en una región para explorarla</div>
+    <div class="center">
+      <form class="form card" id="thinkForm" autocomplete="off">
+        <label for="thought">Dame algo en qué pensar</label>
+        <input id="thought" name="thought" type="text" maxlength="160" value="¿Cómo depuro este error de Python en mi código?" placeholder="Dame algo en qué pensar…">
+        <button type="submit">Pensar</button>
+      </form>
+      <div class="readout" id="readout">Escribe una idea y mira qué regiones se encienden.</div>
+    </div>
+    <div class="hint" style="visibility:hidden">·</div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(() => {
+  const REGIONS = [
+    { name: "Razonamiento", where: "Lóbulo frontal · planificación", color: "#ff8a5b",
+      text: "Aquí parto un problema en pasos, comparo alternativas y reviso si mi propia cadena de ideas tiene sentido antes de responder.",
+      fires: ["Preguntas de “por qué” y “cómo”", "Matemáticas y lógica", "Planear un proyecto paso a paso"] },
+    { name: "Atención", where: "Lóbulo parietal · mecanismo de atención", color: "#ffd166",
+      text: "Cada token de tu mensaje “mira” a todos los demás y decide cuáles importan. Muchas cabezas de atención trabajan en paralelo, cada una buscando un patrón distinto.",
+      fires: ["Mensajes largos o con mucho contexto", "Detalles escondidos en un documento", "Conectar algo que dijiste antes"] },
+    { name: "Lenguaje", where: "Lóbulo temporal · tokens y significado", color: "#6fe0bf",
+      text: "Convierto texto en tokens y tokens en significado: gramática, tono, ironía y cambio entre idiomas sin perder el hilo.",
+      fires: ["Escribir, resumir o traducir", "Captar el tono (sí, “yo bro” también cuenta)", "Explicar algo con otras palabras"] },
+    { name: "Visión", where: "Lóbulo occipital · imágenes", color: "#8fa8ff",
+      text: "Leo capturas de pantalla, fotos, gráficos y PDFs, y los conecto con el texto de la conversación.",
+      fires: ["Imágenes y capturas", "Gráficos y dashboards", "Diagramas y documentos escaneados"] },
+    { name: "Código", where: "Cerebelo · precisión fina", color: "#c792ea",
+      text: "Así como el cerebelo coordina movimientos finos, esta zona se encarga de la precisión: sintaxis, tipos, lógica exacta y depuración.",
+      fires: ["Python, SQL, JavaScript…", "Leer un stack trace", "Automatizaciones y flujos de datos"] },
+    { name: "Valores", where: "Tronco encefálico · la base", color: "#f25f7a",
+      text: "Honestidad, cuidado por quien pregunta y no causar daño. No es una región que se prenda a veces: sostiene a todas las demás.",
+      fires: ["Siempre, en segundo plano", "Temas delicados", "Cuando algo no lo sé y lo tengo que decir"] },
+  ];
+  const KEYWORDS = [
+    [0, /por ?qu[eé]|c[oó]mo|calcul|l[oó]gic|plan|pens|resolver|problema|matem|decid|analiz/i],
+    [1, /contexto|detalle|document|largo|resum|record|antes|todo/i],
+    [2, /escrib|tradu|idioma|palabra|texto|poema|historia|explica|ingl[eé]s|español|bro/i],
+    [3, /imagen|foto|captura|ver|gr[aá]fic|dibuj|pdf|color|visual|dashboard/i],
+    [4, /c[oó]dig|python|sql|java|html|css|error|bug|depur|funci[oó]n|script|api|n8n|power ?bi|dato/i],
+    [5, /ayud|ético|etic|seguro|verdad|honest|daño|sentir|emoci/i],
+  ];
+
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const canvas = document.getElementById("stage");
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+  const DPR = Math.min(window.devicePixelRatio || 1, 2);
+  renderer.setPixelRatio(DPR);
+  renderer.setClearColor(0x090b12, 1);
+  const scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x090b12, 0.06);
+  const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
+  const brain = new THREE.Group();
+  scene.add(brain);
+
+  // ---------- deterministic randomness + noise ----------
+  let seed = 7;
+  const rand = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+  const gauss = () => { let u = 0, v = 0; while (!u) u = rand(); while (!v) v = rand(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
+  const hash = (x, y, z) => { const h = Math.sin(x * 127.1 + y * 311.7 + z * 74.7) * 43758.5453; return h - Math.floor(h); };
+  const smooth = t => t * t * (3 - 2 * t);
+  function noise(x, y, z) {
+    const xi = Math.floor(x), yi = Math.floor(y), zi = Math.floor(z);
+    const xf = smooth(x - xi), yf = smooth(y - yi), zf = smooth(z - zi);
+    const l = (a, b, t) => a + (b - a) * t;
+    const c = (dx, dy, dz) => hash(xi + dx, yi + dy, zi + dz);
+    return l(
+      l(l(c(0,0,0), c(1,0,0), xf), l(c(0,1,0), c(1,1,0), xf), yf),
+      l(l(c(0,0,1), c(1,0,1), xf), l(c(0,1,1), c(1,1,1), xf), yf), zf);
+  }
+  const ridged = (x, y, z) => {
+    let s = 0, amp = 1, f = 1;
+    for (let o = 0; o < 3; o++) { s += amp * Math.pow(1 - Math.abs(2 * noise(x * f, y * f, z * f) - 1), 2.2); amp *= 0.5; f *= 2.03; }
+    return s / 1.75;
+  };
+  const randDir = () => { const v = new THREE.Vector3(gauss(), gauss(), gauss()); return v.normalize(); };
+
+  // ---------- build brain point cloud ----------
+  const pos = [], col = [], reg = [], sd = [];
+  const surfaceByRegion = [[], [], [], [], [], []];
+  const colors = REGIONS.map(r => new THREE.Color(r.color));
+
+  function cerebrumRegion(p) {
+    const ax = Math.abs(p.x);
+    if (p.z < -0.58) return 3;
+    if (p.z > 0.38) return 0;
+    if (p.y < -0.02 && ax > 0.3) return 2;
+    return 1;
+  }
+  function addPoint(p, r, surface) {
+    pos.push(p.x, p.y, p.z);
+    const c = colors[r].clone().lerp(new THREE.Color("#ffffff"), rand() * 0.18);
+    col.push(c.r, c.g, c.b); reg.push(r); sd.push(rand());
+    if (surface) surfaceByRegion[r].push(p.clone());
+  }
+
+  const HEMI = 9000;
+  for (const h of [-1, 1]) {
+    for (let i = 0; i < HEMI; i++) {
+      const u = randDir();
+      let x = u.x * 0.62, y = u.y * 0.7, z = u.z;
+      if (u.x * h < 0) x *= 0.34;                 // flat medial wall
+      if (y < 0) y *= 0.72;                        // flatter underside
+      if (z > 0) y *= 1 - 0.18 * z;                // frontal slope
+      const temporal = Math.max(0, -u.y) * Math.max(0, Math.abs(u.x) - 0.2) * (u.z > -0.5 ? 1 : 0);
+      y -= temporal * 0.18;
+      const p = new THREE.Vector3(x + h * 0.26, y + 0.12, z * 0.98);
+      // gyri & sulci
+      let d = 0.075 * ridged(p.x * 3.4 + h * 9, p.y * 3.4, p.z * 3.4);
+      const sylvian = p.y + 0.02 - 0.3 * p.z;      // lateral fissure
+      d -= 0.07 * Math.exp(-(sylvian * sylvian) / 0.0035) * Math.min(1, Math.abs(u.x) * 1.6);
+      const n = new THREE.Vector3(x / 0.62, y / 0.7, z).normalize();
+      const surface = rand() > 0.14;
+      p.addScaledVector(n, d);
+      if (!surface) { const k = 0.55 + rand() * 0.38; p.set(h * 0.26 + (p.x - h * 0.26) * k, 0.12 + (p.y - 0.12) * k, p.z * k); }
+      addPoint(p, cerebrumRegion(p), surface);
+    }
+  }
+  // cerebellum
+  for (let i = 0; i < 3600; i++) {
+    const u = randDir();
+    const p = new THREE.Vector3(u.x * 0.6, u.y * 0.3, u.z * 0.36).add(new THREE.Vector3(0, -0.5, -0.66));
+    if (Math.abs(u.x) < 0.12) p.x *= 0.6;
+    const d = 0.022 * Math.sin(p.y * 70 + Math.sin(p.x * 6) * 1.5);
+    p.addScaledVector(u, d);
+    addPoint(p, 4, rand() > 0.1);
+  }
+  // brainstem
+  for (let i = 0; i < 1100; i++) {
+    const t = rand(), a = rand() * Math.PI * 2;
+    const r = (0.13 - t * 0.035) * (0.85 + rand() * 0.15);
+    const p = new THREE.Vector3(Math.cos(a) * r, -0.3 - t * 0.85, -0.3 - t * 0.2 + Math.sin(a) * r * 0.9);
+    addPoint(p, 5, true);
+  }
+
+  const brainGeo = new THREE.BufferGeometry();
+  brainGeo.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  brainGeo.setAttribute("aColor", new THREE.Float32BufferAttribute(col, 3));
+  brainGeo.setAttribute("aRegion", new THREE.Float32BufferAttribute(reg, 1));
+  brainGeo.setAttribute("aSeed", new THREE.Float32BufferAttribute(sd, 1));
+
+  const uniforms = {
+    uTime: { value: 0 }, uSel: { value: -1 }, uPix: { value: DPR },
+    uAct: { value: [0, 0, 0, 0, 0, 0] },
+  };
+  const brainMat = new THREE.ShaderMaterial({
+    uniforms,
+    vertexShader: `
+      attribute vec3 aColor; attribute float aRegion; attribute float aSeed;
+      uniform float uTime, uSel, uPix; uniform float uAct[6];
+      varying vec3 vCol; varying float vA;
+      void main() {
+        vec4 mv = modelViewMatrix * vec4(position, 1.0);
+        gl_Position = projectionMatrix * mv;
+        float tw = 0.7 + 0.3 * sin(uTime * 1.3 + aSeed * 40.0);
+        bool isSel = abs(aRegion - uSel) < 0.5;
+        float sel = uSel < -0.5 ? 1.0 : (isSel ? 1.45 : 0.2);
+        float act = 0.0;
+        for (int i = 0; i < 6; i++) { if (abs(float(i) - aRegion) < 0.5) act = uAct[i]; }
+        vA = tw * sel * (1.0 + act * 1.1);
+        vCol = aColor;
+        gl_PointSize = 9.5 * uPix * (isSel ? 1.25 : 1.0) * (0.8 + aSeed * 0.5) / -mv.z;
+      }`,
+    fragmentShader: `
+      varying vec3 vCol; varying float vA;
+      void main() {
+        float d = length(gl_PointCoord - 0.5);
+        if (d > 0.5) discard;
+        float a = smoothstep(0.5, 0.0, d);
+        gl_FragColor = vec4(vCol, a * vA * 0.68);
+      }`,
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+  });
+  const brainPoints = new THREE.Points(brainGeo, brainMat);
+  brain.add(brainPoints);
+
+  // ---------- neurons + synapses ----------
+  const nodes = [];      // {p, r}
+  const NODES_PER = [70, 60, 55, 40, 45, 18];
+  NODES_PER.forEach((n, r) => {
+    const src = surfaceByRegion[r];
+    for (let i = 0; i < n; i++) {
+      const p = src[Math.floor(rand() * src.length)].clone().multiplyScalar(0.985);
+      nodes.push({ p, r });
+    }
+  });
+  const edges = [];      // {a, b, pts, r}
+  const adj = nodes.map(() => []);
+  const edgeKey = new Set();
+  function addEdge(a, b, curved) {
+    const k = a < b ? a + "-" + b : b + "-" + a;
+    if (a === b || edgeKey.has(k)) return;
+    edgeKey.add(k);
+    const A = nodes[a].p, B = nodes[b].p;
+    let pts;
+    if (curved) {
+      const mid = A.clone().add(B).multiplyScalar(0.5).multiplyScalar(0.35);
+      pts = [];
+      for (let i = 0; i <= 14; i++) {
+        const t = i / 14, it = 1 - t;
+        pts.push(new THREE.Vector3(
+          it * it * A.x + 2 * it * t * mid.x + t * t * B.x,
+          it * it * A.y + 2 * it * t * mid.y + t * t * B.y,
+          it * it * A.z + 2 * it * t * mid.z + t * t * B.z));
+      }
+    } else pts = [A, B];
+    const idx = edges.length;
+    edges.push({ a, b, pts, curved });
+    adj[a].push(idx); adj[b].push(idx);
+  }
+  nodes.forEach((n, i) => {
+    const near = nodes.map((m, j) => [j, n.p.distanceToSquared(m.p)])
+      .filter(([j, d]) => j !== i && d < 0.2).sort((x, y) => x[1] - y[1]).slice(0, 3);
+    near.forEach(([j]) => addEdge(i, j, false));
+  });
+  for (let k = 0; k < 46; k++) {     // long-range "attention" links between regions
+    const a = Math.floor(rand() * nodes.length), b = Math.floor(rand() * nodes.length);
+    if (nodes[a].r !== nodes[b].r) addEdge(a, b, true);
+  }
+  // make sure brainstem connects to the rest
+  nodes.forEach((n, i) => { if (n.r === 5 && rand() < 0.5) addEdge(i, Math.floor(rand() * (nodes.length - 18)), true); });
+
+  const linePos = [], lineCol = [];
+  edges.forEach(e => {
+    const ca = colors[nodes[e.a].r], cb = colors[nodes[e.b].r];
+    for (let i = 0; i < e.pts.length - 1; i++) {
+      const t0 = i / (e.pts.length - 1), t1 = (i + 1) / (e.pts.length - 1);
+      const p0 = e.pts[i], p1 = e.pts[i + 1];
+      linePos.push(p0.x, p0.y, p0.z, p1.x, p1.y, p1.z);
+      const c0 = ca.clone().lerp(cb, t0), c1 = ca.clone().lerp(cb, t1);
+      lineCol.push(c0.r, c0.g, c0.b, c1.r, c1.g, c1.b);
+    }
+  });
+  const lineGeo = new THREE.BufferGeometry();
+  lineGeo.setAttribute("position", new THREE.Float32BufferAttribute(linePos, 3));
+  lineGeo.setAttribute("color", new THREE.Float32BufferAttribute(lineCol, 3));
+  const lineMat = new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.16, blending: THREE.AdditiveBlending, depthWrite: false });
+  brain.add(new THREE.LineSegments(lineGeo, lineMat));
+
+  const spriteVS = `
+    attribute vec3 aColor; attribute float aSize; attribute float aAlpha;
+    uniform float uPix; varying vec3 vCol; varying float vA;
+    void main() {
+      vec4 mv = modelViewMatrix * vec4(position, 1.0);
+      gl_Position = projectionMatrix * mv;
+      vCol = aColor; vA = aAlpha;
+      gl_PointSize = aSize * uPix / -mv.z;
+    }`;
+  const spriteFS = `
+    varying vec3 vCol; varying float vA;
+    void main() {
+      float d = length(gl_PointCoord - 0.5);
+      if (d > 0.5) discard;
+      float core = smoothstep(0.18, 0.0, d);
+      float halo = smoothstep(0.5, 0.0, d) * 0.55;
+      gl_FragColor = vec4(mix(vCol, vec3(1.0), core * 0.7), (core + halo) * vA);
+    }`;
+  function spriteMaterial() {
+    return new THREE.ShaderMaterial({ uniforms: { uPix: uniforms.uPix }, vertexShader: spriteVS, fragmentShader: spriteFS,
+      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
+  }
+
+  const nodeGlow = new Float32Array(nodes.length);
+  const nodeGeo = new THREE.BufferGeometry();
+  nodeGeo.setAttribute("position", new THREE.Float32BufferAttribute(nodes.flatMap(n => [n.p.x, n.p.y, n.p.z]), 3));
+  nodeGeo.setAttribute("aColor", new THREE.Float32BufferAttribute(nodes.flatMap(n => colors[n.r].toArray()), 3));
+  const nodeSize = new THREE.Float32BufferAttribute(new Float32Array(nodes.length), 1);
+  const nodeAlpha = new THREE.Float32BufferAttribute(new Float32Array(nodes.length), 1);
+  nodeGeo.setAttribute("aSize", nodeSize); nodeGeo.setAttribute("aAlpha", nodeAlpha);
+  brain.add(new THREE.Points(nodeGeo, spriteMaterial()));
+
+  const MAXP = 420;
+  const pulseGeo = new THREE.BufferGeometry();
+  const pPos = new THREE.Float32BufferAttribute(new Float32Array(MAXP * 3), 3);
+  const pCol = new THREE.Float32BufferAttribute(new Float32Array(MAXP * 3), 3);
+  const pSize = new THREE.Float32BufferAttribute(new Float32Array(MAXP), 1);
+  const pAlpha = new THREE.Float32BufferAttribute(new Float32Array(MAXP), 1);
+  [["position", pPos], ["aColor", pCol], ["aSize", pSize], ["aAlpha", pAlpha]].forEach(([k, v]) => { v.setUsage(THREE.DynamicDrawUsage); pulseGeo.setAttribute(k, v); });
+  const pulsePoints = new THREE.Points(pulseGeo, spriteMaterial());
+  pulsePoints.frustumCulled = false;
+  brain.add(pulsePoints);
+
+  const pulses = [];
+  const activity = [0, 0, 0, 0, 0, 0];
+  const burstCount = [0, 0, 0, 0, 0, 0];
+  let chainBoost = 0;
+
+  function spawnFrom(nodeIdx, hops) {
+    if (pulses.length >= MAXP || !adj[nodeIdx].length) return;
+    const e = adj[nodeIdx][Math.floor(Math.random() * adj[nodeIdx].length)];
+    const E = edges[e];
+    const forward = E.a === nodeIdx;
+    const len = E.curved ? 1.6 : E.pts[0].distanceTo(E.pts[1]);
+    pulses.push({ e, forward, t: 0, speed: (0.9 + Math.random() * 0.6) / Math.max(0.12, len), hops });
+    nodeGlow[nodeIdx] = 1;
+  }
+  const nodesByRegion = REGIONS.map((_, r) => nodes.map((n, i) => n.r === r ? i : -1).filter(i => i >= 0));
+  function burst(r, n) {
+    for (let i = 0; i < n; i++) {
+      const list = nodesByRegion[r];
+      spawnFrom(list[Math.floor(Math.random() * list.length)], 3 + Math.floor(Math.random() * 3));
+    }
+    activity[r] = Math.min(1.4, activity[r] + 0.25);
+  }
+
+  function updatePulses(dt) {
+    for (let i = pulses.length - 1; i >= 0; i--) {
+      const P = pulses[i];
+      P.t += P.speed * dt * 0.55;
+      if (P.t >= 1) {
+        const E = edges[P.e];
+        const end = P.forward ? E.b : E.a;
+        nodeGlow[end] = 1;
+        activity[nodes[end].r] = Math.min(1.4, activity[nodes[end].r] + 0.06);
+        pulses.splice(i, 1);
+        if (P.hops > 0 && Math.random() < 0.75 + chainBoost) spawnFrom(end, P.hops - 1);
+      }
+    }
+    const tmp = new THREE.Vector3();
+    for (let i = 0; i < MAXP; i++) {
+      if (i < pulses.length) {
+        const P = pulses[i], E = edges[P.e], pts = E.pts;
+        const t = P.forward ? P.t : 1 - P.t;
+        const f = t * (pts.length - 1), k = Math.min(pts.length - 2, Math.floor(f));
+        tmp.copy(pts[k]).lerp(pts[k + 1], f - k);
+        pPos.setXYZ(i, tmp.x, tmp.y, tmp.z);
+        const c = colors[nodes[P.forward ? E.a : E.b].r];
+        pCol.setXYZ(i, c.r, c.g, c.b);
+        pSize.setX(i, 26);
+        pAlpha.setX(i, Math.sin(Math.PI * Math.min(1, P.t * 1.2 + 0.1)) * 0.9 + 0.1);
+      } else { pAlpha.setX(i, 0); pSize.setX(i, 0); }
+    }
+    pPos.needsUpdate = pCol.needsUpdate = pSize.needsUpdate = pAlpha.needsUpdate = true;
+    for (let i = 0; i < nodes.length; i++) {
+      nodeGlow[i] *= Math.exp(-dt * 2.4);
+      const sel = selected < 0 || nodes[i].r === selected ? 1 : 0.25;
+      nodeSize.setX(i, 11 + nodeGlow[i] * 30);
+      nodeAlpha.setX(i, (0.35 + nodeGlow[i] * 0.9) * sel);
+    }
+    nodeSize.needsUpdate = nodeAlpha.needsUpdate = true;
+  }
+
+  // ---------- region anchors + labels ----------
+  const anchors = surfaceByRegion.map((list, r) => {
+    const c = list.reduce((a, p) => a.add(p), new THREE.Vector3()).multiplyScalar(1 / list.length);
+    const dir = c.clone().sub(new THREE.Vector3(0, 0.05, 0));
+    if (r === 2) dir.x = 0.9;          // temporal lobes are mirrored: label the right one
+    dir.normalize();
+    let best = list[0], bestD = -Infinity;
+    for (const p of list) { const d = p.dot(dir); if (d > bestD) { bestD = d; best = p; } }
+    return { p: best.clone().multiplyScalar(1.06), n: dir };
+  });
+  const labelsEl = document.getElementById("labels");
+  const labelEls = REGIONS.map((r, i) => {
+    const b = document.createElement("button");
+    b.className = "label"; b.type = "button"; b.style.setProperty("--c", r.color);
+    b.innerHTML = `<span class="swatch"></span>${r.name}`;
+    b.addEventListener("click", () => select(selected === i ? -1 : i));
+    labelsEl.appendChild(b);
+    return b;
+  });
+
+  // ---------- UI ----------
+  const listEl = document.getElementById("regionList");
+  const meters = [];
+  const regionBtns = REGIONS.map((r, i) => {
+    const li = document.createElement("li");
+    li.innerHTML = `<button type="button" aria-pressed="false" style="--c:${r.color}"><span class="swatch"></span><span>${r.name}</span><span class="meter"><i></i></span></button>`;
+    const b = li.querySelector("button");
+    b.addEventListener("click", () => select(selected === i ? -1 : i));
+    meters.push(li.querySelector("i"));
+    listEl.appendChild(li);
+    return b;
+  });
+  const detailEl = document.getElementById("detail");
+  const asideEl = document.getElementById("aside");
+  let selected = -1;
+  function renderDetail() {
+    if (selected < 0) {
+      detailEl.style.removeProperty("--c");
+      detailEl.innerHTML = `
+        <div class="kicker">Cómo leer el modelo</div>
+        <p>Cada punto de color es parte de una región. Los destellos que viajan por las líneas son señales: se encadenan de una zona a otra como una idea que se forma.</p>
+        <ul>
+          <li>Toca una región (o su etiqueta) para ver qué hace.</li>
+          <li>Escribe algo abajo y pulsa <strong>Pensar</strong>: el cerebro reacciona según el tema.</li>
+          <li>Las barras de actividad muestran qué tan encendida está cada zona ahora.</li>
+        </ul>`;
+      asideEl.classList.remove("has-detail");
+      return;
+    }
+    const r = REGIONS[selected];
+    detailEl.style.setProperty("--c", r.color);
+    detailEl.innerHTML = `
+      <div class="top"><div class="kicker">Región ${selected + 1} de ${REGIONS.length}</div><button class="close" type="button" id="closeDetail">Cerrar</button></div>
+      <h3>${r.name}</h3>
+      <p class="where">${r.where}</p>
+      <p>${r.text}</p>
+      <div class="kicker" style="margin-top:14px">Se enciende con</div>
+      <ul>${r.fires.map(f => `<li>${f}</li>`).join("")}</ul>`;
+    detailEl.querySelector("#closeDetail").addEventListener("click", () => select(-1));
+    asideEl.classList.add("has-detail");
+  }
+  function select(i) {
+    selected = i;
+    uniforms.uSel.value = i;
+    regionBtns.forEach((b, j) => b.setAttribute("aria-pressed", String(j === i)));
+    labelEls.forEach((b, j) => b.classList.toggle("on", j === i));
+    if (i >= 0) burst(i, 10);
+    renderDetail();
+  }
+  renderDetail();
+
+  const readout = document.getElementById("readout");
+  document.getElementById("thinkForm").addEventListener("submit", ev => {
+    ev.preventDefault();
+    const text = document.getElementById("thought").value.trim();
+    if (!text) { readout.textContent = "Escribe algo primero: una pregunta, una idea, lo que sea."; return; }
+    const hits = KEYWORDS.filter(([, re]) => re.test(text)).map(([r]) => r);
+    const set = new Set(hits.length ? hits : [2, 1]);
+    set.add(2); set.add(5);
+    const words = text.split(/\s+/).length;
+    chainBoost = 0.18;
+    setTimeout(() => (chainBoost = 0), 2200);
+    let delay = 0;
+    [...set].forEach(r => {
+      const n = r === 5 ? 4 : 8 + Math.min(10, words);
+      setTimeout(() => burst(r, n), delay);
+      delay += reduceMotion ? 0 : 180;
+    });
+    readout.textContent = `${words} ${words === 1 ? "palabra" : "palabras"} → ${[...set].map(r => REGIONS[r].name).join(" · ")}`;
+  });
+
+  // ---------- controls ----------
+  let rotY = -0.95, rotX = 0.18, velY = 0, velX = 0, dist = 4.3, targetDist = 4.3;
+  let dragging = false, moved = 0, lastX = 0, lastY = 0, lastInteract = -10;
+  const pointers = new Map();
+  let pinchStart = 0, pinchDist = 0;
+  canvas.addEventListener("pointerdown", e => {
+    canvas.setPointerCapture(e.pointerId);
+    pointers.set(e.pointerId, [e.clientX, e.clientY]);
+    if (pointers.size === 2) {
+      const [a, b] = [...pointers.values()];
+      pinchStart = Math.hypot(a[0] - b[0], a[1] - b[1]); pinchDist = targetDist;
+    }
+    dragging = true; moved = 0; lastX = e.clientX; lastY = e.clientY;
+    canvas.classList.add("dragging");
+  });
+  canvas.addEventListener("pointermove", e => {
+    if (!pointers.has(e.pointerId)) return;
+    pointers.set(e.pointerId, [e.clientX, e.clientY]);
+    if (pointers.size === 2) {
+      const [a, b] = [...pointers.values()];
+      const d = Math.hypot(a[0] - b[0], a[1] - b[1]);
+      targetDist = THREE.MathUtils.clamp(pinchDist * pinchStart / Math.max(d, 1), 2.4, 8);
+      moved += 10; return;
+    }
+    const dx = e.clientX - lastX, dy = e.clientY - lastY;
+    lastX = e.clientX; lastY = e.clientY;
+    moved += Math.abs(dx) + Math.abs(dy);
+    velY = dx * 0.006; velX = dy * 0.004;
+    rotY += velY; rotX = THREE.MathUtils.clamp(rotX + velX, -1.2, 1.2);
+    lastInteract = clock.elapsedTime;
+  });
+  const endPointer = e => {
+    pointers.delete(e.pointerId);
+    if (pointers.size) return;
+    dragging = false; canvas.classList.remove("dragging");
+    if (moved < 6 && e.type === "pointerup") pick(e.clientX, e.clientY);
+  };
+  canvas.addEventListener("pointerup", endPointer);
+  canvas.addEventListener("pointercancel", endPointer);
+  canvas.addEventListener("wheel", e => {
+    e.preventDefault();
+    targetDist = THREE.MathUtils.clamp(targetDist * (1 + e.deltaY * 0.001), 2.4, 8);
+    lastInteract = clock.elapsedTime;
+  }, { passive: false });
+
+  const raycaster = new THREE.Raycaster();
+  raycaster.params.Points.threshold = 0.035;
+  function pick(x, y) {
+    const ndc = new THREE.Vector2((x / innerWidth) * 2 - 1, -(y / innerHeight) * 2 + 1);
+    raycaster.setFromCamera(ndc, camera);
+    const hit = raycaster.intersectObject(brainPoints)[0];
+    if (!hit) { select(-1); return; }
+    const r = reg[hit.index];
+    select(r === selected ? -1 : r);
+  }
+
+  // ---------- resize + loop ----------
+  function resize() {
+    const w = innerWidth, h = innerHeight;
+    renderer.setSize(w, h, false);
+    canvas.style.width = w + "px"; canvas.style.height = h + "px";
+    camera.aspect = w / h;
+    camera.fov = w < 760 ? 52 : 40;
+    camera.updateProjectionMatrix();
+  }
+  addEventListener("resize", resize);
+  resize();
+
+  const clock = new THREE.Clock();
+  const v = new THREE.Vector3(), nrm = new THREE.Vector3(), camDir = new THREE.Vector3();
+  let ambient = 0;
+  function frame() {
+    const dt = Math.min(0.05, clock.getDelta());
+    const t = clock.elapsedTime;
+    uniforms.uTime.value = t;
+
+    if (!dragging) {
+      velY *= 0.94; velX *= 0.9;
+      rotY += velY; rotX = THREE.MathUtils.clamp(rotX + velX, -1.2, 1.2);
+      if (!reduceMotion && t - lastInteract > 2.5) rotY += dt * 0.12;
+    }
+    dist += (targetDist - dist) * Math.min(1, dt * 8);
+    brain.rotation.set(rotX, rotY, 0);
+    // desktop: slide the view so the brain sits left of the side panel
+    const shiftX = innerWidth >= 760 ? 0.32 * dist / 4.3 : 0;
+    const shiftY = innerWidth < 760 ? -0.1 : 0;
+    camera.position.set(shiftX, 0.1 + shiftY, dist);
+    camera.lookAt(shiftX, shiftY - 0.05, 0);
+
+    // ambient thinking
+    ambient += dt * (reduceMotion ? 1.2 : 3.2);
+    while (ambient > 1) {
+      ambient -= 1;
+      const r = selected >= 0 && Math.random() < 0.6 ? selected : Math.floor(Math.random() * 6);
+      const list = nodesByRegion[r];
+      spawnFrom(list[Math.floor(Math.random() * list.length)], 2);
+    }
+    updatePulses(dt);
+
+    for (let i = 0; i < 6; i++) {
+      activity[i] *= Math.exp(-dt * 0.9);
+      if (i === 5) activity[i] = Math.max(activity[i], 0.18); // values never switch off
+      uniforms.uAct.value[i] = Math.min(1, activity[i]);
+      meters[i].style.width = Math.round(Math.min(1, activity[i]) * 100) + "%";
+    }
+
+    // labels
+    brain.updateMatrixWorld();
+    const w = innerWidth, h = innerHeight;
+    anchors.forEach((a, i) => {
+      v.copy(a.p).applyMatrix4(brain.matrixWorld);
+      nrm.copy(a.n).transformDirection(brain.matrixWorld);
+      camDir.copy(camera.position).sub(v).normalize();
+      const facing = nrm.dot(camDir);
+      v.project(camera);
+      const op = THREE.MathUtils.clamp((facing + 0.15) * 2.5, 0, 1) * (selected < 0 || selected === i ? 1 : 0.35);
+      const el = labelEls[i];
+      el.style.transform = `translate(${(v.x * 0.5 + 0.5) * w}px, ${(-v.y * 0.5 + 0.5) * h}px) translate(-50%, -50%)`;
+      el.style.opacity = op.toFixed(2);
+      el.style.pointerEvents = op > 0.3 ? "auto" : "none";
+      el.tabIndex = op > 0.3 ? 0 : -1;
+    });
+
+    renderer.render(scene, camera);
+    requestAnimationFrame(frame);
+  }
+  burst(4, 6); burst(0, 6);
+  requestAnimationFrame(frame);
+})();
+</script>
